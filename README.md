@@ -137,7 +137,23 @@ Notes:
 - Fn::Transform (includes macros and AWS::Serverless/SAM transforms) not yet supported
 - References (Ref/GetAtt) to CloudFormation modules are not yet supported
 
-###  Necessary IAM policy actions for CloudFormation IAM Policy Validator
+### Credentials
+
+The cfn-policy-validator uses boto3 to interact with your AWS environment. You can use one of the following methods to specify credentials:
+
+- Environment variables
+- Shared credential file (~/.aws/credentials)
+- AWS config file (~/.aws/config)
+- Assume Role provider
+- Instance metadata service on an Amazon EC2 instance that has an IAM role configured.
+
+[Read more about these options](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html)
+
+You can also specify a [named profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) using the --profile command line flag.
+
+The principal used to execute the cfn-policy-validator requires the following permissions.
+
+###  Sample IAM policy for running the AWS CloudFormation IAM Policy Validator
 
 ```json
 {
@@ -188,20 +204,6 @@ Notes:
 | s3:ListAllMyBuckets | Retrieve the canonical ID of the account. |
 | cloudformation:ListExports | List CloudFormation exports to be used with Fn::ImportValue  |
 | ssm:GetParameter | Resolution of dynamic ssm parameter references |
-
-### Credentials
-
-The cfn-policy-validator uses boto3 to interact with your AWS environment. You can use one of the following methods to specify credentials:
-
-- Environment variables
-- Shared credential file (~/.aws/credentials)
-- AWS config file (~/.aws/config)
-- Assume Role provider
-- Instance metadata service on an Amazon EC2 instance that has an IAM role configured.
-
-[Read more about these options](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html)
-
-You can also specify a [named profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) using the --profile command line flag.
 
 ## FAQ
 
