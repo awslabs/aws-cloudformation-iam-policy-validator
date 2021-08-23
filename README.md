@@ -1,6 +1,6 @@
 ## AWS CloudFormation IAM Policy Validator
 
-A command line tool that takes a locally referenced CloudFormation template, parses the IAM policies found in IAM roles, users, groups, and resource policies then runs them through IAM Access Analyzer.
+A command line tool that takes a locally referenced CloudFormation template, parses the IAM policies attached to IAM roles, users, groups, and resources then runs them through IAM Access Analyzer.
 
 ### Getting Started
 
@@ -13,9 +13,11 @@ Basic usage:
 cfn-policy-validator validate --template-path ./my-template.json --region us-east-1
 ```
 
-### Why do I need the CloudFormation IAM Policy Validator?
+### Why do I need the AWS CloudFormation IAM Policy Validator?
 
-It's common for CloudFormation templates to use [intrinsic functions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html) in templates that create least privileged IAM policies.  Take a look at the template below which creates an SQS queue with an attached SQS queue policy.
+The cfn-policy-validator is designed to prevent the deployment of unwanted IAM identity-based and resource-based policies to your AWS environment.
+
+CloudFormation templates commonly use [intrinsic functions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html) in templates that create least privilege IAM policies.  Take a look at the template below which creates an SQS queue with an attached SQS queue policy.
 
 ```json
 {
@@ -47,9 +49,9 @@ It's common for CloudFormation templates to use [intrinsic functions](https://do
 }
 ```
 
-Simply parsing the queue policy from this template and sending it to IAM Access Analyzer would not work.  The line `Fn:GetAtt: ["MyQueue", "Arn"]` is not valid IAM policy syntax - this is syntax specific to CloudFormation. The CloudFormation IAM Policy Validator (cfn-policy-validator) evaluates these intrinsic functions, like Fn:GetAtt, substituting similar or identical values to what you will get when you deploy the template.  It can then parse the IAM policies from the template and send them to IAM Access Analyzer, which validates the policies against checks for best practices and external access. 
+Extracting the queue policy from this template as is would not give you a valid IAM policy.  The line `Fn:GetAtt: ["MyQueue", "Arn"]` is not valid IAM policy syntax - this is syntax specific to CloudFormation. The AWS CloudFormation IAM Policy Validator (cfn-policy-validator) evaluates these intrinsic functions, like Fn:GetAtt, substituting similar or identical values to what you will get when you deploy the template.  This allows it to extract the IAM policies from the template and send them to IAM Access Analyzer, which validates the policies against checks for best practices and external access. 
 
-The cfn-policy-validator returns a non-zero exit code when findings in IAM policies are detected and can be run in a CI/CD pipeline to prevent the deployment of unwanted IAM policies to your AWS environment.
+The cfn-policy-validator returns a non-zero exit code when findings in IAM policies are detected and is designed to be run in a CI/CD pipeline to prevent the deployment of unwanted IAM policies to your AWS environment.
 
 
 ### Available Commands
