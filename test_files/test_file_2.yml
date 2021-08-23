@@ -1,0 +1,364 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters: 
+  EnvironmentName:
+    Type: String
+    Description: The name of the environment
+    AllowedValues: [test, prod]
+  CodestarConnectionArn:
+    Type: String
+    Description: The ARN of the Bitbucket Codestar Connection
+
+Mappings:
+  EnvironmentMappings:
+    BranchName:
+      test: develop
+      prod: main
+
+Resources:
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${EnvironmentName}-app-artifacts
+
+  MyTopic:
+    Type: AWS::SNS::Topic
+
+  MyQueue:
+    Type: AWS::SQS::Queue
+
+  MyQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - 'sqs:SendMessage'
+            Effect: Allow
+            Resource: !GetAtt MyQueue.Arn
+            Condition:
+              ArnLike:
+                "aws:SourceArn": !Ref MyTopic
+      Queues:
+        - !Ref MyQueue
+
+  ArtifactBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ArtifactBucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - 's3:GetObject'
+            Effect: Allow
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref ArtifactBucket
+                - /*
+            Principal:
+              AWS:
+                - "arn:aws:iam::111222333444:role/MyOtherRole"
+                - "arn:aws:iam::123456789123:role/MyOtherRole"
+
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Resource:
+                  - !Sub "${ArtifactBucket.Arn}"
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:PutObjectAcl
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
+                  - s3:ListBucket
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - codebuild:StartBuild
+                  - codebuild:BatchGetBuilds
+                  - iam:PassRole
+                  - ecs:DescribeServices
+                  - ecs:DescribeTaskDefinition
+                  - ecs:DescribeTasks
+                  - ecs:ListTasks
+                  - ecs:RegisterTaskDefinition
+                  - ecs:UpdateService
+              - Effect: Allow
+                Action: codestar-connections:UseConnection
+                Resource: !Ref CodestarConnectionArn
+
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Resource: '*'
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+              - Resource: !Sub arn:aws:s3:::${ArtifactBucket}/*
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+              - Resource: '*'
+                Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:CompleteLayerUpload
+                  - ecr:GetAuthorizationToken
+                  - ecr:InitiateLayerUpload
+                  - ecr:PutImage
+                  - ecr:UploadLayerPart
+              - Resource: !Ref MySNSTopic
+                Effect: Allow
+                Action: sns:Publish
+
+  MySNSTopic:
+    Type: AWS::SNS::Topic
+
+  BuildContainerImage:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts: 
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:2.0
+        PrivilegedMode: true
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: RepositoryName
+            Value:  
+              Fn::ImportValue: !Sub "${EnvironmentName}-Repository"
+      Name: !Ref AWS::StackName
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+
+  ApplicationPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub "${EnvironmentName}-pipeline"
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      Stages: 
+        - Name: Source
+          Actions:
+          - Name: Source
+            ActionTypeId:
+              Category: Source
+              Owner: AWS
+              Provider: CodeStarSourceConnection
+              Version: 1
+            Configuration:
+              ConnectionArn: !Ref CodestarConnectionArn
+              FullRepositoryId: "example/example123"
+              BranchName: !FindInMap [EnvironmentMappings, BranchName, !Ref EnvironmentName]
+              OutputArtifactFormat: "CODE_ZIP"
+            OutputArtifacts:
+              - Name: AppSource
+            RunOrder: 1
+        - Name: Build
+          Actions:
+          - Name: BuildImage
+            ActionTypeId:
+              Category: Build
+              Owner: AWS
+              Provider: CodeBuild
+              Version: 1
+            Configuration:
+              ProjectName: !Ref BuildContainerImage
+            InputArtifacts:
+              - Name: AppSource
+            OutputArtifacts:
+              - Name: BuildOutput
+            RunOrder: 1
+        - Name: Approval
+          Actions:
+          - Name: Approve
+            ActionTypeId:
+              Category: Approval
+              Owner: AWS
+              Provider: Manual
+              Version: 1
+            RunOrder: 1
+        - Name: Deploy
+          Actions:
+          - Name: DeployToECS
+            ActionTypeId:
+              Category: Deploy
+              Owner: AWS
+              Version: 1
+              Provider: ECS
+            Configuration:
+              ClusterName: 
+                Fn::ImportValue: !Sub "${EnvironmentName}-Cluster"
+              ServiceName:  
+                Fn::ImportValue: !Sub "${EnvironmentName}-Service"
+              FileName: imagedefinitions.json
+            InputArtifacts:
+              - Name: BuildOutput
+            RunOrder: 1
+  MyManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - iam:CreateRole
+              - iam:UpdateRole
+              - iam:PutRolePolicy
+              - iam:PutRolePermissionsBoundary
+              - iam:DeleteRolePermissionsBoundary
+              - iam:AttachRolePolicy
+              - iam:DetachRolePolicy
+            Effect: Allow
+            Resource: "*"
+            Sid: MyManagedPolicy
+        Version: 2012-10-17
+      Description: My IAM Role
+      ManagedPolicyName: MyManagedPolicy
+
+  MyOrphanedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - iam:CreateRole
+              - iam:UpdateRole
+              - iam:PutRolePolicy
+              - iam:PutRolePermissionsBoundary
+              - iam:DeleteRolePermissionsBoundary
+              - iam:AttachRolePolicy
+              - iam:DetachRolePolicy
+            Effect: Allow
+            Resource: "*"
+            Sid: MyOrphanedPolicy
+        Version: "2012-10-17"
+      Description: My IAM Role
+      ManagedPolicyName: MyOrphanedPolicy
+
+  MyIAMUser:
+    Type: AWS::IAM::User
+    Properties:
+      ManagedPolicyArns:
+        - !Ref MyManagedPolicy
+      Path: /my-test-path/
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Resource: '*'
+                Effect: Allow
+                Action:
+                  - iam:PassRole
+              - Resource: !Sub
+                            - arn:aws:s3:::${MyBucket}/*
+                            - { MyBucket: !Ref ArtifactBucket }
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+              - Resource: '*'
+                Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:CompleteLayerUpload
+                  - ecr:GetAuthorizationToken
+                  - ecr:InitiateLayerUpload
+                  - ecr:PutImage
+                  - ecr:UploadLayerPart
+              - Resource: !Ref MySNSTopic
+                Effect: Allow
+                Action: sns:Publish
+
+  MySecret:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Description: This is a secret that I want to attach a resource-based policy to
+
+  MySecretResourcePolicy:
+    Type: 'AWS::SecretsManager::ResourcePolicy'
+    Properties:
+      SecretId: !Ref MySecret
+      ResourcePolicy:
+        Version: 2012-10-17
+        Statement:
+          - Resource: '*'
+            Action: 'secretsmanager:DeleteSecret'
+            Effect: Deny
+            Principal:
+              AWS: !Sub
+                    - 'arn:aws:iam::${AccountId}:root'
+                    - { AccountId: !Ref "AWS::AccountId" }
+
+  MyIAMGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      ManagedPolicyArns:
+        - !Ref MyManagedPolicy
+      Path: /my-test-group-path/
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Resource: '*'
+                Effect: Allow
+                Action:
+                  - iam:PassRole
+              - Resource: !Sub arn:aws:s3:::${ArtifactBucket}/*
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+              - Resource: '*'
+                Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:CompleteLayerUpload
+                  - ecr:GetAuthorizationToken
+                  - ecr:InitiateLayerUpload
+                  - ecr:PutImage
+                  - ecr:UploadLayerPart
+              - Resource: !Ref MySNSTopic
+                Effect: Allow
+                Action: sns:Publish

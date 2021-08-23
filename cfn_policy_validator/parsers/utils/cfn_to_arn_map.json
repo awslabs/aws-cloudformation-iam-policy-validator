@@ -1,0 +1,3018 @@
+{
+    "ACMPCA": {
+        "CertificateAuthority": {
+            "Ref": {
+                "Value": "arn:${Partition}:acm-pca:${Region}:${Account}:certificate-authority/${CertificateAuthorityId}",
+                "ServicePrefix": "acm-pca",
+                "ResourceType": "certificate-authority"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:acm-pca:${Region}:${Account}:certificate-authority/${CertificateAuthorityId}",
+                "ServicePrefix": "acm-pca",
+                "ResourceType": "certificate-authority"
+            }
+        },
+        "CertificateAuthorityActivation": {
+            "Ref": {
+                "Value": "arn:${Partition}:acm-pca:${Region}:${Account}:certificate-authority/${CertificateAuthorityId}",
+                "ServicePrefix": "acm-pca",
+                "ResourceType": "certificate-authority"
+            }
+        },
+        "Certificate": {
+            "Ref": null,
+            "Arn": {
+                "Value": "arn:${Partition}:acm:${Region}:${Account}:certificate/${CertificateId}",
+                "ServicePrefix": "acm",
+                "ResourceType": "certificate"
+            }
+        }
+    },
+    "GlobalAccelerator": {
+        "Accelerator": {
+            "AcceleratorArn": {
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${AcceleratorId}",
+                "ServicePrefix": "globalaccelerator",
+                "ResourceType": "accelerator"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${AcceleratorId}",
+                "ServicePrefix": "globalaccelerator",
+                "ResourceType": "accelerator"
+            }
+        },
+        "Listener": {
+            "ListenerArn": {
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${AcceleratorId}/listener/${ListenerId}",
+                "ServicePrefix": "globalaccelerator",
+                "ResourceType": "listener"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${AcceleratorId}/listener/${ListenerId}",
+                "ServicePrefix": "globalaccelerator",
+                "ResourceType": "listener"
+            }
+        },
+        "EndpointGroup": {
+            "EndpointGroupArn": {
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${AcceleratorId}/listener/${ListenerId}/endpoint-group/${EndpointGroupId}",
+                "ServicePrefix": "globalaccelerator",
+                "ResourceType": "endpointgroup"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${AcceleratorId}/listener/${ListenerId}/endpoint-group/${EndpointGroupId}",
+                "ServicePrefix": "globalaccelerator",
+                "ResourceType": "endpointgroup"
+            }
+        }
+    },
+    "AccessAnalyzer": {
+        "Analyzer": {
+            "Ref": {
+                "Value": "arn:${Partition}:access-analyzer:${Region}:${Account}:analyzer/${AnalyzerName}",
+                "ServicePrefix": "access-analyzer",
+                "ResourceType": "analyzer"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:access-analyzer:${Region}:${Account}:analyzer/${AnalyzerName}",
+                "ServicePrefix": "access-analyzer",
+                "ResourceType": "analyzer"
+            }
+        }
+    },
+    "IAM": {
+        "User": {
+            "Arn": {
+                "Value": "arn:${Partition}:iam::${Account}:user/${UserNameWithPath}",
+                "ServicePrefix": "iam",
+                "ResourceType": "user"
+            }
+        },
+        "Role": {
+            "Arn": {
+                "Value": "arn:${Partition}:iam::${Account}:role/${RoleNameWithPath}",
+                "ServicePrefix": "iam",
+                "ResourceType": "role"
+            }
+        },
+        "InstanceProfile": {
+            "Arn": {
+                "Value": "arn:${Partition}:iam::${Account}:instance-profile/${InstanceProfileNameWithPath}",
+                "ServicePrefix": "iam",
+                "ResourceType": "instance-profile"
+            }
+        },
+        "ManagedPolicy": {
+            "Ref": {
+                "Value": "arn:${Partition}:iam::${Account}:policy/${PolicyNameWithPath}",
+                "ServicePrefix": "iam",
+                "ResourceType": "policy"
+            }
+        },
+        "OIDCProvider": {
+            "Ref": {
+                "Value": "arn:${Partition}:iam::${Account}:oidc-provider/${OidcProviderName}",
+                "ServicePrefix": "iam",
+                "ResourceType": "oidc-provider"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:iam::${Account}:oidc-provider/${OidcProviderName}",
+                "ServicePrefix": "iam",
+                "ResourceType": "oidc-provider"
+            }
+        },
+        "SAMLProvider": {
+            "Ref": {
+                "Value": "arn:${Partition}:iam::${Account}:saml-provider/${SamlProviderName}",
+                "ServicePrefix": "iam",
+                "ResourceType": "saml-provider"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:iam::${Account}:saml-provider/${SamlProviderName}",
+                "ServicePrefix": "iam",
+                "ResourceType": "saml-provider"
+            }
+        },
+        "ServerCertificate": {
+            "Arn": {
+                "Value": "arn:${Partition}:iam::${Account}:server-certificate/${CertificateNameWithPath}",
+                "ServicePrefix": "iam",
+                "ResourceType": "server-certificate"
+            }
+        },
+        "Group": {
+            "Arn": {
+                "Value": "arn:${Partition}:iam::${Account}:group/${GroupNameWithPath}",
+                "ServicePrefix": "iam",
+                "ResourceType": "group"
+            }
+        }
+    },
+    "Backup": {
+        "BackupPlan": {
+            "BackupPlanArn": {
+                "Value": "arn:${Partition}:backup:${Region}:${Account}:backup-plan:${BackupPlanId}",
+                "ServicePrefix": "backup",
+                "ResourceType": "backup-plan"
+            }
+        },
+        "BackupVault": {
+            "BackupVaultArn": {
+                "Value": "arn:${Partition}:backup:${Region}:${Account}:backup-vault:${BackupVaultName}",
+                "ServicePrefix": "backup",
+                "ResourceType": "backup-vault"
+            }
+        }
+    },
+    "Elasticsearch": {
+        "Domain": {
+            "Arn": {
+                "Value": "arn:${Partition}:es:${Region}:${Account}:domain/${DomainName}",
+                "ServicePrefix": "es",
+                "ResourceType": "domain"
+            },
+            "DomainArn": {
+                "Value": "arn:${Partition}:es:${Region}:${Account}:domain/${DomainName}",
+                "ServicePrefix": "es",
+                "ResourceType": "domain"
+            }
+        }
+    },
+    "RAM": {
+        "ResourceShare": {
+            "Arn": {
+                "Value": "arn:${Partition}:ram:${Region}:${Account}:resource-share/${ResourcePath}",
+                "ServicePrefix": "ram",
+                "ResourceType": "resource-share"
+            }
+        }
+    },
+    "Kinesis": {
+        "Stream": {
+            "Arn": {
+                "Value": "arn:${Partition}:kinesis:${Region}:${Account}:stream/${StreamName}",
+                "ServicePrefix": "kinesis",
+                "ResourceType": "stream"
+            }
+        },
+        "StreamConsumer": {
+            "Ref": {
+                "Value": "arn:${Partition}:kinesis:${Region}:${Account}:${StreamType}/${StreamName}/consumer/${ConsumerName}:${ConsumerCreationTimpstamp}",
+                "ServicePrefix": "kinesis",
+                "ResourceType": "consumer"
+            },
+            "ConsumerARN": {
+                "Value": "arn:${Partition}:kinesis:${Region}:${Account}:${StreamType}/${StreamName}/consumer/${ConsumerName}:${ConsumerCreationTimpstamp}",
+                "ServicePrefix": "kinesis",
+                "ResourceType": "consumer"
+            },
+            "StreamARN": {
+                "Value": "arn:${Partition}:kinesis:${Region}:${Account}:stream/${StreamName}",
+                "ServicePrefix": "kinesis",
+                "ResourceType": "stream"
+            }
+        }
+    },
+    "SQS": {
+        "Queue": {
+            "Arn": {
+                "Value": "arn:${Partition}:sqs:${Region}:${Account}:${QueueName}",
+                "ServicePrefix": "sqs",
+                "ResourceType": "queue"
+            }
+        }
+    },
+    "AppSync": {
+        "Resolver": {
+            "Ref": null,
+            "ResolverArn": null
+        },
+        "GraphQLApi": {
+            "Ref": {
+                "Value": "arn:${Partition}:appsync:${Region}:${Account}:apis/${GraphQLAPIId}",
+                "ServicePrefix": "appsync",
+                "ResourceType": "graphqlapi"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:appsync:${Region}:${Account}:apis/${GraphQLAPIId}",
+                "ServicePrefix": "appsync",
+                "ResourceType": "graphqlapi"
+            }
+        },
+        "ApiKey": {
+            "Ref": null,
+            "Arn": null
+        },
+        "DataSource": {
+            "Ref": {
+                "Value": "arn:${Partition}:appsync:${Region}:${Account}:apis/${GraphQLAPIId}/datasources/${DatasourceName}",
+                "ServicePrefix": "appsync",
+                "ResourceType": "datasource"
+            },
+            "DataSourceArn": {
+                "Value": "arn:${Partition}:appsync:${Region}:${Account}:apis/${GraphQLAPIId}/datasources/${DatasourceName}",
+                "ServicePrefix": "appsync",
+                "ResourceType": "datasource"
+            }
+        },
+        "FunctionConfiguration": {
+            "Ref": {
+                "Value": "arn:${Partition}:appsync:${Region}:${Account}:apis/${GraphQLAPIId}/functions/${FunctionId}",
+                "ServicePrefix": "appsync",
+                "ResourceType": "function"
+            },
+            "FunctionArn": {
+                "Value": "arn:${Partition}:appsync:${Region}:${Account}:apis/${GraphQLAPIId}/functions/${FunctionId}",
+                "ServicePrefix": "appsync",
+                "ResourceType": "function"
+            }
+        }
+    },
+    "ECS": {
+        "Cluster": {
+            "Arn": {
+                "Value": "arn:${Partition}:ecs:${Region}:${Account}:cluster/${ClusterName}",
+                "ServicePrefix": "ecs",
+                "ResourceType": "cluster"
+            }
+        },
+        "Service": {
+            "Ref": {
+                "Value": "arn:${Partition}:ecs:${Region}:${Account}:service/${ServiceName}",
+                "ServicePrefix": "ecs",
+                "ResourceType": "service"
+            },
+            "ServiceArn": {
+                "Value": "arn:${Partition}:ecs:${Region}:${Account}:service/${ServiceName}",
+                "ServicePrefix": "ecs",
+                "ResourceType": "service"
+            }
+        },
+        "TaskDefinition": {
+            "Ref": {
+                "Value": "arn:${Partition}:ecs:${Region}:${Account}:task-definition/${TaskDefinitionFamilyName}:${TaskDefinitionRevisionNumber}",
+                "ServicePrefix": "ecs",
+                "ResourceType": "task-definition"
+            },
+            "TaskDefinitionArn": {
+                "Value": "arn:${Partition}:ecs:${Region}:${Account}:task-definition/${TaskDefinitionFamilyName}:${TaskDefinitionRevisionNumber}",
+                "ServicePrefix": "ecs",
+                "ResourceType": "task-definition"
+            }
+        }
+    },
+    "NetworkManager": {
+        "Link": {
+            "LinkArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:link/${GlobalNetworkId}/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "link"
+            }
+        },
+        "CustomerGatewayAssociation": {
+            "Ref": {
+                "Value": "arn:${Partition}:ec2:${Region}:${Account}:customer-gateway/${CustomerGatewayId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "customer-gateway"
+            }
+        },
+        "Device": {
+            "DeviceArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:device/${GlobalNetworkId}/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "device"
+            }
+        },
+        "GlobalNetwork": {
+            "Arn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:global-network/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "global-network"
+            }
+        },
+        "TransitGatewayRegistration": {
+            "Ref": {
+                "Value": "arn:${Partition}:ec2:${Region}:${Account}:transit-gateway/${TransitGatewayId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "transit-gateway"
+            }
+        },
+        "Site": {
+            "SiteArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:site/${GlobalNetworkId}/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "site"
+            }
+        }
+    },
+    "StepFunctions": {
+        "Activity": {
+            "Ref": {
+                "Value": "arn:${Partition}:states:${Region}:${Account}:activity:${ActivityName}",
+                "ServicePrefix": "states",
+                "ResourceType": "activity"
+            }
+        },
+        "StateMachine": {
+            "Ref": {
+                "Value": "arn:${Partition}:states:${Region}:${Account}:stateMachine:${StateMachineName}",
+                "ServicePrefix": "states",
+                "ResourceType": "statemachine"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:states:${Region}:${Account}:stateMachine:${StateMachineName}",
+                "ServicePrefix": "states",
+                "ResourceType": "statemachine"
+            }
+        }
+    },
+    "CodeStarConnections": {
+        "Connection": {
+            "Ref": {
+                "Value": "arn:${Partition}:codestar-connections:${Region}:${Account}:connection/${ConnectionId}",
+                "ServicePrefix": "codestar-connections",
+                "ResourceType": "connection"
+            },
+            "ConnectionArn": {
+                "Value": "arn:${Partition}:codestar-connections:${Region}:${Account}:connection/${ConnectionId}",
+                "ServicePrefix": "codestar-connections",
+                "ResourceType": "connection"
+            }
+        }
+    },
+    "GroundStation": {
+        "Config": {
+            "Ref": {
+                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:config/${configType}/${configId}",
+                "ServicePrefix": "groundstation",
+                "ResourceType": "config"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:config/${configType}/${configId}",
+                "ServicePrefix": "groundstation",
+                "ResourceType": "config"
+            }
+        },
+        "DataflowEndpointGroup": {
+            "Ref": {
+                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:dataflow-endpoint-group/${dataflowEndpointGroupId}",
+                "ServicePrefix": "groundstation",
+                "ResourceType": "dataflow-endpoint-group"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:dataflow-endpoint-group/${dataflowEndpointGroupId}",
+                "ServicePrefix": "groundstation",
+                "ResourceType": "dataflow-endpoint-group"
+            }
+        },
+        "MissionProfile": {
+            "Ref": {
+                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:mission-profile/${missionProfileId}",
+                "ServicePrefix": "groundstation",
+                "ResourceType": "mission-profile"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:mission-profile/${missionProfileId}",
+                "ServicePrefix": "groundstation",
+                "ResourceType": "mission-profile"
+            }
+        }
+    },
+    "Greengrass": {
+        "ConnectorDefinitionVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/connectors/${ConnectorDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "connector-definition-version"
+            }
+        },
+        "ResourceDefinition": {
+            "LatestVersionArn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/resources/${ResourceDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "resource-definition-version"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/resources/${ResourceDefinitionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "resource-definition"
+            }
+        },
+        "DeviceDefinition": {
+            "LatestVersionArn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/devices/${DeviceDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "device-definition-version"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/devices/${DeviceDefinitionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "device-definition"
+            }
+        },
+        "LoggerDefinitionVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/loggers/${LoggerDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "logger-definition-version"
+            }
+        },
+        "FunctionDefinitionVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/functions/${FunctionDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "function-definition-version"
+            }
+        },
+        "Group": {
+            "LatestVersionArn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/groups/${GroupId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "group-version"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/groups/${GroupId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "group"
+            },
+            "RoleArn": {
+                "Value": "arn:${Partition}:iam::${Account}:role/${RoleNameWithPath}",
+                "ServicePrefix": "iam",
+                "ResourceType": "role"
+            }
+        },
+        "ConnectorDefinition": {
+            "LatestVersionArn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/connectors/${ConnectorDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "connector-definition-version"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/connectors/${ConnectorDefinitionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "connector-definition"
+            }
+        },
+        "FunctionDefinition": {
+            "LatestVersionArn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/functions/${FunctionDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "function-definition-version"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/functions/${FunctionDefinitionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "function-definition"
+            }
+        },
+        "SubscriptionDefinitionVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/subscriptions/${SubscriptionDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "subscription-definition-version"
+            }
+        },
+        "CoreDefinitionVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/cores/${CoreDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "core-definition-version"
+            }
+        },
+        "LoggerDefinition": {
+            "LatestVersionArn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/loggers/${LoggerDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "logger-definition-version"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/loggers/${LoggerDefinitionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "logger-definition"
+            }
+        },
+        "CoreDefinition": {
+            "LatestVersionArn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/cores/${CoreDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "core-definition-version"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/cores/${CoreDefinitionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "core-definition"
+            }
+        },
+        "DeviceDefinitionVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/devices/${DeviceDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "device-definition-version"
+            }
+        },
+        "SubscriptionDefinition": {
+            "LatestVersionArn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/subscriptions/${SubscriptionDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "subscription-definition-version"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/subscriptions/${SubscriptionDefinitionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "subscription-definition"
+            }
+        },
+        "ResourceDefinitionVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/definition/resources/${ResourceDefinitionId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "resource-definition-version"
+            }
+        },
+        "GroupVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:/greengrass/groups/${GroupId}/versions/${VersionId}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "group-version"
+            }
+        }
+    },
+    "SNS": {
+        "Topic": {
+            "Ref": {
+                "Value": "arn:${Partition}:sns:${Region}:${Account}:${TopicName}",
+                "ServicePrefix": "sns",
+                "ResourceType": "topic"
+            }
+        }
+    },
+    "SageMaker": {
+        "NotebookInstanceLifecycleConfig": {
+            "Ref": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:notebook-instance-lifecycle-config/${NotebookInstanceLifecycleConfigName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "notebook-instance-lifecycle-config"
+            }
+        },
+        "EndpointConfig": {
+            "Ref": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:endpoint-config/${EndpointConfigName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "endpoint-config"
+            }
+        },
+        "Endpoint": {
+            "Ref": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:endpoint/${EndpointName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "endpoint"
+            }
+        },
+        "NotebookInstance": {
+            "Ref": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:notebook-instance/${NotebookInstanceName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "notebook-instance"
+            }
+        },
+        "Model": {
+            "Ref": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model/${ModelName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "model"
+            }
+        },
+        "ImageVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:image-version/${ImageName}/${Version}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "image-version"
+            },
+            "ImageArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:image/${ImageName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "image"
+            },
+            "ImageVersionArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:image-version/${ImageName}/${Version}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "image-version"
+            }
+        },
+        "DataQualityJobDefinition": {
+            "JobDefinitionArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:data-quality-job-definition/${DataQualityJobDefinitionName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "data-quality-job-definition"
+            }
+        },
+        "MonitoringSchedule": {
+            "Ref": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:monitoring-schedule/${MonitoringScheduleName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "monitoring-schedule"
+            },
+            "MonitoringScheduleArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:monitoring-schedule/${MonitoringScheduleName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "monitoring-schedule"
+            }
+        },
+        "UserProfile": {
+            "UserProfileArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:user-profile/${DomainId}/${UserProfileName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "user-profile"
+            }
+        },
+        "ModelExplainabilityJobDefinition": {
+            "JobDefinitionArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-explainability-job-definition/${ModelExplainabilityJobDefinitionName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "model-explainability-job-definition"
+            }
+        },
+        "ModelPackageGroup": {
+            "ModelPackageGroupArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-package-group/${ModelPackageGroupName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "model-package-group"
+            }
+        },
+        "ModelBiasJobDefinition": {
+            "JobDefinitionArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-bias-job-definition/${ModelBiasJobDefinitionName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "model-bias-job-definition"
+            }
+        },
+        "ModelQualityJobDefinition": {
+            "JobDefinitionArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-quality-job-definition/${ModelQualityJobDefinitionName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "model-quality-job-definition"
+            }
+        },
+        "CodeRepository": {
+            "Ref": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:code-repository/${CodeRepositoryName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "code-repository"
+            }
+        },
+        "AppImageConfig": {
+            "AppImageConfigArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:app-image-config/${AppImageConfigName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "app-image-config"
+            }
+        },
+        "App": {
+            "AppArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:app/${DomainId}/${UserProfileName}/${AppType}/${AppName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "app"
+            }
+        },
+        "Domain": {
+            "DomainArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:domain/${DomainId}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "domain"
+            }
+        },
+        "Project": {
+            "ProjectArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:project/${ProjectName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "project"
+            }
+        },
+        "Image": {
+            "Ref": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:image/${ImageName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "image"
+            },
+            "ImageArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:image/${ImageName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "image"
+            }
+        }
+    },
+    "KMS": {
+        "Key": {
+            "Arn": {
+                "Value": "arn:${Partition}:kms:${Region}:${Account}:key/${KeyId}",
+                "ServicePrefix": "kms",
+                "ResourceType": "key"
+            }
+        },
+        "ReplicaKey": {
+            "Arn": {
+                "Value": "arn:${Partition}:kms:${Region}:${Account}:key/${KeyId}",
+                "ServicePrefix": "kms",
+                "ResourceType": "key"
+            }
+        }
+    },
+    "EKS": {
+        "Nodegroup": {
+            "Arn": {
+                "Value": "arn:${Partition}:eks:${Region}:${Account}:nodegroup/${ClusterName}/${NodegroupName}/${UUID}",
+                "ServicePrefix": "eks",
+                "ResourceType": "nodegroup"
+            }
+        },
+        "Cluster": {
+            "EncryptionConfigKeyArn": {
+                "Value": "arn:${Partition}:kms:${Region}:${Account}:key/${KeyId}",
+                "ServicePrefix": "kms",
+                "ResourceType": "key"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:eks:${Region}:${Account}:cluster/${ClusterName}",
+                "ServicePrefix": "eks",
+                "ResourceType": "cluster"
+            }
+        },
+        "Addon": {
+            "Arn": {
+                "Value": "arn:${Partition}:eks:${Region}:${Account}:addon/${ClusterName}/${AddonName}/${UUID}",
+                "ServicePrefix": "eks",
+                "ResourceType": "addon"
+            }
+        },
+        "FargateProfile": {
+            "Arn": {
+                "Value": "arn:${Partition}:eks:${Region}:${Account}:fargateprofile/${ClusterName}/${FargateProfileName}/${UUID}",
+                "ServicePrefix": "eks",
+                "ResourceType": "fargateprofile"
+            }
+        }
+    },
+    "AppMesh": {
+        "Route": {
+            "Ref": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}/virtualRouter/${VirtualRouterName}/route/${RouteName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "route"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}/virtualRouter/${VirtualRouterName}/route/${RouteName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "route"
+            }
+        },
+        "VirtualNode": {
+            "Ref": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}/virtualNode/${VirtualNodeName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "virtual-node"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}/virtualNode/${VirtualNodeName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "virtual-node"
+            }
+        },
+        "VirtualRouter": {
+            "Ref": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}/virtualRouter/${VirtualRouterName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "virtual-router"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}/virtualRouter/${VirtualRouterName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "virtual-router"
+            }
+        },
+        "VirtualService": {
+            "Ref": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}/virtualService/${VirtualServiceName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "virtual-service"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}/virtualService/${VirtualServiceName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "virtual-service"
+            }
+        },
+        "Mesh": {
+            "Ref": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "mesh"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "mesh"
+            }
+        },
+        "GatewayRoute": {
+            "Ref": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}/virtualGateway/${VirtualGatewayName}/gatewayRoute/${GatewayRouteName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "gateway-route"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}/virtualGateway/${VirtualGatewayName}/gatewayRoute/${GatewayRouteName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "gateway-route"
+            }
+        },
+        "VirtualGateway": {
+            "Ref": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}/virtualGateway/${VirtualGatewayName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "virtual-gateway"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:appmesh:${Region}:${Account}:mesh/${MeshName}/virtualGateway/${VirtualGatewayName}",
+                "ServicePrefix": "appmesh",
+                "ResourceType": "virtual-gateway"
+            }
+        }
+    },
+    "IoT1Click": {
+        "Project": {
+            "Ref": {
+                "Value": "arn:${Partition}:iot1click:${Region}:${Account}:projects/${ProjectName}",
+                "ServicePrefix": "iot1click",
+                "ResourceType": "project"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:iot1click:${Region}:${Account}:projects/${ProjectName}",
+                "ServicePrefix": "iot1click",
+                "ResourceType": "project"
+            }
+        },
+        "Device": {
+            "Ref": {
+                "Value": "arn:${Partition}:iot1click:${Region}:${Account}:devices/${DeviceId}",
+                "ServicePrefix": "iot1click",
+                "ResourceType": "device"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:iot1click:${Region}:${Account}:devices/${DeviceId}",
+                "ServicePrefix": "iot1click",
+                "ResourceType": "device"
+            }
+        }
+    },
+    "MediaConvert": {
+        "Queue": {
+            "Arn": {
+                "Value": "arn:${Partition}:mediaconvert:${Region}:${Account}:queues/${QueueName}",
+                "ServicePrefix": "mediaconvert",
+                "ResourceType": "queue"
+            }
+        },
+        "JobTemplate": {
+            "Arn": {
+                "Value": "arn:${Partition}:mediaconvert:${Region}:${Account}:jobTemplates/${JobTemplateName}",
+                "ServicePrefix": "mediaconvert",
+                "ResourceType": "job-template"
+            }
+        },
+        "Preset": {
+            "Arn": {
+                "Value": "arn:${Partition}:mediaconvert:${Region}:${Account}:presets/${PresetName}",
+                "ServicePrefix": "mediaconvert",
+                "ResourceType": "preset"
+            }
+        }
+    },
+    "WAFv2": {
+        "RegexPatternSet": {
+            "Arn": {
+                "Value": "arn:${Partition}:wafv2:${Region}:${Account}:${Scope}/regexpatternset/${Name}/${Id}",
+                "ServicePrefix": "wafv2",
+                "ResourceType": "regexpatternset"
+            }
+        },
+        "IPSet": {
+            "Arn": {
+                "Value": "arn:${Partition}:wafv2:${Region}:${Account}:${Scope}/ipset/${Name}/${Id}",
+                "ServicePrefix": "wafv2",
+                "ResourceType": "ipset"
+            }
+        },
+        "RuleGroup": {
+            "Arn": {
+                "Value": "arn:${Partition}:wafv2:${Region}:${Account}:${Scope}/rulegroup/${Name}/${Id}",
+                "ServicePrefix": "wafv2",
+                "ResourceType": "rulegroup"
+            }
+        },
+        "WebACL": {
+            "Arn": {
+                "Value": "arn:${Partition}:wafv2:${Region}:${Account}:${Scope}/webacl/${Name}/${Id}",
+                "ServicePrefix": "wafv2",
+                "ResourceType": "webacl"
+            }
+        }
+    },
+    "Batch": {
+        "JobDefinition": {
+            "Ref": {
+                "Value": "arn:${Partition}:batch:${Region}:${Account}:job-definition/${JobDefinitionName}:${Revision}",
+                "ServicePrefix": "batch",
+                "ResourceType": "job-definition"
+            }
+        },
+        "JobQueue": {
+            "Ref": {
+                "Value": "arn:${Partition}:batch:${Region}:${Account}:job-queue/${JobQueueName}",
+                "ServicePrefix": "batch",
+                "ResourceType": "job-queue"
+            }
+        },
+        "ComputeEnvironment": {
+            "Ref": {
+                "Value": "arn:${Partition}:batch:${Region}:${Account}:compute-environment/${ComputeEnvironmentName}",
+                "ServicePrefix": "batch",
+                "ResourceType": "compute-environment"
+            }
+        }
+    },
+    "Lambda": {
+        "LayerVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:lambda:${Region}:${Account}:layer:${LayerName}:${LayerVersion}",
+                "ServicePrefix": "lambda",
+                "ResourceType": "layer-version"
+            }
+        },
+        "Alias": {
+            "Ref": {
+                "Value": "arn:${Partition}:lambda:${Region}:${Account}:function:${FunctionName}:${Alias}",
+                "ServicePrefix": "lambda",
+                "ResourceType": "functionalias"
+            }
+        },
+        "LayerVersionPermission": {
+            "Ref": null
+        },
+        "Version": {
+            "Ref": {
+                "Value": "arn:${Partition}:lambda:${Region}:${Account}:layer:${LayerName}:${LayerVersion}",
+                "ServicePrefix": "lambda",
+                "ResourceType": "layer-version"
+            }
+        },
+        "Function": {
+            "Arn": {
+                "Value": "arn:${Partition}:lambda:${Region}:${Account}:function:${FunctionName}",
+                "ServicePrefix": "lambda",
+                "ResourceType": "function"
+            }
+        },
+        "CodeSigningConfig": {
+            "CodeSigningConfigArn": {
+                "Value": "arn:${Partition}:lambda:${Region}:${Account}:code-signing-config:${CodeSigningConfigId}",
+                "ServicePrefix": "lambda",
+                "ResourceType": "codesigningconfig"
+            }
+        }
+    },
+    "SecretsManager": {
+        "RotationSchedule": {
+            "Ref": {
+                "Value": "arn:${Partition}:secretsmanager:${Region}:${Account}:secret:${SecretId}",
+                "ServicePrefix": "secretsmanager",
+                "ResourceType": "secret"
+            }
+        },
+        "ResourcePolicy": {
+            "Ref": {
+                "Value": "arn:${Partition}:secretsmanager:${Region}:${Account}:secret:${SecretId}",
+                "ServicePrefix": "secretsmanager",
+                "ResourceType": "secret"
+            }
+        },
+        "Secret": {
+            "Ref": {
+                "Value": "arn:${Partition}:secretsmanager:${Region}:${Account}:secret:${SecretId}",
+                "ServicePrefix": "secretsmanager",
+                "ResourceType": "secret"
+            }
+        },
+        "SecretTargetAttachment": {
+            "Ref": {
+                "Value": "arn:${Partition}:secretsmanager:${Region}:${Account}:secret:${SecretId}",
+                "ServicePrefix": "secretsmanager",
+                "ResourceType": "secret"
+            }
+        }
+    },
+    "ElasticLoadBalancingV2": {
+        "LoadBalancer": {
+            "Ref": {
+                "Value": "arn:${Partition}:elasticloadbalancing:${Region}:${Account}:loadbalancer/app/${LoadBalancerName}/${LoadBalancerId}",
+                "ServicePrefix": "elasticloadbalancing",
+                "ResourceType": "loadbalancer/app/",
+                "DoNotUpdate": "ELBv2 ARNs are dynamic based on the type of load balancer. This should default to loadbalancer/app/."
+            }
+        },
+        "Listener": {
+            "Ref": {
+                "Value": "arn:${Partition}:elasticloadbalancing:${Region}:${Account}:listener/app/${LoadBalancerName}/${LoadBalancerId}/${ListenerId}",
+                "ServicePrefix": "elasticloadbalancing",
+                "ResourceType": "listener/app",
+                "DoNotUpdate": "ELBv2 ARNs are dynamic based on the type of load balancer. This should default to listener/app."
+            },
+            "ListenerArn": {
+                "Value": "arn:${Partition}:elasticloadbalancing:${Region}:${Account}:listener/app/${LoadBalancerName}/${LoadBalancerId}/${ListenerId}",
+                "ServicePrefix": "elasticloadbalancing",
+                "ResourceType": "listener/app",
+                "DoNotUpdate": "ELBv2 ARNs are dynamic based on the type of load balancer. This should default to listener/app."
+            }
+        },
+        "ListenerRule": {
+            "Ref": {
+                "Value": "arn:${Partition}:elasticloadbalancing:${Region}:${Account}:listener-rule/app/${LoadBalancerName}/${LoadBalancerId}/${ListenerId}/${ListenerRuleId}",
+                "ServicePrefix": "elasticloadbalancing",
+                "ResourceType": "listener-rule/app",
+                "DoNotUpdate": "ELBv2 ARNs are dynamic based on the type of load balancer. This should default to listener-rule/app."
+            },
+            "RuleArn": {
+                "Value": "arn:${Partition}:elasticloadbalancing:${Region}:${Account}:listener-rule/app/${LoadBalancerName}/${LoadBalancerId}/${ListenerId}/${ListenerRuleId}",
+                "ServicePrefix": "elasticloadbalancing",
+                "ResourceType": "listener-rule/app",
+                "DoNotUpdate": "ELBv2 ARNs are dynamic based on the type of load balancer. This should default to listener-rule/app."
+            }
+        },
+        "TargetGroup": {
+            "Ref": {
+                "Value": "arn:${Partition}:elasticloadbalancing:${Region}:${Account}:targetgroup/${TargetGroupName}/${TargetGroupId}",
+                "ServicePrefix": "elasticloadbalancing",
+                "ResourceType": "targetgroup"
+            },
+            "LoadBalancerArns": {
+                "Value": "arn:${Partition}:elasticloadbalancing:${Region}:${Account}:loadbalancer/app/${LoadBalancerName}/${LoadBalancerId}",
+                "ServicePrefix": "elasticloadbalancing",
+                "ResourceType": "loadbalancer/app/",
+                "DoNotUpdate": "ELBv2 ARNs are dynamic based on the type of load balancer. This should default to loadbalancer/app/."
+            }
+        }
+    },
+    "GameLift": {
+        "MatchmakingConfiguration": {
+            "Arn": {
+                "Value": "arn:${Partition}:gamelift:${Region}:${Account}:matchmakingconfiguration/${MatchmakingConfigurationName}",
+                "ServicePrefix": "gamelift",
+                "ResourceType": "matchmaking-configuration"
+            }
+        },
+        "MatchmakingRuleSet": {
+            "Arn": {
+                "Value": "arn:${Partition}:gamelift:${Region}:${Account}:matchmakingruleset/${MatchmakingRuleSetName}",
+                "ServicePrefix": "gamelift",
+                "ResourceType": "matchmaking-rule-set"
+            }
+        },
+        "GameSessionQueue": {
+            "Arn": {
+                "Value": "arn:${Partition}:gamelift:${Region}:${Account}:gamesessionqueue/${GameSessionQueueName}",
+                "ServicePrefix": "gamelift",
+                "ResourceType": "game-session-queue"
+            }
+        },
+        "Script": {
+            "Arn": {
+                "Value": "arn:${Partition}:gamelift:${Region}:${AccountId}:script/${ScriptId}",
+                "ServicePrefix": "gamelift",
+                "ResourceType": "script"
+            }
+        },
+        "GameServerGroup": {
+            "AutoScalingGroupArn": {
+                "Value": "arn:${Partition}:autoscaling:${Region}:${Account}:autoScalingGroup:${GroupId}:autoScalingGroupName/${GroupFriendlyName}",
+                "ServicePrefix": "autoscaling",
+                "ResourceType": "auto-scaling-group"
+            },
+            "GameServerGroupArn": {
+                "Value": "arn:${Partition}:gamelift:${Region}:${Account}:gameservergroup/${GameServerGroupName}",
+                "ServicePrefix": "gamelift",
+                "ResourceType": "game-server-group"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:gamelift:${Region}:${Account}:gameservergroup/${GameServerGroupName}",
+                "ServicePrefix": "gamelift",
+                "ResourceType": "game-server-group"
+            }
+        }
+    },
+    "CodeBuild": {
+        "Project": {
+            "Arn": {
+                "Value": "arn:${Partition}:codebuild:${Region}:${Account}:project/${ProjectName}",
+                "ServicePrefix": "codebuild",
+                "ResourceType": "project"
+            }
+        },
+        "ReportGroup": {
+            "Ref": {
+                "Value": "arn:${Partition}:codebuild:${Region}:${Account}:report-group/${ReportGroupName}",
+                "ServicePrefix": "codebuild",
+                "ResourceType": "report-group"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:codebuild:${Region}:${Account}:report-group/${ReportGroupName}",
+                "ServicePrefix": "codebuild",
+                "ResourceType": "report-group"
+            }
+        }
+    },
+    "CloudTrail": {
+        "Trail": {
+            "Arn": {
+                "Value": "arn:${Partition}:cloudtrail:${Region}:${Account}:trail/${TrailName}",
+                "ServicePrefix": "cloudtrail",
+                "ResourceType": "trail"
+            },
+            "SnsTopicArn": {
+                "Value": "arn:${Partition}:sns:${Region}:${Account}:${TopicName}",
+                "ServicePrefix": "sns",
+                "ResourceType": "topic"
+            }
+        }
+    },
+    "IoT": {
+        "TopicRule": {
+            "Arn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:rule/${ruleName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "rule"
+            }
+        },
+        "Policy": {
+            "Arn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:policy/${PolicyName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "policy"
+            }
+        },
+        "Certificate": {
+            "Arn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:cert/${Certificate}",
+                "ServicePrefix": "iot",
+                "ResourceType": "cert"
+            }
+        },
+        "ProvisioningTemplate": {
+            "TemplateArn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:provisioningtemplate/${provisioningTemplate}",
+                "ServicePrefix": "iot",
+                "ResourceType": "provisioningtemplate"
+            }
+        },
+        "CustomMetric": {
+            "MetricArn": null
+        },
+        "MitigationAction": {
+            "MitigationActionArn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:mitigationaction/${MitigationActionName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "mitigationaction"
+            }
+        },
+        "SecurityProfile": {
+            "SecurityProfileArn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:securityprofile/${SecurityProfileName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "securityprofile"
+            }
+        },
+        "Authorizer": {
+            "Arn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:authorizer/${AuthorizerName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "authorizer"
+            }
+        },
+        "Dimension": {
+            "Arn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:dimension/${DimensionName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "dimension"
+            }
+        },
+        "ScheduledAudit": {
+            "ScheduledAuditArn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:scheduledaudit/${ScheduleName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "scheduledaudit"
+            }
+        },
+        "TopicRuleDestination": {
+            "Arn": null
+        },
+        "DomainConfiguration": {
+            "Arn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:domainconfiguration/${domainConfigurationName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "domainconfiguration"
+            }
+        }
+    },
+    "RoboMaker": {
+        "SimulationApplication": {
+            "Ref": {
+                "Value": "arn:${Partition}:robomaker:${Region}:${Account}:simulation-application/${ApplicationName}/${CreatedOnEpoch}",
+                "ServicePrefix": "robomaker",
+                "ResourceType": "simulation-application"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:robomaker:${Region}:${Account}:simulation-application/${ApplicationName}/${CreatedOnEpoch}",
+                "ServicePrefix": "robomaker",
+                "ResourceType": "simulation-application"
+            }
+        },
+        "SimulationApplicationVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:robomaker:${Region}:${Account}:simulation-application/${ApplicationName}/${CreatedOnEpoch}",
+                "ServicePrefix": "robomaker",
+                "ResourceType": "simulation-application"
+            }
+        },
+        "RobotApplication": {
+            "Ref": {
+                "Value": "arn:${Partition}:robomaker:${Region}:${Account}:robot-application/${ApplicationName}/${CreatedOnEpoch}",
+                "ServicePrefix": "robomaker",
+                "ResourceType": "robot-application"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:robomaker:${Region}:${Account}:robot-application/${ApplicationName}/${CreatedOnEpoch}",
+                "ServicePrefix": "robomaker",
+                "ResourceType": "robot-application"
+            }
+        },
+        "Fleet": {
+            "Ref": {
+                "Value": "arn:${Partition}:robomaker:${Region}:${Account}:deployment-fleet/${FleetName}/${CreatedOnEpoch}",
+                "ServicePrefix": "robomaker",
+                "ResourceType": "deployment-fleet"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:robomaker:${Region}:${Account}:deployment-fleet/${FleetName}/${CreatedOnEpoch}",
+                "ServicePrefix": "robomaker",
+                "ResourceType": "deployment-fleet"
+            }
+        },
+        "RobotApplicationVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:robomaker:${Region}:${Account}:robot-application/${ApplicationName}/${CreatedOnEpoch}",
+                "ServicePrefix": "robomaker",
+                "ResourceType": "robot-application"
+            }
+        },
+        "Robot": {
+            "Ref": {
+                "Value": "arn:${Partition}:robomaker:${Region}:${Account}:robot/${RobotName}/${CreatedOnEpoch}",
+                "ServicePrefix": "robomaker",
+                "ResourceType": "robot"
+            }
+        }
+    },
+    "Amplify": {
+        "App": {
+            "Arn": {
+                "Value": "arn:${Partition}:amplify:${Region}:${Account}:apps/${AppId}",
+                "ServicePrefix": "amplify",
+                "ResourceType": "apps"
+            }
+        },
+        "Branch": {
+            "Arn": {
+                "Value": "arn:${Partition}:amplify:${Region}:${Account}:apps/${AppId}/branches/${BranchName}",
+                "ServicePrefix": "amplify",
+                "ResourceType": "branches"
+            }
+        },
+        "Domain": {
+            "Arn": {
+                "Value": "arn:${Partition}:amplify:${Region}:${Account}:apps/${AppId}/domains/${DomainName}",
+                "ServicePrefix": "amplify",
+                "ResourceType": "domains"
+            }
+        }
+    },
+    "EventSchemas": {
+        "Discoverer": {
+            "Ref": {
+                "Value": "arn:${Partition}:schemas:${Region}:${Account}:discoverer/${DiscovererId}",
+                "ServicePrefix": "schemas",
+                "ResourceType": "discoverer"
+            },
+            "DiscovererArn": {
+                "Value": "arn:${Partition}:schemas:${Region}:${Account}:discoverer/${DiscovererId}",
+                "ServicePrefix": "schemas",
+                "ResourceType": "discoverer"
+            }
+        },
+        "Schema": {
+            "Ref": {
+                "Value": "arn:${Partition}:schemas:${Region}:${Account}:schema/${RegistryName}/${SchemaName}",
+                "ServicePrefix": "schemas",
+                "ResourceType": "schema"
+            },
+            "SchemaArn": {
+                "Value": "arn:${Partition}:schemas:${Region}:${Account}:schema/${RegistryName}/${SchemaName}",
+                "ServicePrefix": "schemas",
+                "ResourceType": "schema"
+            }
+        },
+        "Registry": {
+            "Ref": {
+                "Value": "arn:${Partition}:schemas:${Region}:${Account}:registry/${RegistryName}",
+                "ServicePrefix": "schemas",
+                "ResourceType": "registry"
+            },
+            "RegistryArn": {
+                "Value": "arn:${Partition}:schemas:${Region}:${Account}:registry/${RegistryName}",
+                "ServicePrefix": "schemas",
+                "ResourceType": "registry"
+            }
+        }
+    },
+    "Cloud9": {
+        "EnvironmentEC2": {
+            "Arn": {
+                "Value": "arn:${Partition}:cloud9:${Region}:${Account}:environment:${ResourceId}",
+                "ServicePrefix": "cloud9",
+                "ResourceType": "environment"
+            }
+        }
+    },
+    "Config": {
+        "AggregationAuthorization": {
+            "Ref": {
+                "Value": "arn:${Partition}:config:${Region}:${Account}:aggregation-authorization/${AggregatorAccount}/${AggregatorRegion}",
+                "ServicePrefix": "config",
+                "ResourceType": "aggregation-authorization"
+            }
+        },
+        "ConfigRule": {
+            "Arn": {
+                "Value": "arn:${Partition}:config:${Region}:${Account}:config-rule/${ConfigRuleId}",
+                "ServicePrefix": "config",
+                "ResourceType": "config-rule"
+            }
+        },
+        "StoredQuery": {
+            "QueryArn": {
+                "Value": "arn:${Partition}:config:${Region}:${Account}:stored-query/${StoredQueryName}/${StoredQueryId}",
+                "ServicePrefix": "config",
+                "ResourceType": "stored-query"
+            }
+        },
+        "ConfigurationAggregator": {
+            "ConfigurationAggregatorArn": {
+                "Value": "arn:${Partition}:config:${Region}:${Account}:config-aggregator/${AggregatorId}",
+                "ServicePrefix": "config",
+                "ResourceType": "configuration-aggregator"
+            }
+        }
+    },
+    "CloudWatch": {
+        "CompositeAlarm": {
+            "Arn": {
+                "Value": "arn:${Partition}:cloudwatch:${Region}:${Account}:alarm:${AlarmName}",
+                "ServicePrefix": "cloudwatch",
+                "ResourceType": "alarm"
+            }
+        },
+        "InsightRule": {
+            "Ref": {
+                "Value": "arn:${Partition}:cloudwatch:${Region}:${Account}:insight-rule/${InsightRuleName}",
+                "ServicePrefix": "cloudwatch",
+                "ResourceType": "insight-rule"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:cloudwatch:${Region}:${Account}:insight-rule/${InsightRuleName}",
+                "ServicePrefix": "cloudwatch",
+                "ResourceType": "insight-rule"
+            }
+        },
+        "Alarm": {
+            "Arn": {
+                "Value": "arn:${Partition}:cloudwatch:${Region}:${Account}:alarm:${AlarmName}",
+                "ServicePrefix": "cloudwatch",
+                "ResourceType": "alarm"
+            }
+        },
+        "MetricStream": {
+            "Arn": {
+                "Value": "arn:${Partition}:cloudwatch:${Region}:${Account}:metric-stream/${MetricStreamName}",
+                "ServicePrefix": "cloudwatch",
+                "ResourceType": "metric-stream"
+            }
+        }
+    },
+    "ServiceDiscovery": {
+        "Service": {
+            "Arn": {
+                "Value": "arn:${Partition}:servicediscovery:${Region}:${Account}:service/${ServiceId}",
+                "ServicePrefix": "servicediscovery",
+                "ResourceType": "service"
+            }
+        },
+        "HttpNamespace": {
+            "Arn": {
+                "Value": "arn:${Partition}:servicediscovery:${Region}:${Account}:namespace/${NamespaceId}",
+                "ServicePrefix": "servicediscovery",
+                "ResourceType": "namespace"
+            }
+        },
+        "PrivateDnsNamespace": {
+            "Arn": {
+                "Value": "arn:${Partition}:servicediscovery:${Region}:${Account}:namespace/${NamespaceId}",
+                "ServicePrefix": "servicediscovery",
+                "ResourceType": "namespace"
+            }
+        },
+        "PublicDnsNamespace": {
+            "Arn": {
+                "Value": "arn:${Partition}:servicediscovery:${Region}:${Account}:namespace/${NamespaceId}",
+                "ServicePrefix": "servicediscovery",
+                "ResourceType": "namespace"
+            }
+        }
+    },
+    "AutoScaling": {
+        "ScalingPolicy": {
+            "Ref": null
+        }
+    },
+    "Detective": {
+        "MemberInvitation": {
+            "Ref": null
+        },
+        "Graph": {
+            "Ref": {
+                "Value": "arn:${Partition}:detective:${Region}:${Account}:graph:${ResourceId}",
+                "ServicePrefix": "detective",
+                "ResourceType": "graph"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:detective:${Region}:${Account}:graph:${ResourceId}",
+                "ServicePrefix": "detective",
+                "ResourceType": "graph"
+            }
+        }
+    },
+    "S3": {
+        "Bucket": {
+            "Arn": {
+                "Value": "arn:${Partition}:s3:::${BucketName}",
+                "ServicePrefix": "s3",
+                "ResourceType": "bucket"
+            }
+        },
+        "StorageLens": {
+            "StorageLensArn": {
+                "Value": "arn:${Partition}:s3:${Region}:${Account}:storage-lens/${ConfigId}",
+                "ServicePrefix": "s3",
+                "ResourceType": "storagelensconfiguration"
+            }
+        },
+        "AccessPoint": {
+            "Arn": {
+                "Value": "arn:${Partition}:s3:${Region}:${Account}:accesspoint/${AccessPointName}",
+                "ServicePrefix": "s3",
+                "ResourceType": "accesspoint"
+            }
+        }
+    },
+    "Cognito": {
+        "UserPool": {
+            "Arn": {
+                "Value": "arn:${Partition}:cognito-idp:${Region}:${Account}:userpool/${UserPoolId}",
+                "ServicePrefix": "cognito-idp",
+                "ResourceType": "userpool"
+            }
+        }
+    },
+    "DLM": {
+        "LifecyclePolicy": {
+            "Arn": {
+                "Value": "arn:${Partition}:dlm:${Region}:${Account}:policy/${ResourceName}",
+                "ServicePrefix": "dlm",
+                "ResourceType": "policy"
+            }
+        }
+    },
+    "ECR": {
+        "Repository": {
+            "Arn": {
+                "Value": "arn:${Partition}:ecr:${Region}:${Account}:repository/${RepositoryName}",
+                "ServicePrefix": "ecr",
+                "ResourceType": "repository"
+            }
+        }
+    },
+    "OpsWorks": {
+        "UserProfile": {
+            "Ref": {
+                "Value": "arn:${Partition}:iam::${Account}:user/${UserNameWithPath}",
+                "ServicePrefix": "iam",
+                "ResourceType": "user"
+            }
+        }
+    },
+    "FMS": {
+        "NotificationChannel": {
+            "Ref": {
+                "Value": "arn:${Partition}:sns:${Region}:${Account}:${TopicName}",
+                "ServicePrefix": "sns",
+                "ResourceType": "topic"
+            }
+        },
+        "Policy": {
+            "Arn": {
+                "Value": "arn:${Partition}:fms:${Region}:${Account}:policy/${Id}",
+                "ServicePrefix": "fms",
+                "ResourceType": "policy"
+            }
+        }
+    },
+    "AmazonMQ": {
+        "Configuration": {
+            "Arn": {
+                "Value": "arn:${Partition}:mq:${Region}:${Account}:configuration:${configuration-id}",
+                "ServicePrefix": "mq",
+                "ResourceType": "configurations"
+            }
+        },
+        "Broker": {
+            "Arn": {
+                "Value": "arn:${Partition}:mq:${Region}:${Account}:broker:${broker-id}",
+                "ServicePrefix": "mq",
+                "ResourceType": "brokers"
+            }
+        }
+    },
+    "Logs": {
+        "Destination": {
+            "Arn": {
+                "Value": "arn:${Partition}:logs:${Region}:${Account}:destination:${DestinationName}",
+                "ServicePrefix": "logs",
+                "ResourceType": "destination"
+            }
+        },
+        "LogGroup": {
+            "Arn": {
+                "Value": "arn:${Partition}:logs:${Region}:${Account}:log-group:${LogGroupName}",
+                "ServicePrefix": "logs",
+                "ResourceType": "log-group"
+            }
+        }
+    },
+    "Transfer": {
+        "Server": {
+            "Ref": {
+                "Value": "arn:${Partition}:transfer:${region}:${account}:server/${serverId}",
+                "ServicePrefix": "transfer",
+                "ResourceType": "server"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:transfer:${region}:${account}:server/${serverId}",
+                "ServicePrefix": "transfer",
+                "ResourceType": "server"
+            }
+        },
+        "User": {
+            "Arn": {
+                "Value": "arn:${Partition}:transfer:${region}:${account}:user/${serverId}/${username}",
+                "ServicePrefix": "transfer",
+                "ResourceType": "user"
+            }
+        }
+    },
+    "Events": {
+        "Rule": {
+            "Arn": {
+                "Value": "arn:${Partition}:events:${Region}:${Account}:rule/[${EventBusName}/]${RuleName}",
+                "ServicePrefix": "events",
+                "ResourceType": "rule"
+            }
+        },
+        "EventBus": {
+            "Arn": {
+                "Value": "arn:${Partition}:events:${Region}:${Account}:event-bus/${EventBusName}",
+                "ServicePrefix": "events",
+                "ResourceType": "event-bus"
+            }
+        },
+        "Connection": {
+            "Arn": {
+                "Value": "arn:${Partition}:events:${Region}:${Account}:connection/${ConnectionName}",
+                "ServicePrefix": "events",
+                "ResourceType": "connection"
+            },
+            "SecretArn": {
+                "Value": "arn:${Partition}:secretsmanager:${Region}:${Account}:secret:${SecretId}",
+                "ServicePrefix": "secretsmanager",
+                "ResourceType": "secret"
+            }
+        },
+        "ApiDestination": {
+            "Arn": {
+                "Value": "arn:${Partition}:events:${Region}:${Account}:api-destination/${ApiDestinationName}",
+                "ServicePrefix": "events",
+                "ResourceType": "api-destination"
+            }
+        },
+        "Archive": {
+            "Arn": {
+                "Value": "arn:${Partition}:events:${Region}:${Account}:archive/${ArchiveName}",
+                "ServicePrefix": "events",
+                "ResourceType": "archive"
+            }
+        }
+    },
+    "ImageBuilder": {
+        "Component": {
+            "Ref": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:component/${ComponentName}/${ComponentVersion}/${ComponentBuildVersion}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "component"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:component/${ComponentName}/${ComponentVersion}/${ComponentBuildVersion}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "component"
+            }
+        },
+        "InfrastructureConfiguration": {
+            "Ref": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:infrastructure-configuration/${ResourceId}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "infrastructure-configuration"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:infrastructure-configuration/${ResourceId}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "infrastructure-configuration"
+            }
+        },
+        "ImagePipeline": {
+            "Ref": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:image-pipeline/${ImagePipelineName}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "image-pipeline"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:image-pipeline/${ImagePipelineName}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "image-pipeline"
+            }
+        },
+        "DistributionConfiguration": {
+            "Ref": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:distribution-configuration/${DistributionConfigurationName}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "distribution-configuration"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:distribution-configuration/${DistributionConfigurationName}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "distribution-configuration"
+            }
+        },
+        "ImageRecipe": {
+            "Ref": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:image-recipe/${ImageRecipeName}/${ImageRecipeVersion}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "image-recipe"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:image-recipe/${ImageRecipeName}/${ImageRecipeVersion}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "image-recipe"
+            }
+        },
+        "Image": {
+            "Ref": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:image/${ImageName}/${ImageVersion}/${ImageBuildVersion}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "image"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:image/${ImageName}/${ImageVersion}/${ImageBuildVersion}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "image"
+            }
+        },
+        "ContainerRecipe": {
+            "Ref": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:container-recipe/${ContainerRecipeName}/${ContainerRecipeVersion}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "container-recipe"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:container-recipe/${ContainerRecipeName}/${ContainerRecipeVersion}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "container-recipe"
+            }
+        }
+    },
+    "AutoScalingPlans": {
+        "ScalingPlan": {
+            "Ref": null
+        }
+    },
+    "Macie": {
+        "FindingsFilter": {
+            "Arn": {
+                "Value": "arn:${Partition}:macie2:${Region}:${Account}:findings-filter/${ResourceId}",
+                "ServicePrefix": "macie2",
+                "ResourceType": "findings-filter"
+            }
+        },
+        "CustomDataIdentifier": {
+            "Arn": {
+                "Value": "arn:${Partition}:macie2:${Region}:${Account}:custom-data-identifier/${ResourceId}",
+                "ServicePrefix": "macie2",
+                "ResourceType": "custom-data-identifier"
+            }
+        }
+    },
+    "CertificateManager": {
+        "Certificate": {
+            "Ref": {
+                "Value": "arn:${Partition}:acm:${Region}:${Account}:certificate/${CertificateId}",
+                "ServicePrefix": "acm",
+                "ResourceType": "certificate"
+            }
+        }
+    },
+    "CodeStarNotifications": {
+        "NotificationRule": {
+            "Ref": {
+                "Value": "arn:${Partition}:codestar-notifications:${Region}:${Account}:notificationrule/${NotificationRuleId}",
+                "ServicePrefix": "codestar-notifications",
+                "ResourceType": "notificationrule"
+            }
+        }
+    },
+    "Inspector": {
+        "ResourceGroup": {
+            "Arn": null,
+            "Ref": null
+        },
+        "AssessmentTemplate": {
+            "Arn": null,
+            "Ref": null
+        },
+        "AssessmentTarget": {
+            "Arn": null,
+            "Ref": null
+        }
+    },
+    "OpsWorksCM": {
+        "Server": {
+            "Ref": null,
+            "Arn": null
+        }
+    },
+    "DMS": {
+        "Certificate": {
+            "Ref": {
+                "Value": "arn:${Partition}:dms:${Region}:${Account}:cert:*",
+                "ServicePrefix": "dms",
+                "ResourceType": "certificate"
+            }
+        },
+        "Endpoint": {
+            "Ref": {
+                "Value": "arn:${Partition}:dms:${Region}:${Account}:endpoint:*",
+                "ServicePrefix": "dms",
+                "ResourceType": "endpoint"
+            }
+        },
+        "ReplicationTask": {
+            "Ref": {
+                "Value": "arn:${Partition}:dms:${Region}:${Account}:task:*",
+                "ServicePrefix": "dms",
+                "ResourceType": "replication-task"
+            }
+        },
+        "ReplicationInstance": {
+            "Ref": {
+                "Value": "arn:${Partition}:dms:${Region}:${Account}:rep:*",
+                "ServicePrefix": "dms",
+                "ResourceType": "replication-instance"
+            }
+        }
+    },
+    "SecurityHub": {
+        "Hub": {
+            "Ref": {
+                "Value": "arn:${Partition}:securityhub:${Region}:${Account}:hub/default",
+                "ServicePrefix": "securityhub",
+                "ResourceType": "hub"
+            }
+        }
+    },
+    "Route53Resolver": {
+        "ResolverRule": {
+            "Arn": {
+                "Value": "arn:${Partition}:route53resolver:${Region}:${Account}:resolver-rule/${ResourceId}",
+                "ServicePrefix": "route53resolver",
+                "ResourceType": "resolver-rule"
+            }
+        },
+        "ResolverEndpoint": {
+            "Arn": {
+                "Value": "arn:${Partition}:route53resolver:${Region}:${Account}:resolver-endpoint/${ResourceId}",
+                "ServicePrefix": "route53resolver",
+                "ResourceType": "resolver-endpoint"
+            }
+        },
+        "ResolverQueryLoggingConfig": {
+            "Arn": {
+                "Value": "arn:${Partition}:route53resolver:${Region}:${Account}:resolver-query-log-config/${ResourceId}",
+                "ServicePrefix": "route53resolver",
+                "ResourceType": "resolver-query-log-config"
+            }
+        },
+        "FirewallRuleGroupAssociation": {
+            "Arn": {
+                "Value": "arn:${Partition}:route53resolver:${Region}:${Account}:firewall-rule-group-association/${ResourceId}",
+                "ServicePrefix": "route53resolver",
+                "ResourceType": "firewall-rule-group-association"
+            }
+        },
+        "FirewallDomainList": {
+            "Arn": {
+                "Value": "arn:${Partition}:route53resolver:${Region}:${Account}:firewall-domain-list/${ResourceId}",
+                "ServicePrefix": "route53resolver",
+                "ResourceType": "firewall-domain-list"
+            }
+        },
+        "FirewallRuleGroup": {
+            "Arn": {
+                "Value": "arn:${Partition}:route53resolver:${Region}:${Account}:firewall-rule-group/${ResourceId}",
+                "ServicePrefix": "route53resolver",
+                "ResourceType": "firewall-rule-group"
+            }
+        }
+    },
+    "ServiceCatalog": {
+        "CloudFormationProvisionedProduct": {
+            "CloudformationStackArn": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:stack/${StackName}/${Id}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "stack"
+            }
+        }
+    },
+    "CodeGuruProfiler": {
+        "ProfilingGroup": {
+            "Arn": {
+                "Value": "arn:${Partition}:codeguru-profiler:${Region}:${Account}:profilingGroup/${profilingGroupName}",
+                "ServicePrefix": "codeguru-profiler",
+                "ResourceType": "profiling-group"
+            }
+        }
+    },
+    "ApplicationAutoScaling": {
+        "ScalingPolicy": {
+            "Ref": null
+        }
+    },
+    "CodeCommit": {
+        "Repository": {
+            "Arn": {
+                "Value": "arn:${Partition}:codecommit:${Region}:${Account}:${RepositoryName}",
+                "ServicePrefix": "codecommit",
+                "ResourceType": "repository"
+            }
+        }
+    },
+    "ResourceGroups": {
+        "Group": {
+            "Arn": {
+                "Value": "arn:${Partition}:resource-groups:${Region}:${Account}:group/${GroupName}",
+                "ServicePrefix": "resource-groups",
+                "ResourceType": "group"
+            }
+        }
+    },
+    "KinesisFirehose": {
+        "DeliveryStream": {
+            "Arn": {
+                "Value": "arn:${Partition}:firehose:${Region}:${Account}:deliverystream/${DeliveryStreamName}",
+                "ServicePrefix": "firehose",
+                "ResourceType": "deliverystream"
+            }
+        }
+    },
+    "MSK": {
+        "Cluster": {
+            "Ref": {
+                "Value": "arn:${Partition}:kafka:${Region}:${Account}:cluster/${ClusterName}/${UUID}",
+                "ServicePrefix": "kafka",
+                "ResourceType": "cluster"
+            }
+        }
+    },
+    "DynamoDB": {
+        "Table": {
+            "Arn": {
+                "Value": "arn:${Partition}:dynamodb:${Region}:${Account}:table/${TableName}",
+                "ServicePrefix": "dynamodb",
+                "ResourceType": "table"
+            },
+            "StreamArn": {
+                "Value": "arn:${Partition}:dynamodb:${Region}:${Account}:table/${TableName}/stream/${StreamLabel}",
+                "ServicePrefix": "dynamodb",
+                "ResourceType": "stream"
+            }
+        },
+        "GlobalTable": {
+            "Arn": {
+                "Value": "arn:${Partition}:dynamodb::${Account}:global-table/${GlobalTableName}",
+                "ServicePrefix": "dynamodb",
+                "ResourceType": "global-table"
+            },
+            "StreamArn": {
+                "Value": "arn:${Partition}:dynamodb:${Region}:${Account}:table/${TableName}/stream/${StreamLabel}",
+                "ServicePrefix": "dynamodb",
+                "ResourceType": "stream"
+            }
+        }
+    },
+    "Chatbot": {
+        "SlackChannelConfiguration": {
+            "Ref": {
+                "Value": "arn:${Partition}:chatbot::${account}:${resourceType}/${resourceName}",
+                "ServicePrefix": "chatbot",
+                "ResourceType": "chatbot-configuration"
+            },
+            "Arn": null
+        }
+    },
+    "ManagedBlockchain": {
+        "Node": {
+            "Arn": {
+                "Value": "arn:${Partition}:managedblockchain:${Region}:${Account}:nodes/${NodeId}",
+                "ServicePrefix": "managedblockchain",
+                "ResourceType": "node"
+            }
+        }
+    },
+    "RDS": {
+        "DBProxy": {
+            "DBProxyArn": {
+                "Value": "arn:${Partition}:rds:${Region}:${Account}:db-proxy:${DbProxyId}",
+                "ServicePrefix": "rds",
+                "ResourceType": "proxy"
+            }
+        },
+        "DBProxyTargetGroup": {
+            "Ref": {
+                "Value": "arn:${Partition}:rds:${Region}:${Account}:target-group:${TargetGroupId}",
+                "ServicePrefix": "rds",
+                "ResourceType": "target-group"
+            },
+            "TargetGroupArn": {
+                "Value": "arn:${Partition}:rds:${Region}:${Account}:target-group:${TargetGroupId}",
+                "ServicePrefix": "rds",
+                "ResourceType": "target-group"
+            }
+        },
+        "DBProxyEndpoint": {
+            "DBProxyEndpointArn": {
+                "Value": "arn:${Partition}:rds:${Region}:${Account}:db-proxy-endpoint:${DbProxyEndpointId}",
+                "ServicePrefix": "rds",
+                "ResourceType": "proxy-endpoint"
+            }
+        }
+    },
+    "EFS": {
+        "AccessPoint": {
+            "Arn": {
+                "Value": "arn:${Partition}:elasticfilesystem:${Region}:${Account}:access-point/${AccessPointId}",
+                "ServicePrefix": "elasticfilesystem",
+                "ResourceType": "access-point"
+            }
+        },
+        "FileSystem": {
+            "Arn": {
+                "Value": "arn:${Partition}:elasticfilesystem:${Region}:${Account}:file-system/${FileSystemId}",
+                "ServicePrefix": "elasticfilesystem",
+                "ResourceType": "file-system"
+            }
+        }
+    },
+    "DataSync": {
+        "LocationNFS": {
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            },
+            "LocationArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            }
+        },
+        "LocationFSxWindows": {
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            },
+            "LocationArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            }
+        },
+        "LocationS3": {
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            },
+            "LocationArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            }
+        },
+        "Task": {
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            },
+            "TaskArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:task/${TaskId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "task"
+            },
+            "SourceNetworkInterfaceArns": null,
+            "DestinationNetworkInterfaceArns": null
+        },
+        "LocationObjectStorage": {
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            },
+            "LocationArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            }
+        },
+        "Agent": {
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:agent/${AgentId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "agent"
+            },
+            "AgentArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:agent/${AgentId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "agent"
+            }
+        },
+        "LocationEFS": {
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            },
+            "LocationArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            }
+        },
+        "LocationSMB": {
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            },
+            "LocationArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            }
+        }
+    },
+    "MediaConnect": {
+        "FlowSource": {
+            "Ref": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:source:${SourceId}:${SourceName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "source"
+            },
+            "SourceArn": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:source:${SourceId}:${SourceName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "source"
+            }
+        },
+        "FlowVpcInterface": {
+            "Ref": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:flow:${FlowId}:${FlowName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "flow"
+            }
+        },
+        "FlowEntitlement": {
+            "Ref": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:entitlement:${FlowId}:${EntitlementName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "entitlement"
+            },
+            "EntitlementArn": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:entitlement:${FlowId}:${EntitlementName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "entitlement"
+            }
+        },
+        "FlowOutput": {
+            "Ref": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:output:${OutputId}:${OutputName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "output"
+            },
+            "OutputArn": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:output:${OutputId}:${OutputName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "output"
+            }
+        },
+        "Flow": {
+            "Ref": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:flow:${FlowId}:${FlowName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "flow"
+            },
+            "FlowArn": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:flow:${FlowId}:${FlowName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "flow"
+            },
+            "SourceArn": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:source:${SourceId}:${SourceName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "source"
+            }
+        }
+    },
+    "QuickSight": {
+        "Dashboard": {
+            "Arn": {
+                "Value": "arn:${Partition}:quicksight:${Region}:${Account}:dashboard/${ResourceId}",
+                "ServicePrefix": "quicksight",
+                "ResourceType": "dashboard"
+            }
+        },
+        "Analysis": {
+            "Arn": {
+                "Value": "arn:${Partition}:quicksight:${Region}:${Account}:analysis/${ResourceId}",
+                "ServicePrefix": "quicksight",
+                "ResourceType": "analysis"
+            },
+            "DataSetArns": null
+        },
+        "Template": {
+            "Arn": {
+                "Value": "arn:${Partition}:quicksight:${Region}:${Account}:template/${ResourceId}",
+                "ServicePrefix": "quicksight",
+                "ResourceType": "template"
+            }
+        },
+        "Theme": {
+            "Arn": {
+                "Value": "arn:${Partition}:quicksight:${Region}:${Account}:theme/${ResourceId}",
+                "ServicePrefix": "quicksight",
+                "ResourceType": "theme"
+            }
+        },
+        "DataSource": {
+            "Arn": {
+                "Value": "arn:${Partition}:quicksight:${Region}:${Account}:datasource/${ResourceId}",
+                "ServicePrefix": "quicksight",
+                "ResourceType": "datasource"
+            }
+        },
+        "DataSet": {
+            "Arn": {
+                "Value": "arn:${Partition}:quicksight:${Region}:${Account}:dataset/${ResourceId}",
+                "ServicePrefix": "quicksight",
+                "ResourceType": "dataset"
+            }
+        }
+    },
+    "ApplicationInsights": {
+        "Application": {
+            "Ref": null,
+            "ApplicationARN": null
+        }
+    },
+    "QLDB": {
+        "Stream": {
+            "Ref": {
+                "Value": "arn:${Partition}:qldb:${Region}:${Account}:stream/${LedgerName}/${StreamId}",
+                "ServicePrefix": "qldb",
+                "ResourceType": "stream"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:qldb:${Region}:${Account}:stream/${LedgerName}/${StreamId}",
+                "ServicePrefix": "qldb",
+                "ResourceType": "stream"
+            }
+        }
+    },
+    "ElastiCache": {
+        "User": {
+            "Arn": {
+                "Value": "arn:${Partition}:elasticache:${Region}:${Account}:user:${UserId}",
+                "ServicePrefix": "elasticache",
+                "ResourceType": "user"
+            }
+        },
+        "UserGroup": {
+            "Arn": {
+                "Value": "arn:${Partition}:elasticache:${Region}:${Account}:usergroup:${UserGroupId}",
+                "ServicePrefix": "elasticache",
+                "ResourceType": "usergroup"
+            }
+        }
+    },
+    "CodeArtifact": {
+        "Repository": {
+            "Ref": {
+                "Value": "arn:${Partition}:codeartifact:${Region}:${Account}:repository/${DomainName}/${RepositoryName}",
+                "ServicePrefix": "codeartifact",
+                "ResourceType": "repository"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:codeartifact:${Region}:${Account}:repository/${DomainName}/${RepositoryName}",
+                "ServicePrefix": "codeartifact",
+                "ResourceType": "repository"
+            }
+        },
+        "Domain": {
+            "Ref": {
+                "Value": "arn:${Partition}:codeartifact:${Region}:${Account}:domain/${DomainName}",
+                "ServicePrefix": "codeartifact",
+                "ResourceType": "domain"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:codeartifact:${Region}:${Account}:domain/${DomainName}",
+                "ServicePrefix": "codeartifact",
+                "ResourceType": "domain"
+            }
+        }
+    },
+    "MWAA": {
+        "Environment": {
+            "Arn": {
+                "Value": "arn:${Partition}:airflow:${Region}:${Account}:environment/${EnvironmentName}",
+                "ServicePrefix": "airflow",
+                "ResourceType": "environment"
+            }
+        }
+    },
+    "S3ObjectLambda": {
+        "AccessPoint": {
+            "Arn": {
+                "Value": "arn:${Partition}:s3-object-lambda:${Region}:${Account}:accesspoint/${AccessPointName}",
+                "ServicePrefix": "s3-object-lambda",
+                "ResourceType": "objectlambdaaccesspoint"
+            }
+        }
+    },
+    "NetworkFirewall": {
+        "RuleGroup": {
+            "Ref": {
+                "Value": "arn:${Partition}:network-firewall:${Region}:${Account}:stateful-rulegroup/${Name}",
+                "ServicePrefix": "network-firewall",
+                "ResourceType": "stateful-rule-group"
+            },
+            "RuleGroupArn": {
+                "Value": "arn:${Partition}:network-firewall:${Region}:${Account}:stateful-rulegroup/${Name}",
+                "ServicePrefix": "network-firewall",
+                "ResourceType": "stateful-rule-group"
+            }
+        },
+        "FirewallPolicy": {
+            "Ref": {
+                "Value": "arn:${Partition}:network-firewall:${Region}:${Account}:firewall-policy/${Name}",
+                "ServicePrefix": "network-firewall",
+                "ResourceType": "firewall-policy"
+            },
+            "FirewallPolicyArn": {
+                "Value": "arn:${Partition}:network-firewall:${Region}:${Account}:firewall-policy/${Name}",
+                "ServicePrefix": "network-firewall",
+                "ResourceType": "firewall-policy"
+            }
+        },
+        "Firewall": {
+            "Ref": {
+                "Value": "arn:${Partition}:network-firewall:${Region}:${Account}:firewall/${Name}",
+                "ServicePrefix": "network-firewall",
+                "ResourceType": "firewall"
+            },
+            "FirewallArn": {
+                "Value": "arn:${Partition}:network-firewall:${Region}:${Account}:firewall/${Name}",
+                "ServicePrefix": "network-firewall",
+                "ResourceType": "firewall"
+            }
+        },
+        "LoggingConfiguration": {
+            "Ref": {
+                "Value": "arn:${Partition}:network-firewall:${Region}:${Account}:firewall/${Name}",
+                "ServicePrefix": "network-firewall",
+                "ResourceType": "firewall"
+            }
+        }
+    },
+    "ServiceCatalogAppRegistry": {
+        "Application": {
+            "Arn": {
+                "Value": "arn:${Partition}:servicecatalog:${Region}:${Account}:/applications/${ApplicationId}",
+                "ServicePrefix": "servicecatalog",
+                "ResourceType": "application"
+            }
+        },
+        "ResourceAssociation": {
+            "ApplicationArn": {
+                "Value": "arn:${Partition}:servicecatalog:${Region}:${Account}:/applications/${ApplicationId}",
+                "ServicePrefix": "servicecatalog",
+                "ResourceType": "application"
+            },
+            "ResourceArn": null
+        },
+        "AttributeGroup": {
+            "Arn": {
+                "Value": "arn:${Partition}:servicecatalog:${Region}:${Account}:/attribute-groups/${AttributeGroupId}",
+                "ServicePrefix": "servicecatalog",
+                "ResourceType": "attribute-group"
+            }
+        },
+        "AttributeGroupAssociation": {
+            "ApplicationArn": {
+                "Value": "arn:${Partition}:servicecatalog:${Region}:${Account}:/applications/${ApplicationId}",
+                "ServicePrefix": "servicecatalog",
+                "ResourceType": "application"
+            },
+            "AttributeGroupArn": {
+                "Value": "arn:${Partition}:servicecatalog:${Region}:${Account}:/attribute-groups/${AttributeGroupId}",
+                "ServicePrefix": "servicecatalog",
+                "ResourceType": "attribute-group"
+            }
+        }
+    },
+    "GreengrassV2": {
+        "ComponentVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:components:${ComponentName}:versions:${ComponentVersion}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "component-version"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:greengrass:${Region}:${Account}:components:${ComponentName}:versions:${ComponentVersion}",
+                "ServicePrefix": "greengrass",
+                "ResourceType": "component-version"
+            }
+        }
+    },
+    "EC2": {
+        "Subnet": {
+            "OutpostArn": null
+        },
+        "NetworkInsightsPath": {
+            "NetworkInsightsPathArn": {
+                "Value": "arn:${Partition}:ec2:${Region}:${Account}:network-insights-path/${NetworkInsightsPathId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "network-insights-path"
+            }
+        },
+        "PrefixList": {
+            "Arn": {
+                "Value": "arn:${Partition}:ec2:${Region}:${Account}:prefix-list/${PrefixListId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "prefix-list"
+            }
+        },
+        "TransitGatewayMulticastDomain": {
+            "TransitGatewayMulticastDomainArn": {
+                "Value": "arn:${Partition}:ec2:${Region}:${Account}:transit-gateway-multicast-domain/${TransitGatewayMulticastDomainId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "transit-gateway-multicast-domain"
+            }
+        },
+        "NetworkInsightsAnalysis": {
+            "NetworkInsightsAnalysisArn": {
+                "Value": "arn:${Partition}:ec2:${Region}:${Account}:network-insights-analysis/${NetworkInsightsAnalysisId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "network-insights-analysis"
+            }
+        }
+    },
+    "DevOpsGuru": {
+        "NotificationChannel": {
+            "Ref": {
+                "Value": "arn:${Partition}:sns:${Region}:${Account}:${TopicName}",
+                "ServicePrefix": "sns",
+                "ResourceType": "topic"
+            }
+        },
+        "ResourceCollection": {
+            "Ref": null
+        }
+    },
+    "AuditManager": {
+        "Assessment": {
+            "Arn": {
+                "Value": "arn:${Partition}:auditmanager:${Region}:${Account}:assessment/${assessmentId}",
+                "ServicePrefix": "auditmanager",
+                "ResourceType": "assessment"
+            }
+        }
+    },
+    "CloudFormation": {
+        "ResourceDefaultVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            }
+        },
+        "ResourceVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            },
+            "TypeArn": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            }
+        },
+        "ModuleDefaultVersion": {
+            "Ref": null
+        },
+        "ModuleVersion": {
+            "Ref": null,
+            "Arn": null
+        },
+        "TypeActivation": {
+            "Ref": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            }
+        },
+        "PublicTypeVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            },
+            "TypeVersionArn": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            },
+            "PublicTypeArn": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            }
+        }
+    },
+    "S3Outposts": {
+        "AccessPoint": {
+            "Ref": {
+                "Value": "arn:${Partition}:s3-outposts:${Region}:${Account}:outpost/${OutpostId}/accesspoint/${AccessPointName}",
+                "ServicePrefix": "s3-outposts",
+                "ResourceType": "accesspoint"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:s3-outposts:${Region}:${Account}:outpost/${OutpostId}/accesspoint/${AccessPointName}",
+                "ServicePrefix": "s3-outposts",
+                "ResourceType": "accesspoint"
+            }
+        },
+        "Bucket": {
+            "Ref": {
+                "Value": "arn:${Partition}:s3-outposts:${Region}:${Account}:outpost/${OutpostId}/bucket/${BucketName}",
+                "ServicePrefix": "s3-outposts",
+                "ResourceType": "bucket"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:s3-outposts:${Region}:${Account}:outpost/${OutpostId}/bucket/${BucketName}",
+                "ServicePrefix": "s3-outposts",
+                "ResourceType": "bucket"
+            }
+        },
+        "Endpoint": {
+            "Ref": {
+                "Value": "arn:${Partition}:s3-outposts:${Region}:${Account}:outpost/${OutpostId}/endpoint/${EndpointId}",
+                "ServicePrefix": "s3-outposts",
+                "ResourceType": "endpoint"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:s3-outposts:${Region}:${Account}:outpost/${OutpostId}/endpoint/${EndpointId}",
+                "ServicePrefix": "s3-outposts",
+                "ResourceType": "endpoint"
+            }
+        },
+        "BucketPolicy": {
+            "Ref": {
+                "Value": "arn:${Partition}:s3-outposts:${Region}:${Account}:outpost/${OutpostId}/bucket/${BucketName}",
+                "ServicePrefix": "s3-outposts",
+                "ResourceType": "bucket"
+            }
+        }
+    },
+    "CloudFront": {
+        "RealtimeLogConfig": {
+            "Ref": {
+                "Value": "arn:${Partition}:cloudfront::${Account}:realtime-log-config/${Name}",
+                "ServicePrefix": "cloudfront",
+                "ResourceType": "realtime-log-config"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:cloudfront::${Account}:realtime-log-config/${Name}",
+                "ServicePrefix": "cloudfront",
+                "ResourceType": "realtime-log-config"
+            }
+        },
+        "Function": {
+            "FunctionARN": {
+                "Value": "arn:${Partition}:cloudfront::${Account}:function/${Name}",
+                "ServicePrefix": "cloudfront",
+                "ResourceType": "function"
+            }
+        }
+    },
+    "CodeGuruReviewer": {
+        "RepositoryAssociation": {
+            "Ref": {
+                "Value": "arn:${Partition}:codeguru-reviewer::${Account}:association:${ResourceId}",
+                "ServicePrefix": "codeguru-reviewer",
+                "ResourceType": "association"
+            },
+            "AssociationArn": {
+                "Value": "arn:${Partition}:codeguru-reviewer::${Account}:association:${ResourceId}",
+                "ServicePrefix": "codeguru-reviewer",
+                "ResourceType": "association"
+            }
+        }
+    },
+    "Timestream": {
+        "Database": {
+            "Arn": {
+                "Value": "arn:${Partition}:timestream:${Region}:${Account}:database/${DatabaseName}",
+                "ServicePrefix": "timestream",
+                "ResourceType": "database"
+            }
+        },
+        "Table": {
+            "Arn": {
+                "Value": "arn:${Partition}:timestream:${Region}:${Account}:database/${DatabaseName}/table/${TableName}",
+                "ServicePrefix": "timestream",
+                "ResourceType": "table"
+            }
+        }
+    },
+    "Glue": {
+        "Schema": {
+            "Arn": {
+                "Value": "arn:${Partition}:glue:${Region}:${Account}:schema/${SchemaName}",
+                "ServicePrefix": "glue",
+                "ResourceType": "schema"
+            }
+        },
+        "Registry": {
+            "Arn": {
+                "Value": "arn:${Partition}:glue:${Region}:${Account}:registry/${RegistryName}",
+                "ServicePrefix": "glue",
+                "ResourceType": "registry"
+            }
+        }
+    },
+    "LicenseManager": {
+        "License": {
+            "LicenseArn": {
+                "Value": "arn:${Partition}:license-manager::${Account}:license:${LicenseId}",
+                "ServicePrefix": "license-manager",
+                "ResourceType": "license"
+            }
+        },
+        "Grant": {
+            "GrantArn": {
+                "Value": "arn:${Partition}:license-manager::${Account}:grant:${GrantId}",
+                "ServicePrefix": "license-manager",
+                "ResourceType": "grant"
+            }
+        }
+    },
+    "AppFlow": {
+        "Flow": {
+            "FlowArn": {
+                "Value": "arn:${Partition}:appflow:${Region}:${Account}:flow/${flowName}",
+                "ServicePrefix": "appflow",
+                "ResourceType": "flow"
+            }
+        },
+        "ConnectorProfile": {
+            "ConnectorProfileArn": {
+                "Value": "arn:${Partition}:appflow:${Region}:${Account}:connectorprofile/${profileName}",
+                "ServicePrefix": "appflow",
+                "ResourceType": "connectorprofile"
+            },
+            "CredentialsArn": null
+        }
+    },
+    "Signer": {
+        "SigningProfile": {
+            "Arn": {
+                "Value": "arn:${Partition}:signer:${Region}:${Account}:/signing-profiles/${profileName}",
+                "ServicePrefix": "signer",
+                "ResourceType": "signing-profile"
+            },
+            "ProfileVersionArn": {
+                "Value": "arn:${Partition}:signer:${Region}:${Account}:/signing-profiles/${profileName}",
+                "ServicePrefix": "signer",
+                "ResourceType": "signing-profile"
+            }
+        }
+    },
+    "SSO": {
+        "PermissionSet": {
+            "Ref": {
+                "Value": "arn:${Partition}:sso:::permissionSet/${InstanceId}/${PermissionSetId}",
+                "ServicePrefix": "sso",
+                "ResourceType": "permission-set"
+            },
+            "PermissionSetArn": {
+                "Value": "arn:${Partition}:sso:::permissionSet/${InstanceId}/${PermissionSetId}",
+                "ServicePrefix": "sso",
+                "ResourceType": "permission-set"
+            }
+        }
+    },
+    "LookoutVision": {
+        "Project": {
+            "Arn": {
+                "Value": "arn:${Partition}:lookoutvision:${Region}:${Account}:project/${ProjectName}",
+                "ServicePrefix": "lookoutvision",
+                "ResourceType": "project"
+            }
+        }
+    },
+    "LookoutMetrics": {
+        "Alert": {
+            "Arn": {
+                "Value": "arn:${Partition}:lookoutmetrics:${Region}:${Account}:Alert:${AlertName}",
+                "ServicePrefix": "lookoutmetrics",
+                "ResourceType": "alert"
+            }
+        },
+        "AnomalyDetector": {
+            "Arn": {
+                "Value": "arn:${Partition}:lookoutmetrics:${Region}:${Account}:AnomalyDetector:${AnomalyDetectorName}",
+                "ServicePrefix": "lookoutmetrics",
+                "ResourceType": "anomaly-detector"
+            }
+        }
+    },
+    "IoTFleetHub": {
+        "Application": {
+            "ApplicationArn": {
+                "Value": "arn:${Partition}:iotfleethub::${Account}:application/${ApplicationId}",
+                "ServicePrefix": "iotfleethub",
+                "ResourceType": "application"
+            }
+        }
+    },
+    "EMRContainers": {
+        "VirtualCluster": {
+            "Arn": {
+                "Value": "arn:${Partition}:emr-containers:${Region}:${Account}:/virtualclusters/${virtualClusterId}",
+                "ServicePrefix": "emr-containers",
+                "ResourceType": "virtual-cluster"
+            }
+        }
+    },
+    "XRay": {
+        "Group": {
+            "GroupARN": {
+                "Value": "arn:${Partition}:xray:${Region}:${Account}:group/${GroupName}/${Id}",
+                "ServicePrefix": "xray",
+                "ResourceType": "group"
+            }
+        },
+        "SamplingRule": {
+            "RuleARN": {
+                "Value": "arn:${Partition}:xray:${Region}:${Account}:sampling-rule/${SamplingRuleName}",
+                "ServicePrefix": "xray",
+                "ResourceType": "sampling-rule"
+            }
+        }
+    },
+    "FraudDetector": {
+        "EntityType": {
+            "Ref": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:entity-type/${resourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "entity-type"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:entity-type/${resourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "entity-type"
+            }
+        },
+        "Outcome": {
+            "Ref": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:outcome/${resourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "outcome"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:outcome/${resourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "outcome"
+            }
+        },
+        "EventType": {
+            "Ref": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:event-type/${resourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "event-type"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:event-type/${resourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "event-type"
+            }
+        },
+        "Detector": {
+            "Ref": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:detector/${resourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "detector"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:detector/${resourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "detector"
+            }
+        },
+        "Label": {
+            "Ref": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:label/${resourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "label"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:label/${resourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "label"
+            }
+        },
+        "Variable": {
+            "Ref": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:variable/${resourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "variable"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:variable/${resourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "variable"
+            }
+        }
+    },
+    "CE": {
+        "CostCategory": {
+            "Ref": null,
+            "Arn": null
+        }
+    },
+    "SSMContacts": {
+        "Contact": {
+            "Ref": {
+                "Value": "arn:${Partition}:ssm-contacts:${Region}:${Account}:contact/${ContactAlias}",
+                "ServicePrefix": "ssm-contacts",
+                "ResourceType": "contact"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:ssm-contacts:${Region}:${Account}:contact/${ContactAlias}",
+                "ServicePrefix": "ssm-contacts",
+                "ResourceType": "contact"
+            }
+        },
+        "ContactChannel": {
+            "Ref": {
+                "Value": "arn:${Partition}:ssm-contacts:${Region}:${Account}:contactchannel/${ContactAlias}/${ContactChannelId}",
+                "ServicePrefix": "ssm-contacts",
+                "ResourceType": "contactchannel"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:ssm-contacts:${Region}:${Account}:contactchannel/${ContactAlias}/${ContactChannelId}",
+                "ServicePrefix": "ssm-contacts",
+                "ResourceType": "contactchannel"
+            }
+        }
+    },
+    "SSMIncidents": {
+        "ReplicationSet": {
+            "Arn": {
+                "Value": "arn:${Partition}:ssm-incidents::${Account}:replication-set/${ReplicationSet}",
+                "ServicePrefix": "ssm-incidents",
+                "ResourceType": "replication-set"
+            }
+        },
+        "ResponsePlan": {
+            "Arn": {
+                "Value": "arn:${Partition}:ssm-incidents::${Account}:response-plan/${ResponsePlan}",
+                "ServicePrefix": "ssm-incidents",
+                "ResourceType": "response-plan"
+            }
+        }
+    },
+    "FinSpace": {
+        "Environment": {
+            "EnvironmentArn": null
+        }
+    },
+    "EMR": {
+        "Studio": {
+            "Arn": {
+                "Value": "arn:${Partition}:elasticmapreduce:${Region}:${Account}:studio/${StudioId}",
+                "ServicePrefix": "elasticmapreduce",
+                "ResourceType": "studio"
+            }
+        }
+    },
+    "Location": {
+        "Tracker": {
+            "TrackerArn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:tracker/${TrackerName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "tracker"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:tracker/${TrackerName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "tracker"
+            }
+        },
+        "Map": {
+            "MapArn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:map/${MapName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "map"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:map/${MapName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "map"
+            }
+        },
+        "GeofenceCollection": {
+            "CollectionArn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:geofence-collection/${GeofenceCollectionName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "geofence-collection"
+            }
+        },
+        "RouteCalculator": {
+            "CalculatorArn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:route-calculator/${CalculatorName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "route-calculator"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:route-calculator/${CalculatorName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "route-calculator"
+            }
+        },
+        "PlaceIndex": {
+            "IndexArn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:place-index/${IndexName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "place-index"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:place-index/${IndexName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "place-index"
+            }
+        }
+    },
+    "AppRunner": {
+        "Service": {
+            "ServiceArn": {
+                "Value": "arn:${Partition}:apprunner:${Region}:${Account}:service/${ServiceName}/${ServiceId}",
+                "ServicePrefix": "apprunner",
+                "ResourceType": "service"
+            }
+        }
+    },
+    "DAX": {
+        "Cluster": {
+            "Arn": {
+                "Value": "arn:${Partition}:dax:${Region}:${Account}:cache/${ClusterName}",
+                "ServicePrefix": "dax",
+                "ResourceType": "application"
+            }
+        }
+    },
+    "MediaLive": {
+        "Channel": {
+            "Arn": {
+                "Value": "arn:${Partition}:medialive:${Region}:${Account}:channel:*",
+                "ServicePrefix": "medialive",
+                "ResourceType": "channel"
+            }
+        },
+        "InputSecurityGroup": {
+            "Arn": {
+                "Value": "arn:${Partition}:medialive:${Region}:${Account}:inputSecurityGroup:*",
+                "ServicePrefix": "medialive",
+                "ResourceType": "input-security-group"
+            }
+        }
+    }
+}
