@@ -1,6 +1,6 @@
 ## AWS CloudFormation IAM Policy Validator
 
-A command line tool that takes a locally referenced CloudFormation template, parses the IAM policies attached to IAM roles, users, groups, and resources then runs them through IAM Access Analyzer.
+A command line tool that takes a CloudFormation template, parses the IAM policies attached to IAM roles, users, groups, and resources then runs them through IAM Access Analyzer validation checks.
 
 ### Getting Started
 
