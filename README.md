@@ -5,6 +5,9 @@ A command line tool that takes a locally referenced CloudFormation template, par
 ### Getting Started
 
 Installation:
+
+Python 3.6+ is supported.
+
 ```
 pip install cfn-policy-validator
 ```
