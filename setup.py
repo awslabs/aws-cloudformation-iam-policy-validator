@@ -18,11 +18,13 @@ version = get_version('cfn_policy_validator/version.py')
 setuptools.setup(
     name="cfn-policy-validator",
     version=version,
-    author="Matt Luttrell",
+    author="mluttrell",
     author_email="matluttr@amazon.com",
     description="Parses IAM identity-based and resource-based policies from a CloudFormation template and runs them through IAM Access Analyzer checks.",
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(exclude=["*.tests", "*_tests"]),
+    url='https://github.com/awslabs/aws-cloudformation-iam-policy-validator',
+    license='MIT-0',
     classifiers=[
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
