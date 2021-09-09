@@ -1,0 +1,60 @@
+{
+    "Resources": {
+        "MyQueue": {
+            "Type": "AWS::SQS::Queue"
+        },
+        "MyQueuePolicy": {
+            "Type": "AWS::SQS::QueuePolicy",
+            "Properties": {
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement":[{
+                        "Action": ["sqs:SendMessage", "sqs:ReceiveMessage"],
+                        "Effect": "Allow",
+                        "Resource": { "Fn::GetAtt": ["MyQueue", "Arn"] },
+                        "Principal": "*"
+                    }]
+                },
+                "Queues": [
+                    { "Ref": "MyQueue" }
+                ]
+            }
+        },
+        "MyRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyName": "root",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": "iam:PassRole",
+                                    "Resource": "*"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,19 @@
+{
+  "Parameters" : {
+    "CodestarConnectionArn": "fakearn",
+    "EnvironmentName": "test"
+  },
+  "Tags" : {
+    "Department" : "Marketing"
+  },
+  "StackPolicy" : {
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "NotAction" : "Update:Delete",
+        "Principal": "*",
+        "Resource" : "*"
+      }
+    ]
+  }
+}

@@ -1,0 +1,396 @@
+{
+    "Account": "123456789",
+    "Groups": [
+        {
+            "GroupName": "MyIAMGroup",
+            "GroupPath": "/my-test-group-path/",
+            "Policies": [
+                {
+                    "Name": "root",
+                    "Path": "/",
+                    "Policy": {
+                        "Statement": [
+                            {
+                                "Action": [
+                                    "iam:PassRole"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": "*"
+                            },
+                            {
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": "arn:aws:s3:::ArtifactBucket/*"
+                            },
+                            {
+                                "Action": [
+                                    "ecr:BatchCheckLayerAvailability",
+                                    "ecr:CompleteLayerUpload",
+                                    "ecr:GetAuthorizationToken",
+                                    "ecr:InitiateLayerUpload",
+                                    "ecr:PutImage",
+                                    "ecr:UploadLayerPart"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": "*"
+                            },
+                            {
+                                "Action": "sns:Publish",
+                                "Effect": "Allow",
+                                "Resource": "arn:aws:sns:us-east-1:123456789:MySNSTopic"
+                            }
+                        ],
+                        "Version": "2012-10-17"
+                    }
+                },
+                {
+                    "Name": "MyManagedPolicy",
+                    "Path": "/",
+                    "Policy": {
+                        "Statement": [
+                            {
+                                "Action": [
+                                    "iam:CreateRole",
+                                    "iam:UpdateRole",
+                                    "iam:PutRolePolicy",
+                                    "iam:PutRolePermissionsBoundary",
+                                    "iam:DeleteRolePermissionsBoundary",
+                                    "iam:AttachRolePolicy",
+                                    "iam:DetachRolePolicy"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": "*",
+                                "Sid": "MyManagedPolicy"
+                            }
+                        ],
+                        "Version": "2012-10-17"
+                    }
+                }
+            ]
+        }
+    ],
+    "OrphanedPolicies": [
+        {
+            "Name": "MyManagedUserPolicy",
+            "Path": "/",
+            "Policy": {
+                "Statement": [
+                    {
+                        "Action": [
+                            "iam:CreateRole",
+                            "iam:UpdateRole",
+                            "iam:PutRolePolicy",
+                            "iam:PutRolePermissionsBoundary",
+                            "iam:DeleteRolePermissionsBoundary",
+                            "iam:AttachRolePolicy",
+                            "iam:DetachRolePolicy"
+                        ],
+                        "Effect": "Allow",
+                        "Resource": "*",
+                        "Sid": "MyManagedUserPolicy"
+                    }
+                ],
+                "Version": "2012-10-17"
+            }
+        }
+    ],
+    "Region": "us-east-1",
+    "Resources": [
+        {
+            "Policies": [
+                {
+                    "Name": "ArtifactBucketPolicy",
+                    "Path": "/",
+                    "Policy": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Action": "*",
+                                "Effect": "Allow",
+                                "Principal": {
+                                    "AWS": "123456789012"
+                                },
+                                "Resource": [
+                                    "arn:aws:s3:::prod-app-artifacts",
+                                    "arn:aws:s3:::prod-app-artifacts/*"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ],
+            "ResourceName": "prod-app-artifacts",
+            "ResourceType": "S3"
+        },
+        {
+            "Policies": [
+                {
+                    "Name": "MyQueuePolicy",
+                    "Path": "/",
+                    "Policy": {
+                        "Statement": [
+                            {
+                                "Principal": "*",
+                                "Action": [
+                                    "sqs:SendMessage"
+                                ],
+                                "Condition": {
+                                    "ArnLike": {
+                                        "aws:SourceArn": "arn:aws:sns:us-east-1:123456786:MyTopic"
+                                    }
+                                },
+                                "Effect": "Allow",
+                                "Resource": "arn:aws:sqs:us-east-1:123456789:MyQueue"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "ResourceName": "MyQueue",
+            "ResourceType": "SQS"
+        },
+        {
+            "Policies": [
+                {
+                    "Name": "MySecretResourcePolicy",
+                    "Path": "/",
+                    "Policy": {
+                        "Statement": [
+                            {
+                                "Action": "secretsmanager:DeleteSecret",
+                                "Effect": "Allow",
+                                "Principal": {
+                                    "AWS": "*"
+                                },
+                                "Resource": "*"
+                            }
+                        ],
+                        "Version": "2012-10-17"
+                    }
+                }
+            ],
+            "ResourceName": "MySecret",
+            "ResourceType": "SecretsManager"
+        }
+    ],
+    "Roles": [
+        {
+            "Policies": [
+                {
+                    "Name": "root",
+                    "Path": "/",
+                    "Policy": {
+                        "Statement": [
+                            {
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:PutObjectAcl",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketVersioning",
+                                    "s3:ListBucket"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::ArtifactBucket"
+                                ]
+                            },
+                            {
+                                "Action": [
+                                    "codebuild:StartBuild",
+                                    "codebuild:BatchGetBuilds",
+                                    "iam:PassRole",
+                                    "ecs:DescribeServices",
+                                    "ecs:DescribeTaskDefinition",
+                                    "ecs:DescribeTasks",
+                                    "ecs:ListTasks",
+                                    "ecs:RegisterTaskDefinition",
+                                    "ecs:UpdateService"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": "*"
+                            },
+                            {
+                                "Action": "codestar-connections:UseConnection",
+                                "Effect": "Allow",
+                                "Resource": "fakearn"
+                            }
+                        ],
+                        "Version": "2012-10-17"
+                    }
+                }
+            ],
+            "RoleName": "CodePipelineServiceRole",
+            "RolePath": "/",
+            "TrustPolicy": {
+                "Statement": [
+                    {
+                        "Action": "sts:AssumeRole",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": "*"
+                        }
+                    }
+                ],
+                "Version": "2012-10-17"
+            }
+        },
+        {
+            "Policies": [
+                {
+                    "Name": "root",
+                    "Path": "/",
+                    "Policy": {
+                        "Statement": [
+                            {
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": "*"
+                            },
+                            {
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": "arn:aws:s3:::ArtifactBucket/*"
+                            },
+                            {
+                                "Action": [
+                                    "ecr:BatchCheckLayerAvailability",
+                                    "ecr:CompleteLayerUpload",
+                                    "ecr:GetAuthorizationToken",
+                                    "ecr:InitiateLayerUpload",
+                                    "ecr:PutImage",
+                                    "ecr:UploadLayerPart"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": "*"
+                            },
+                            {
+                                "Action": "sns:Publish",
+                                "Effect": "Allow",
+                                "Resource": "arn:aws:sns:us-east-1:123456789:MySNSTopic"
+                            }
+                        ],
+                        "Version": "2012-10-17"
+                    }
+                },
+                {
+                    "Name": "AWSLambdaBasicExecutionRole",
+                    "Path": "/service-role/",
+                    "Policy": {
+                        "Statement": [
+                            {
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": "*"
+                            }
+                        ],
+                        "Version": "2012-10-17"
+                    }
+                }
+            ],
+            "RoleName": "CodeBuildServiceRole",
+            "RolePath": "/",
+            "TrustPolicy": {
+                "Statement": [
+                    {
+                        "Action": "sts:AssumeRole",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": "codebuild.amazonaws.com"
+                        }
+                    }
+                ],
+                "Version": "2012-10-17"
+            }
+        }
+    ],
+    "Users": [
+        {
+            "Policies": [
+                {
+                    "Name": "root",
+                    "Path": "/",
+                    "Policy": {
+                        "Statement": [
+                            {
+                                "Action": [
+                                    "iam:PassRole"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": "*"
+                            },
+                            {
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": "arn:aws:s3:::ArtifactBucket/*"
+                            },
+                            {
+                                "Action": [
+                                    "ecr:BatchCheckLayerAvailability",
+                                    "ecr:CompleteLayerUpload",
+                                    "ecr:GetAuthorizationToken",
+                                    "ecr:InitiateLayerUpload",
+                                    "ecr:PutImage",
+                                    "ecr:UploadLayerPart"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": "*"
+                            },
+                            {
+                                "Action": "sns:Publish",
+                                "Effect": "Allow",
+                                "Resource": "arn:aws:sns:us-east-1:123456789:MySNSTopic"
+                            }
+                        ],
+                        "Version": "2012-10-17"
+                    }
+                },
+                {
+                    "Name": "MyIAMRole",
+                    "Path": "/",
+                    "Policy": {
+                        "Statement": [
+                            {
+                                "Action": [
+                                    "iam:CreateRole",
+                                    "iam:UpdateRole",
+                                    "iam:PutRolePolicy",
+                                    "iam:PutRolePermissionsBoundary",
+                                    "iam:DeleteRolePermissionsBoundary",
+                                    "iam:AttachRolePolicy",
+                                    "iam:DetachRolePolicy"
+                                ],
+                                "Effect": "Allow",
+                                "Resource": "*",
+                                "Sid": "MyIAMRole"
+                            }
+                        ],
+                        "Version": "2012-10-17"
+                    }
+                }
+            ],
+            "UserName": "MyIAMUser",
+            "UserPath": "/my-test-path/"
+        }
+    ]
+}
