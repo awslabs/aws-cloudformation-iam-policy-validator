@@ -352,6 +352,29 @@ class WhenParsingAnIAMRoleWithNoNameOrPath(IdentityParserTest):
 		self.assertEqual(assume_role_policy_doc, role.TrustPolicy)
 		self.assertEqual(0, len(role.Policies))
 
+	# Role Name length max is 64 characters
+	def test_long_role_name_is_truncated(self):
+		role_name = 'ResourceA123456789123456789123456789123456789123456789123456789123456789'
+		template = load({
+			'Resources': {
+				'ResourceA123456789123456789123456789123456789123456789123456789123456789': {
+					'Type': 'AWS::IAM::Role',
+					'Properties': {
+						'AssumeRolePolicyDocument': copy.deepcopy(assume_role_policy_doc)
+					}
+				}
+			}
+		})
+
+		self.parse(template, account_config)
+		self.assertResults(number_of_roles=1)
+
+		role = self.roles[0]
+		self.assertEqual(role_name[:64], role.RoleName)
+		self.assertEqual("/", role.RolePath)
+		self.assertEqual(assume_role_policy_doc, role.TrustPolicy)
+		self.assertEqual(0, len(role.Policies))
+
 
 class WhenParsingAnIAMPolicyAttachedToARole(IdentityParserTest):
 	def test_returns_a_role_and_policy(self):
