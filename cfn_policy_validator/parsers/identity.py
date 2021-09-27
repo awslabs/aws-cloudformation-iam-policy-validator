@@ -136,7 +136,9 @@ class RoleParser(PrincipalParser):
 
 		path = properties.get('Path', '/')
 		trust_policy = properties['AssumeRolePolicyDocument']
-		role_name = properties.get('RoleName', resource_name)
+
+		# if RoleName is not a property, use the resource name and truncate to max role length
+		role_name = properties.get('RoleName', resource_name[:64])
 
 		role = Role(role_name, path, trust_policy)
 
