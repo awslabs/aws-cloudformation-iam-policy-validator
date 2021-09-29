@@ -1,4 +1,4 @@
-## AWS CloudFormation IAM Policy Validator
+## IAM Policy Validator for AWS CloudFormation
 
 A command line tool that takes a CloudFormation template, parses the IAM policies attached to IAM roles, users, groups, and resources then runs them through IAM Access Analyzer validation checks.
 
@@ -16,7 +16,7 @@ Basic usage:
 cfn-policy-validator validate --template-path ./my-template.json --region us-east-1
 ```
 
-### Why do I need the AWS CloudFormation IAM Policy Validator?
+### Why do I need the IAM Policy Validator for AWS CloudFormation?
 
 The cfn-policy-validator is designed to prevent the deployment of unwanted IAM identity-based and resource-based policies to your AWS environment.
 
@@ -52,7 +52,7 @@ CloudFormation templates commonly use [intrinsic functions](https://docs.aws.ama
 }
 ```
 
-Extracting the queue policy from this template as is would not give you a valid IAM policy.  The line `Fn:GetAtt: ["MyQueue", "Arn"]` is not valid IAM policy syntax - this is syntax specific to CloudFormation. The AWS CloudFormation IAM Policy Validator (cfn-policy-validator) evaluates these intrinsic functions, like Fn:GetAtt, substituting similar or identical values to what you will get when you deploy the template.  This allows it to extract the IAM policies from the template and send them to IAM Access Analyzer, which validates the policies against checks for best practices and external access. 
+Extracting the queue policy from this template as is would not give you a valid IAM policy.  The line `Fn:GetAtt: ["MyQueue", "Arn"]` is not valid IAM policy syntax - this is syntax specific to CloudFormation. The IAM Policy Validator for AWS CloudFormation (cfn-policy-validator) evaluates these intrinsic functions, like Fn:GetAtt, substituting similar or identical values to what you will get when you deploy the template.  This allows it to extract the IAM policies from the template and send them to IAM Access Analyzer, which validates the policies against checks for best practices and external access. 
 
 The cfn-policy-validator returns a non-zero exit code when findings in IAM policies are detected and is designed to be run in a CI/CD pipeline to prevent the deployment of unwanted IAM policies to your AWS environment.
 
@@ -156,7 +156,7 @@ You can also specify a [named profile](https://docs.aws.amazon.com/cli/latest/us
 
 The principal used to execute the cfn-policy-validator requires the following permissions.
 
-###  Sample IAM policy for running the AWS CloudFormation IAM Policy Validator
+###  Sample IAM policy for running the IAM Policy Validator for AWS CloudFormation
 
 ```json
 {
