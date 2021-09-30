@@ -50,6 +50,6 @@ setuptools.setup(
         'boto3>=1.17',
         'pyYAML>=5.3',
         'urllib3>=1.25',
-        'jsonschema>=3.2'
+        'jsonschema~=3.2'
     ]
 )

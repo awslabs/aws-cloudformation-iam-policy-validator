@@ -11,7 +11,7 @@ class JoinEvaluator:
 		self.node_evaluator = node_evaluator
 
 	def evaluate(self, value, visited_values):
-		validate_schema(value, join_schema, f'Fn::Join')
+		validate_schema(value, join_schema, 'Fn::Join')
 
 		delimiter = value[0]
 		list_of_values = value[1]
