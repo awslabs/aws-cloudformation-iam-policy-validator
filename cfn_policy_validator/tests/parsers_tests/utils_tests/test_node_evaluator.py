@@ -148,22 +148,22 @@ class WhenEvaluatingInvalidTemplateWithSubCycle(unittest.TestCase):
                     'Type': 'AWS::IAM::Role',
                     'Properties': {
                         'PropertyA': {
-                            'Fn::Sub': 'This is a line of text with value ${ResourceB.PropertyA}'
+                            'Fn::Sub': 'This is a line of text with value ${ResourceB.PropertyB}'
                         }
                     }
                 },
                 'ResourceB': {
                     'Type': 'AWS::IAM::Role',
                     'Properties': {
-                        'PropertyA': {
-                            'Fn::Sub': 'This is a line of text with value ${ResourceC.PropertyA}'
+                        'PropertyB': {
+                            'Fn::Sub': 'This is a line of text with value ${ResourceC.PropertyC}'
                         }
                     }
                 },
                 'ResourceC': {
                     'Type': 'AWS::IAM::Role',
                     'Properties': {
-                        'PropertyA': {
+                        'PropertyC': {
                             'Fn::Sub': 'This is a line of text with value ${ResourceA.PropertyA}'
                         }
                     }
@@ -179,7 +179,7 @@ class WhenEvaluatingInvalidTemplateWithSubCycle(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
-        self.assertEqual('Cycle detected for ResourceB and PropertyA.', str(cm.exception))
+        self.assertEqual('Cycle detected for ResourceB and PropertyB.', str(cm.exception))
 
 
 class WhenEvaluatingInvalidTemplateWithCycleDuringArnGeneration(unittest.TestCase):
@@ -212,7 +212,7 @@ class WhenEvaluatingInvalidTemplateWithCycleDuringArnGeneration(unittest.TestCas
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
-        self.assertEqual('Cycle detected for ResourceA and PropertyA.', str(cm.exception))
+        self.assertEqual('Cycle detected for ResourceB and RoleName.', str(cm.exception))
 
 
 class WhenEvaluatingInvalidTemplateWithCycleDuringSqsCustomRefEval(unittest.TestCase):

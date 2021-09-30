@@ -21,8 +21,7 @@ trust_policy_that_allows_external_access = {
 			'Action': '*',
 			'Principal': {
 				'AWS': '*'
-			},
-			'Resource': '*'
+			}
 		}
 	]
 }
@@ -36,8 +35,7 @@ trust_policy_with_no_findings = {
 			'Action': '*',
 			'Principal': {
 				'AWS': account_config.account_id
-			},
-			'Resource': '*'
+			}
 		}
 	]
 }
@@ -48,8 +46,7 @@ trust_policy_with_findings = {
 		{
 			'Effect': 'Allow',
 			'Action': '*',
-			'Principal': {},
-			'Resource': '*'
+			'Principal': {}
 		}
 	]
 }
@@ -62,8 +59,7 @@ invalid_trust_policy = {
 			'Action': '*',
 			'Principal': {
 				'AwS': account_config.account_id
-			},
-			'Resource': '*'
+			}
 		}
 	]
 }
@@ -121,8 +117,8 @@ class WhenValidatingRoles(unittest.TestCase):
 		self.assertEqual(warnings, len(findings.warnings))
 		self.assertEqual(suggestions, len(findings.suggestions))
 
-	def add_roles_to_output(self, trust_policy, identity_policy=None):
-		role1 = Role('role1', role_path="/", trust_policy=copy.deepcopy(trust_policy))
+	def add_roles_to_output(self, trust_policy, identity_policy=None, role_1_name='role1'):
+		role1 = Role(role_1_name, role_path="/", trust_policy=copy.deepcopy(trust_policy))
 		if identity_policy is not None:
 			role1.add_policy(Policy('Policy1', copy.deepcopy(identity_policy)))
 
@@ -227,6 +223,16 @@ class WhenValidatingRoles(unittest.TestCase):
 			expected_resource_name='role2',
 			expected_code='DATA_TYPE_MISMATCH'
 		)
+
+	def test_with_role_name_that_exceeds_limit(self):
+		self.add_roles_to_output(
+			role_1_name='ResourceA123456789123456789123456789123456789123456789123456789123456789',
+			trust_policy=trust_policy_with_no_findings,
+			identity_policy=identity_policy_with_no_findings
+		)
+
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings)
 
 	def test_with_findings_in_both_trust_policy_and_identity_policy(self):
 		self.add_roles_to_output(trust_policy=trust_policy_with_findings, identity_policy=invalid_identity_policy)

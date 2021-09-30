@@ -49,7 +49,7 @@ class GetAttEvaluator:
 		else:
 			# we found a valid property value for the name of the resources. this property may reference another resource,
 			# so check to see if we've already done that and we're stuck in a cycle
-			validate_no_cycle(explicit_resource_name, explicit_name_property, visited_values)
+			validate_no_cycle(logical_name_of_resource, explicit_name_property, visited_values)
 			resource_name = self.node_evaluator.eval(explicit_resource_name, visited_values=visited_values)
 
 		arn = self.arn_generator.try_generate_arn(resource_name, resource, attribute_name, visited_values=visited_values)

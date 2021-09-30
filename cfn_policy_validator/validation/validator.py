@@ -340,8 +340,10 @@ class RoleTrustPolicyConfigurationBuilder:
 	def build_configuration(self, resource):
 		policy = json.dumps(resource.TrustPolicy)
 
+		role_name = resource.RoleName[:64]
+
 		return {
-			f'arn:{self.partition}:iam::{self.account_id}:role/{resource.RoleName}': {
+			f'arn:{self.partition}:iam::{self.account_id}:role/{role_name}': {
 				'iamRole': {
 					'trustPolicy': policy
 				}
