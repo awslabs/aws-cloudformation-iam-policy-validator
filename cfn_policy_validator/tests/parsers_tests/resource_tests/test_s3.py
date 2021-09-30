@@ -39,7 +39,7 @@ s3_policy_with_reference = {
             'Effect': 'Deny',
             'Action': 's3:*',
             'Resource': [
-                {"Fn::Sub": 'arn:aws:s3:::${MyBucket}'},
+                {"Fn::GetAtt": ["MyBucket", "Arn"]},
                 {"Fn::Sub": 'arn:aws:s3:::${MyBucket}/*'}
             ],
             'Principal': '*',
@@ -229,3 +229,41 @@ class WhenParsingAnS3BucketPolicyWithReferencesInEachField(unittest.TestCase):
         self.assertEqual('BucketPolicy', resource.Policy.Name)
         self.assertEqual(expected_policy, resource.Policy.Policy)
         self.assertEqual('/', resource.Policy.Path)
+
+
+class WhenParsingAnS3BucketPolicyWithAnExplicitBucketName(unittest.TestCase):
+    # this is a test to ensure that each field is being evaluated for references in a role
+    def test_returns_a_resource_with_references_resolved(self):
+        template = load_resources({
+            'MyBucket': {
+                'Type': 'AWS::S3::Bucket',
+                'Properties': {
+                    'BucketName': 'MyCustomBucketName'
+                }
+            },
+            'ResourceA': {
+                'Type': 'AWS::S3::BucketPolicy',
+                'Properties': {
+                    'Bucket': {'Ref': 'MyBucket'},
+                    'PolicyDocument': copy.deepcopy(s3_policy_with_reference)
+                }
+            }
+        })
+
+        resources = ResourceParser.parse(template, account_config)
+        self.assertEqual(len(resources), 1)
+
+        resource = resources[0]
+        self.assertEqual("MyCustomBucketName", resource.ResourceName)
+        self.assertEqual('AWS::S3::Bucket', resource.ResourceType)
+
+        expected_policy = copy.deepcopy(s3_policy_with_reference)
+        expected_policy['Statement'][0]['Resource'] = [
+            'arn:aws:s3:::MyCustomBucketName',
+            'arn:aws:s3:::MyCustomBucketName/*'
+        ]
+        self.assertEqual('BucketPolicy', resource.Policy.Name)
+        self.assertEqual(expected_policy, resource.Policy.Policy)
+        self.assertEqual('/', resource.Policy.Path)
+
+

@@ -8,6 +8,7 @@ import os
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.cfn_tools.schema_validator import validate_schema
 from cfn_policy_validator.parsers.utils.cycle_detection import validate_no_cycle
+from cfn_policy_validator.parsers.utils.intrinsic_functions import name_hints
 
 
 class RefEvaluator:
@@ -68,11 +69,10 @@ class RefEvaluator:
 
 			# at this point, we make the assumption that the resource just returns a string (probably either the resource
 			# name or ID)
-
 			properties = resource.get('Properties', {})
 
 			# next, attempt to return the actual name of the resource if one is defined and it's for a common resource
-			name_returned_by_ref = ref_name_hints.get(resource_type)
+			name_returned_by_ref = name_hints.get(resource_type)
 			property_value = properties.get(name_returned_by_ref)
 			if property_value is None:
 				# just return the CFN logical name if there's no property to be found
@@ -105,7 +105,8 @@ ref_name_hints = {
 	'AWS::Lambda::Function': 'FunctionName',
 	'AWS::IAM::Role': 'RoleName',
 	'AWS::IAM::User': 'UserName',
-	'AWS::IAM::Group': 'GroupName'
+	'AWS::IAM::Group': 'GroupName',
+	'AWS::SQS::Queue': 'QueueName'
 }
 
 

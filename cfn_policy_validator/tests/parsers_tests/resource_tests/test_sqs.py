@@ -294,3 +294,35 @@ class WhenParsingAnSqsQueuePolicyWithReferencesInEachField(unittest.TestCase):
 		expected_policy = Policy("QueuePolicy", expected_policy_doc)
 		expected_resource_b = Resource("MyTestQueueB", "AWS::SQS::Queue", expected_policy)
 		self.assertIn(expected_resource_b, resources)
+
+
+class WhenParsingAnSqsQueuePolicyWithQueueThatHasExplicitName(unittest.TestCase):
+	# this is a test to ensure that each field is being evaluated for references in a role
+	def test_returns_a_resource_with_references_resolved(self):
+		template = load_resources({
+			'TestQueueA': {
+				'Type': 'AWS::SQS::Queue',
+				'Properties': {
+					'QueueName': 'CustomQueueName'
+				}
+			},
+			'ResourceA': {
+				'Type': 'AWS::SQS::QueuePolicy',
+				'Properties': {
+					'Queues': [
+						{'Ref': 'TestQueueA'}
+					],
+					'PolicyDocument': copy.deepcopy(sqs_policy_with_reference)
+				}
+			}
+		})
+
+		resources = ResourceParser.parse(template, account_config)
+		self.assertEqual(len(resources), 1)
+
+		expected_policy_doc = copy.deepcopy(sqs_policy_with_reference)
+		expected_policy_doc['Statement'][0]['Resource'] = f'arn:aws:sqs:{account_config.region}:{account_config.account_id}:CustomQueueName'
+
+		expected_policy = Policy("QueuePolicy", expected_policy_doc)
+		expected_resource_a = Resource("CustomQueueName", "AWS::SQS::Queue", expected_policy)
+		self.assertIn(expected_resource_a, resources)

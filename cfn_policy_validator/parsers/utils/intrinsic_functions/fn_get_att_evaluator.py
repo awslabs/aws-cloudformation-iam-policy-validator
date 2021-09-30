@@ -6,6 +6,7 @@ from cfn_policy_validator import client
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.cfn_tools.schema_validator import validate_schema
 from cfn_policy_validator.parsers.utils.cycle_detection import validate_no_cycle
+from cfn_policy_validator.parsers.utils.intrinsic_functions import name_hints
 
 
 def validate_fn_get_att_schema(value):
@@ -37,7 +38,12 @@ class GetAttEvaluator:
 		if resource is None:
 			raise ApplicationError(f'Unable to find referenced resource for GetAtt reference to {logical_name_of_resource}.{attribute_name}')
 
-		arn = self.arn_generator.try_generate_arn(logical_name_of_resource, resource, attribute_name, visited_values=visited_values)
+		resource_type = resource['Type']
+		properties = resource.get('Properties', {})
+
+		explicit_name = name_hints.get(resource_type)
+		resource_name = properties.get(explicit_name, logical_name_of_resource)
+		arn = self.arn_generator.try_generate_arn(resource_name, resource, attribute_name, visited_values=visited_values)
 		if arn is not None:
 			return arn
 
