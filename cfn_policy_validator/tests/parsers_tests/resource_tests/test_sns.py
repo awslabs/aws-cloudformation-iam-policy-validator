@@ -7,6 +7,7 @@ import unittest
 
 from cfn_policy_validator.parsers.resource.parser import ResourceParser
 from cfn_policy_validator.parsers.output import Resource, Policy
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 
 from cfn_policy_validator.tests.utils import required_property_error, load, account_config, expected_type_error, \
 	load_resources
@@ -14,32 +15,33 @@ from cfn_policy_validator.application_error import ApplicationError
 
 
 sns_policy_with_no_reference = {
-  "Statement": [{
-	"Sid": "grant-1234-publish",
-	"Effect": "Allow",
-	"Principal": {
-	  "AWS": "111122223333"
-	},
-	"Action": ["sns:Publish"],
-	"Resource": "arn:aws:sns:us-east-2:444455556666:MyTopic"
-  }]
+	"Statement": [{
+		"Sid": "grant-1234-publish",
+		"Effect": "Allow",
+		"Principal": {
+			"AWS": "111122223333"
+		},
+		"Action": ["sns:Publish"],
+		"Resource": "arn:aws:sns:us-east-2:444455556666:MyTopic"
+	}]
 }
 
 
 sns_policy_with_reference = {
-  "Statement": [{
-	"Sid": "grant-1234-publish",
-	"Effect": "Allow",
-	"Principal": {
-	  "AWS": "111122223333"
-	},
-	"Action": ["sns:Publish"],
-	"Resource": {"Ref": "TestTopicA"}
-  }]
+	"Statement": [{
+		"Sid": "grant-1234-publish",
+		"Effect": "Allow",
+		"Principal": {
+			"AWS": "111122223333"
+		},
+		"Action": ["sns:Publish"],
+		"Resource": {"Ref": "TestTopicA"}
+	}]
 }
 
 
 class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_with_no_properties(self):
 		template = load_resources({
 			'ResourceA': {
@@ -52,6 +54,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_policy_document(self):
 		template = load_resources({
 			'ResourceA': {
@@ -70,6 +73,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('PolicyDocument', 'ResourceA.Properties'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_invalid_policy_document_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -89,6 +93,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('ResourceA.Properties.PolicyDocument', 'object', "'Invalid'"), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_topics(self):
 		template = load_resources({
 			'ResourceA': {
@@ -104,6 +109,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('Topics', 'ResourceA.Properties'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_invalid_topics_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -125,6 +131,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 											 "{'arn:aws:sns:us-east-1:123456:MyTopic': 1, 'arn:aws:sns:us-east-1:123456:MyTopic2': 2}"),
 						 str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_topics_items(self):
 		template = load_resources({
 			'ResourceA': {
@@ -141,6 +148,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual('[] is too short, Path: ResourceA.Properties.Topics', str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_invalid_topics_item_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -162,6 +170,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 											 "{'arn:aws:sns:us-east-1:123456:MyTopic': 1, 'arn:aws:sns:us-east-1:123456:MyTopic2': 2}"),
 						str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_unsupported_function_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {
@@ -181,6 +190,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertTrue(True, 'Should not raise error.')
 
+	@mock_node_evaluator_setup()
 	def test_with_ref_to_parameter_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {
@@ -202,6 +212,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 
 
 class WhenParsingAnSnsTopicPolicy(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_a_resource(self):
 		template = load_resources({
 			'ResourceA': {
@@ -230,6 +241,7 @@ class WhenParsingAnSnsTopicPolicy(unittest.TestCase):
 
 class WhenParsingAnSnsTopicPolicyWithReferencesInEachField(unittest.TestCase):
 	# this is a test to ensure that each field is being evaluated for references in a role
+	@mock_node_evaluator_setup()
 	def test_returns_a_resource_with_references_resolved(self):
 		template = load_resources({
 			'TestTopicA': {

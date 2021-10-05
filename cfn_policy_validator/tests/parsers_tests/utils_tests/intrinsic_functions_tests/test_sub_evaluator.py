@@ -6,10 +6,12 @@ import unittest
 
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 from cfn_policy_validator.tests.utils import load, account_config, load_resources, expected_type_error
 
 
 class WhenEvaluatingAPropertyWithASubThatResolvesToGetAtt(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_string_value(self):
 		template = load({
 			'Resources': {
@@ -37,6 +39,7 @@ class WhenEvaluatingAPropertyWithASubThatResolvesToGetAtt(unittest.TestCase):
 
 
 class WhenEvaluatingAPropertyWithASubThatResolvesToRawDollarSignText(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_string_value(self):
 		template = load_resources({
 			'ResourceA': {
@@ -56,6 +59,7 @@ class WhenEvaluatingAPropertyWithASubThatResolvesToRawDollarSignText(unittest.Te
 
 
 class WhenEvaluatingAPropertyWithASubThatResolvesToRef(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_arn(self):
 		template = load({
 			'Resources': {
@@ -80,6 +84,7 @@ class WhenEvaluatingAPropertyWithASubThatResolvesToRef(unittest.TestCase):
 
 
 class WhenEvaluatingAPropertyWithASubThatDoesNotResolveToAString(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_arn(self):
 		template = load({
 			'Parameters': {
@@ -110,6 +115,7 @@ class WhenEvaluatingAPropertyWithASubThatDoesNotResolveToAString(unittest.TestCa
 
 
 class WhenEvaluatingAPropertyWithALongFormSub(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_arn(self):
 		template = load({
 			'Parameters': {
@@ -148,6 +154,7 @@ class WhenEvaluatingAPropertyWithALongFormSub(unittest.TestCase):
 
 
 class WhenEvaluatingAPropertyWithALongTermSubAndSomeVariablesNotInMap(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_variable_values_in_priority_order(self):
 		# variables in the map have precedence, but not all variables need to appear in map
 		template = load({
@@ -202,6 +209,7 @@ class WhenEvaluatingAPropertyWithALongTermSubAndSomeVariablesNotInMap(unittest.T
 
 
 class WhenEvaluatingLongFormSubAndVariableAppearsMoreThanOnce(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_substitutes_variable_values(self):
 		template = load({
 			'Parameters': {
@@ -232,6 +240,7 @@ class WhenEvaluatingLongFormSubAndVariableAppearsMoreThanOnce(unittest.TestCase)
 
 
 class WhenEvaluatingLongFormSubAndGetAttIsNotFound(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_exception(self):
 		template = load({
 			'Resources': {
@@ -259,6 +268,7 @@ class WhenEvaluatingLongFormSubAndGetAttIsNotFound(unittest.TestCase):
 
 
 class WhenEvaluatingLongFormSubAndRefIsNotFound(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_exception(self):
 		template = load({
 			'Resources': {
@@ -286,6 +296,7 @@ class WhenEvaluatingLongFormSubAndRefIsNotFound(unittest.TestCase):
 
 
 class WhenEvaluatingAPropertyWithInvalidSubValue(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_error(self):
 		template = load({
 			'Resources': {
@@ -312,6 +323,7 @@ class WhenEvaluatingAPropertyWithInvalidSubValue(unittest.TestCase):
 
 
 class WhenEvaluatingAPropertyWithLongFormSubOfInvalidLength(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_error(self):
 		template = load({
 			'Resources': {
@@ -340,6 +352,7 @@ class WhenEvaluatingAPropertyWithLongFormSubOfInvalidLength(unittest.TestCase):
 
 
 class WhenEvaluatingAPropertyWithLongFormSubWithInvalidTextToEvaluate(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_error(self):
 		template = load_resources({
 			'ResourceA': {
@@ -361,6 +374,7 @@ class WhenEvaluatingAPropertyWithLongFormSubWithInvalidTextToEvaluate(unittest.T
 
 
 class WhenEvaluatingAPropertyWithLongFormSubWithInvalidMapping(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_error(self):
 		template = load({
 			'Resources': {
@@ -387,6 +401,7 @@ class WhenEvaluatingAPropertyWithLongFormSubWithInvalidMapping(unittest.TestCase
 
 
 class WhenEvaluatingAPropertyWithLongFormSubAndNoMatchingMapping(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_error(self):
 		template = load({
 			'Resources': {

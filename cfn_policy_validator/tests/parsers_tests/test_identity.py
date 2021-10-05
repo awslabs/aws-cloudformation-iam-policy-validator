@@ -3,8 +3,11 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: MIT-0
 """
 import copy
+import json
 import unittest
 
+from cfn_policy_validator.tests.boto_mocks import BotoResponse
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup, mock_identity_parser_setup
 from cfn_policy_validator.tests.utils import load, account_config, load_resources
 
 from cfn_policy_validator.parsers.identity import IdentityParser
@@ -71,6 +74,7 @@ class IdentityParserTest(unittest.TestCase):
 
 # General template tests
 class WhenParsingANonIAMResource(IdentityParserTest):
+    @mock_identity_parser_setup()
     def test_returns_no_output(self):
         template = load({
             'Resources': {
@@ -88,6 +92,7 @@ class WhenParsingANonIAMResource(IdentityParserTest):
 
 
 class WhenParsingANonIAMResourceWithNoProperties(IdentityParserTest):
+    @mock_identity_parser_setup()
     def test_returns_no_output(self):
         template = load({
             'Resources': {
@@ -102,44 +107,62 @@ class WhenParsingANonIAMResourceWithNoProperties(IdentityParserTest):
 
 
 # IAM Managed Policy tests
-def get_policy_side_effect(*, PolicyArn):
-    if PolicyArn == 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole':
-        return {
+def aws_lambda_basic_execution_response():
+    return BotoResponse(
+        method='get_policy',
+        service_response={
             'Policy': {
                 'PolicyName': 'AWSLambdaBasicExecutionRole',
                 'DefaultVersionId': 'v1',
                 'Path': '/service-role/'
             }
+        },
+        expected_params={
+            'PolicyArn': 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
         }
-    if PolicyArn == 'arn:aws:iam::aws:policy/AWSLambdaExecute':
-        return {
+    )
+
+
+def aws_lambda_basic_execution_version_response():
+    return BotoResponse(
+        method='get_policy_version',
+        service_response={
+            'PolicyVersion': {
+                'Document': json.dumps(copy.deepcopy(sample_policy_a))
+            }
+        },
+        expected_params={
+            'PolicyArn': 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+            'VersionId': 'v1'
+        }
+    )
+
+
+def aws_lambda_execute_response():
+    return BotoResponse(
+        method='get_policy',
+        service_response={
             'Policy': {
                 'PolicyName': 'AWSLambdaExecute',
                 'DefaultVersionId': 'v2',
                 'Path': '/'
             }
+        },
+        expected_params={
+            'PolicyArn': 'arn:aws:iam::aws:policy/AWSLambdaExecute'
         }
+    )
 
-    raise Exception('Policy ARN does not match any expected ARNs in get_policy call')
-
-
-def get_policy_version_side_effect(*, PolicyArn, VersionId):
-    if PolicyArn == 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'\
-            and VersionId == 'v1':
-        return {
+def aws_lambda_execute_version_response():
+    return BotoResponse(
+        method='get_policy_version',
+        service_response={
             'PolicyVersion': {
-                'Document': copy.deepcopy(sample_policy_a)
+                'Document': json.dumps(copy.deepcopy(sample_policy_b))
             }
+        },
+        expected_params={
+            'PolicyArn': 'arn:aws:iam::aws:policy/AWSLambdaExecute',
+            'VersionId': 'v2'
         }
-    if PolicyArn == 'arn:aws:iam::aws:policy/AWSLambdaExecute'\
-            and VersionId == 'v2':
-        return {
-            'PolicyVersion': {
-                'Document': copy.deepcopy(sample_policy_b)
-            }
-        }
-
-    raise Exception('Policy ARN does not match any expected ARNs')
-
-
-
+    )

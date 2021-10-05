@@ -6,6 +6,7 @@ import unittest
 
 from cfn_policy_validator.parsers.resource.parser import ResourceParser
 from cfn_policy_validator.parsers.output import Resource, Policy
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 
 from cfn_policy_validator.tests.utils import required_property_error, load, account_config, expected_type_error, \
 	load_resources
@@ -13,6 +14,7 @@ from cfn_policy_validator.application_error import ApplicationError
 
 
 class WhenParsingALambdaPermissionsPolicyAndValidatingSchema(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_with_no_properties(self):
 		template = load_resources({
 			'ResourceA': {
@@ -25,6 +27,7 @@ class WhenParsingALambdaPermissionsPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_action(self):
 		template = load_resources({
 			'ResourceA': {
@@ -41,6 +44,7 @@ class WhenParsingALambdaPermissionsPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('Action', 'ResourceA.Properties'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_function_name(self):
 		template = load_resources({
 			'ResourceA': {
@@ -57,6 +61,7 @@ class WhenParsingALambdaPermissionsPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('FunctionName', 'ResourceA.Properties'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_principal(self):
 		template = load_resources({
 			'ResourceA': {
@@ -73,6 +78,7 @@ class WhenParsingALambdaPermissionsPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('Principal', 'ResourceA.Properties'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_unsupported_function_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {
@@ -90,6 +96,7 @@ class WhenParsingALambdaPermissionsPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertTrue(True, 'Should not raise error.')
 
+	@mock_node_evaluator_setup()
 	def test_with_ref_to_parameter_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {
@@ -137,11 +144,13 @@ class WhenParsingALambdaPermissionsPolicyWithInvalidPropertyType(unittest.TestCa
 
 		self.assertEqual(expected_type_error(path, expected_type, invalid_value), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_invalid_action_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_permissions_policy(action=invalid_value)
 		self.assert_invalid_type(template, "ResourceA.Properties.Action", 'string', invalid_value)
 
+	@mock_node_evaluator_setup()
 	def test_invalid_function_name_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_permissions_policy(function_name=invalid_value)
@@ -152,11 +161,13 @@ class WhenParsingALambdaPermissionsPolicyWithInvalidPropertyType(unittest.TestCa
 		template = _build_lambda_permissions_policy(principal=invalid_value)
 		self.assert_invalid_type(template, "ResourceA.Properties.Principal", 'string', invalid_value)
 
+	@mock_node_evaluator_setup()
 	def test_invalid_source_arn_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_permissions_policy(source_arn=invalid_value)
 		self.assert_invalid_type(template, "ResourceA.Properties.SourceArn", 'string', invalid_value)
 
+	@mock_node_evaluator_setup()
 	def test_invalid_source_account_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_permissions_policy(source_account=invalid_value)
@@ -182,6 +193,7 @@ class WhenParsingALambdaPermissionsPolicy(unittest.TestCase):
 	def __modify_statement(policy, property_name, property_value):
 		policy['Statement'][0][property_name] = property_value
 
+	@mock_node_evaluator_setup()
 	def test_function_name_is_full_arn(self):
 		function_name = f'arn:aws:lambda:{account_config.region}:{account_config.account_id}:function:MyFunction'
 
@@ -198,6 +210,7 @@ class WhenParsingALambdaPermissionsPolicy(unittest.TestCase):
 		self.assertEqual(expected_policy_doc, resource.Policy.Policy)
 		self.assertEqual('/', resource.Policy.Path)
 
+	@mock_node_evaluator_setup()
 	def test_function_name_is_partial_arn_with_region(self):
 		partial_function_arn = f'{account_config.region}:{account_config.account_id}:function:MyFunction'
 
@@ -214,6 +227,7 @@ class WhenParsingALambdaPermissionsPolicy(unittest.TestCase):
 		self.assertEqual(expected_policy_doc, resource.Policy.Policy)
 		self.assertEqual('/', resource.Policy.Path)
 
+	@mock_node_evaluator_setup()
 	def test_function_name_is_partial_arn_with_account(self):
 		partial_function_arn = f'{account_config.account_id}:function:MyFunction'
 
@@ -230,6 +244,7 @@ class WhenParsingALambdaPermissionsPolicy(unittest.TestCase):
 		self.assertEqual(expected_policy_doc, resource.Policy.Policy)
 		self.assertEqual('/', resource.Policy.Path)
 
+	@mock_node_evaluator_setup()
 	def test_function_name_is_partial_arn_with_function(self):
 		partial_function_arn = 'function:MyFunction'
 
@@ -246,10 +261,12 @@ class WhenParsingALambdaPermissionsPolicy(unittest.TestCase):
 		self.assertEqual(expected_policy_doc, resource.Policy.Policy)
 		self.assertEqual('/', resource.Policy.Path)
 
+	@mock_node_evaluator_setup()
 	def test_function_name_is_name(self):
 		function_name = 'MyFunction'
 		self.__test_function_name(function_name)
 
+	@mock_node_evaluator_setup()
 	def test_function_name_is_name_and_alias(self):
 		function_name = 'MyFunction:v1'
 		self.__test_function_name(function_name)
@@ -269,6 +286,7 @@ class WhenParsingALambdaPermissionsPolicy(unittest.TestCase):
 		self.assertEqual(expected_policy_doc, resource.Policy.Policy)
 		self.assertEqual('/', resource.Policy.Path)
 
+	@mock_node_evaluator_setup()
 	def test_principal_name_is_a_service(self):
 		template = _build_lambda_permissions_policy(principal="s3.amazonaws.com")
 		resources = ResourceParser.parse(template, account_config)
@@ -284,6 +302,7 @@ class WhenParsingALambdaPermissionsPolicy(unittest.TestCase):
 		self.assertEqual(expected_policy_doc, resource.Policy.Policy)
 		self.assertEqual('/', resource.Policy.Path)
 
+	@mock_node_evaluator_setup()
 	def test_principal_name_is_an_account(self):
 		template = _build_lambda_permissions_policy(principal="123456")
 		resources = ResourceParser.parse(template, account_config)
@@ -299,6 +318,7 @@ class WhenParsingALambdaPermissionsPolicy(unittest.TestCase):
 		self.assertEqual(expected_policy_doc, resource.Policy.Policy)
 		self.assertEqual('/', resource.Policy.Path)
 
+	@mock_node_evaluator_setup()
 	def test_source_account_is_included(self):
 		source_account = '5678910'
 		template = _build_lambda_permissions_policy(source_account=source_account)
@@ -315,6 +335,7 @@ class WhenParsingALambdaPermissionsPolicy(unittest.TestCase):
 		self.assertEqual(expected_policy_doc, resource.Policy.Policy)
 		self.assertEqual('/', resource.Policy.Path)
 
+	@mock_node_evaluator_setup()
 	def test_source_arn_is_included(self):
 		source_arn = 'aws:aws:s3:::my-bucket'
 		template = _build_lambda_permissions_policy(source_arn=source_arn)
@@ -331,6 +352,7 @@ class WhenParsingALambdaPermissionsPolicy(unittest.TestCase):
 		self.assertEqual(expected_policy_doc, resource.Policy.Policy)
 		self.assertEqual('/', resource.Policy.Path)
 
+	@mock_node_evaluator_setup()
 	def test_source_account_and_source_arn_are_included(self):
 		source_arn = 'aws:aws:s3:::my-bucket'
 		source_account = '5678910'
@@ -354,6 +376,7 @@ class WhenParsingALambdaPermissionsPolicy(unittest.TestCase):
 
 
 class WhenParsingMultipleLambdaPermissionsPolicies(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_resources_are_returned(self):
 		template = load({
 			'Resources': {
@@ -432,6 +455,7 @@ class WhenParsingMultipleLambdaPermissionsPolicies(unittest.TestCase):
 
 
 class WhenParsingLambdaPermissionsPolicyWithReferencesInEachField(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_references_are_resolved(self):
 		template = load({
 			'Parameters': {
@@ -491,6 +515,7 @@ class WhenParsingLambdaPermissionsPolicyWithReferencesInEachField(unittest.TestC
 
 
 class WhenParsingALambdaLayerVersionPermissionsPolicyAndValidatingSchema(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_with_no_properties(self):
 		template = load_resources({
 			'ResourceA': {
@@ -503,6 +528,7 @@ class WhenParsingALambdaLayerVersionPermissionsPolicyAndValidatingSchema(unittes
 
 		self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_action(self):
 		template = load_resources({
 			'ResourceA': {
@@ -519,6 +545,7 @@ class WhenParsingALambdaLayerVersionPermissionsPolicyAndValidatingSchema(unittes
 
 		self.assertEqual(required_property_error('Action', 'ResourceA.Properties'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_layer_version_arn(self):
 		template = load_resources({
 			'ResourceA': {
@@ -535,6 +562,7 @@ class WhenParsingALambdaLayerVersionPermissionsPolicyAndValidatingSchema(unittes
 
 		self.assertEqual(required_property_error('LayerVersionArn', 'ResourceA.Properties'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_principal(self):
 		template = load_resources({
 			'ResourceA': {
@@ -580,26 +608,31 @@ class WhenParsingALambdaLayerVersionPermissionsPolicyWithInvalidPropertyType(uni
 
 		self.assertEqual(expected_type_error(path, expected_type, invalid_value), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_invalid_action_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_layer_version_permissions_policy(action=invalid_value)
 		self.assert_invalid_type(template, "ResourceA.Properties.Action", "string", invalid_value)
 
+	@mock_node_evaluator_setup()
 	def test_invalid_layer_version_arn_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_layer_version_permissions_policy(layer_version_arn=invalid_value)
 		self.assert_invalid_type(template, "ResourceA.Properties.LayerVersionArn", "string", invalid_value)
 
+	@mock_node_evaluator_setup()
 	def test_invalid_principal_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_layer_version_permissions_policy(principal=invalid_value)
 		self.assert_invalid_type(template, "ResourceA.Properties.Principal", "string", invalid_value)
 
+	@mock_node_evaluator_setup()
 	def test_invalid_organization_id_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_layer_version_permissions_policy(organization_id=invalid_value)
 		self.assert_invalid_type(template, "ResourceA.Properties.OrganizationId", "string", invalid_value)
 
+	@mock_node_evaluator_setup()
 	def test_with_unsupported_function_in_unused_property(self):
 		template = _build_lambda_layer_version_permissions_policy()
 		template['Resources']['ResourceA']['Properties']['UnusedProperty'] = {"Fn::GetAZs": {"Ref": "AWS::Region"}}
@@ -607,6 +640,7 @@ class WhenParsingALambdaLayerVersionPermissionsPolicyWithInvalidPropertyType(uni
 
 		self.assertTrue(True, 'Should not raise error.')
 
+	@mock_node_evaluator_setup()
 	def test_with_ref_to_parameter_in_unused_property(self):
 		template = _build_lambda_layer_version_permissions_policy()
 		template['Resources']['ResourceA']['Properties']['UnusedProperty'] = {'Ref': 'SomeProperty'}
@@ -649,6 +683,7 @@ class WhenParsingALambdaLayerVersionPermissionsPolicy(unittest.TestCase):
 	def __modify_statement(policy, property_name, property_value):
 		policy['Statement'][0][property_name] = property_value
 
+	@mock_node_evaluator_setup()
 	def test_principal_is_layer_arn(self):
 		template = self.__build_template()
 		resources = ResourceParser.parse(template, account_config)
@@ -663,6 +698,7 @@ class WhenParsingALambdaLayerVersionPermissionsPolicy(unittest.TestCase):
 		self.assertEqual(expected_policy_doc, resource.Policy.Policy)
 		self.assertEqual('/', resource.Policy.Path)
 
+	@mock_node_evaluator_setup()
 	def test_principal_is_star(self):
 		template = self.__build_template(principal='*')
 		resources = ResourceParser.parse(template, account_config)
@@ -678,6 +714,7 @@ class WhenParsingALambdaLayerVersionPermissionsPolicy(unittest.TestCase):
 		self.assertEqual(expected_policy_doc, resource.Policy.Policy)
 		self.assertEqual('/', resource.Policy.Path)
 
+	@mock_node_evaluator_setup()
 	def test_principal_is_account_id(self):
 		template = self.__build_template(principal='123456789123')
 		resources = ResourceParser.parse(template, account_config)
@@ -693,6 +730,7 @@ class WhenParsingALambdaLayerVersionPermissionsPolicy(unittest.TestCase):
 		self.assertEqual(expected_policy_doc, resource.Policy.Policy)
 		self.assertEqual('/', resource.Policy.Path)
 
+	@mock_node_evaluator_setup()
 	def test_has_organization_id(self):
 		template = self.__build_template()
 		template['Resources']['ResourceA']['Properties']['OrganizationId'] = 'o-12345'
@@ -712,6 +750,7 @@ class WhenParsingALambdaLayerVersionPermissionsPolicy(unittest.TestCase):
 
 
 class WhenParsingMultipleLambdaLayerVersionPermissionsPolicies(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_resources_are_returned(self):
 		template = load({
 			'Resources': {
@@ -789,6 +828,7 @@ class WhenParsingMultipleLambdaLayerVersionPermissionsPolicies(unittest.TestCase
 
 
 class WhenParsingLambdaLayerVersionPermissionsPolicyWithReferencesInEachField(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_references_are_resolved(self):
 		template = load({
 			'Parameters': {

@@ -6,10 +6,12 @@ import unittest
 
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 from cfn_policy_validator.tests.utils import load, account_config, load_resources
 
 
 class WhenEvaluatingAPropertyWithAnUnsupportedFunction(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_error(self):
         template = load_resources({
             'ResourceA': {
@@ -33,6 +35,7 @@ class WhenEvaluatingAPropertyWithAnUnsupportedFunction(unittest.TestCase):
 
 # this is not a valid CloudFormation template, but this test is just to ensure that we can handle situations like these
 class WhenEvaluatingInvalidTemplateWithRefCycle(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_does_not_overflow(self):
         template = load({
             'Resources': {
@@ -64,6 +67,7 @@ class WhenEvaluatingInvalidTemplateWithRefCycle(unittest.TestCase):
 
 
 class WhenEvaluatingInvalidTemplateWithGetAttCycle(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_error(self):
         template = load({
             'Resources': {
@@ -99,6 +103,7 @@ class WhenEvaluatingInvalidTemplateWithGetAttCycle(unittest.TestCase):
 
 
 class WhenEvaluatingInvalidTemplateWithMultipleGetAttCycles(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_error(self):
         template = load({
             'Resources': {
@@ -141,6 +146,7 @@ class WhenEvaluatingInvalidTemplateWithMultipleGetAttCycles(unittest.TestCase):
 
 
 class WhenEvaluatingInvalidTemplateWithSubCycle(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_error(self):
         template = load({
             'Resources': {
@@ -183,6 +189,7 @@ class WhenEvaluatingInvalidTemplateWithSubCycle(unittest.TestCase):
 
 
 class WhenEvaluatingInvalidTemplateWithCycleDuringArnGeneration(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_error(self):
         template = load({
             'Resources': {
@@ -216,6 +223,7 @@ class WhenEvaluatingInvalidTemplateWithCycleDuringArnGeneration(unittest.TestCas
 
 
 class WhenEvaluatingInvalidTemplateWithCycleDuringSqsCustomRefEval(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_error(self):
         template = load({
             'Resources': {
@@ -266,6 +274,7 @@ class WhenEvaluatingInvalidTemplateWithCycleDuringSqsCustomRefEval(unittest.Test
 
 
 class WhenEvaluatingValidTemplateAndObjectHasTheSameChildReference(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_does_not_detect_as_cycle(self):
         template = load({
             'Resources': {
@@ -293,6 +302,7 @@ class WhenEvaluatingValidTemplateAndObjectHasTheSameChildReference(unittest.Test
 
 
 class WhenEvaluatingValidTemplateAndListHasTheSameChildReference(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_does_not_detect_as_cycle(self):
         template = load({
             'Resources': {
@@ -322,6 +332,7 @@ class WhenEvaluatingValidTemplateAndListHasTheSameChildReference(unittest.TestCa
 
 
 class WhenEvaluatingValidTemplateAndPropertyHasTheSameChildReference(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_does_not_detect_as_cycle(self):
         template = load({
             'Resources': {

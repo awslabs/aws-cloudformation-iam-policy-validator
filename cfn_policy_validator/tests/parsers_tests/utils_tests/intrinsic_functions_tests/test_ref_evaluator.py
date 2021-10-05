@@ -6,10 +6,12 @@ import unittest
 
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 from cfn_policy_validator.tests.utils import load, account_config, expected_type_error, load_resources
 
 
 class WhenEvaluatingAPolicyWithARefToAccountId(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_the_account_id(self):
 		template = load_resources({
 			'ResourceA': {
@@ -29,6 +31,7 @@ class WhenEvaluatingAPolicyWithARefToAccountId(unittest.TestCase):
 
 
 class WhenEvaluatingAPolicyWithARefToPartition(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_the_partition(self):
 		template = load_resources({
 			'ResourceA': {
@@ -48,6 +51,7 @@ class WhenEvaluatingAPolicyWithARefToPartition(unittest.TestCase):
 
 
 class WhenEvaluatingAPolicyWithARefToRegion(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_the_region(self):
 		template = load_resources({
 			'ResourceA': {
@@ -67,6 +71,7 @@ class WhenEvaluatingAPolicyWithARefToRegion(unittest.TestCase):
 
 
 class WhenEvaluatingAPolicyWithARefToStackName(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_the_partition(self):
 		template = load_resources({
 			'ResourceA': {
@@ -86,6 +91,7 @@ class WhenEvaluatingAPolicyWithARefToStackName(unittest.TestCase):
 
 
 class WhenEvaluatingAPolicyWithARefToAnArn(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_the_arn(self):
 		template = load_resources({
 			'SNSTopic': {
@@ -108,6 +114,7 @@ class WhenEvaluatingAPolicyWithARefToAnArn(unittest.TestCase):
 
 
 class WhenEvaluatingAPolicyWithARefToAResource(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_the_resource_name(self):
 		template = load({
 			'Resources': {
@@ -133,6 +140,7 @@ class WhenEvaluatingAPolicyWithARefToAResource(unittest.TestCase):
 
 
 class WhenEvaluatingAPolicyWithARefToAParameter(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_the_parameter_value(self):
 		template = load({
 			'Parameters': {
@@ -163,6 +171,7 @@ class WhenEvaluatingAPolicyWithARefToAParameter(unittest.TestCase):
 
 
 class WhenEvaluatingTemplateWithANestedRef(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_the_nested_value(self):
 		template = load({
 			'Parameters': {
@@ -201,6 +210,7 @@ class WhenEvaluatingTemplateWithANestedRef(unittest.TestCase):
 
 
 class WhenEvaluatingTemplateWithSqsRefEval(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_the_queue_url(self):
 		template = load_resources({
 			'ResourceA': {
@@ -224,6 +234,7 @@ class WhenEvaluatingTemplateWithSqsRefEval(unittest.TestCase):
 
 
 class WhenEvaluatingTemplateWithSqsRefEvalWithInvalidQueueNameType(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_an_error(self):
 		template = load_resources({
 			'ResourceA': {
@@ -251,6 +262,7 @@ class WhenEvaluatingTemplateWithSqsRefEvalWithInvalidQueueNameType(unittest.Test
 
 
 class WhenEvaluatingTemplateWithAnInvalidRef(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_exception(self):
 		template = load_resources({
 			'ResourceA': {
@@ -272,6 +284,7 @@ class WhenEvaluatingTemplateWithAnInvalidRef(unittest.TestCase):
 
 
 class WhenEvaluatingTemplateWithARefToAParameterThatIsNotPassedIn(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_exception(self):
 		template = load({
 			'Parameters': {
@@ -301,6 +314,7 @@ class WhenEvaluatingTemplateWithARefToAParameterThatIsNotPassedIn(unittest.TestC
 
 
 class WhenEvaluatingATemplateWithAnInvalidRef(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_exception(self):
 		template = load({
 			'Parameters': {

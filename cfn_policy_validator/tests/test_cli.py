@@ -12,7 +12,9 @@ from unittest.mock import patch, ANY, DEFAULT
 import boto3
 
 from cfn_policy_validator import main, client
-from cfn_policy_validator.tests import ParsingTest, account_config, ValidationTest
+from cfn_policy_validator.tests import ParsingTest, account_config, ValidationTest, mock_validation_setup, end_to_end, \
+    BotoResponse, mock_test_setup
+from cfn_policy_validator.tests.parsers_tests import mock_identity_parser_setup
 from cfn_policy_validator.validation.reporter import ResourceOrCodeFindingToIgnore, ResourceAndCodeFindingToIgnore, \
     AllowedExternalPrincipal, AllowedExternalArn, default_finding_types_that_are_blocking
 from cfn_policy_validator.application_error import ApplicationError
@@ -54,6 +56,7 @@ class WhenParsingATemplateAsCLI(ParsingTest):
         # unittest resets this after every test, so it needs to go in setUp
         ignore_warnings()
 
+    @end_to_end
     def test_prints_parser_output(self):
         json_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/test_file_2.json')
         with self.assertRaises(SystemExit) as context_manager, captured_output() as (out, err):
@@ -103,6 +106,7 @@ class WhenValidatingATemplateAsCLI(ValidationTest):
     def setUp(self):
         ignore_warnings()
 
+    @end_to_end
     def test_prints_report(self):
         json_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/test_file_2.json')
         with self.assertRaises(SystemExit) as context_manager, captured_output() as (out, err):
@@ -186,6 +190,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         self.assertEqual(2, context_manager.exception.code)
         self.assertIn(error_message, err.getvalue())
 
+    @mock_validation_setup()
     def test_path_is_required(self):
         self.args = [
             'validate', '--region', account_config.region
@@ -193,31 +198,37 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
 
         self.validate_with_expected_error("the following arguments are required: --template-path")
 
+    @mock_validation_setup()
     def test_region_is_required(self):
         self.args = [
             'validate', '--template-path', 'abcdef'
         ]
         self.validate_with_expected_error("the following arguments are required: --region")
 
+    @mock_validation_setup()
     def test_with_no_parameters(self):
         self.validate()
         self.assert_called_with(parameters={})
 
+    @mock_validation_setup()
     def test_parameters_are_parsed_to_dictionary(self):
         self.args.extend(['--parameters', 'Key1=Value1', 'Key2=Value2'])
         self.validate()
         self.assert_called_with(parameters={'Key1': 'Value1', 'Key2': 'Value2'})
 
+    @mock_validation_setup()
     def test_parameters_with_invalid_format(self):
         # this is just to ensure the parsing doesn't blow up if someone specifies parameters like this
         self.args.extend(['--parameters', 'Key1=Value1,Key2=Value2'])
         self.validate()
         self.assert_called_with(parameters={'Key1': 'Value1,Key2=Value2'})
 
+    @mock_validation_setup()
     def test_ignore_finding_default_is_none(self):
         self.validate()
         self.assert_called_with(ignore_finding=None)
 
+    @mock_validation_setup()
     def test_treat_as_blocking_default(self):
         self.validate()
         self.assert_called_with(treat_as_blocking=['ERROR', 'SECURITY_WARNING'])
@@ -227,16 +238,19 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         self.validate()
         self.assert_called_with(treat_as_blocking=['WARNING', 'ERROR'])
 
+    @mock_validation_setup()
     def test_treat_as_blocking_removes_whitespace(self):
         self.args.extend(['--treat-finding-type-as-blocking', 'warning  , error '])
         self.validate()
         self.assert_called_with(treat_as_blocking=['WARNING', 'ERROR'])
 
+    @mock_validation_setup()
     def test_treat_as_blocking_parsed_to_a_list(self):
         self.args.extend(['--treat-finding-type-as-blocking', 'error'])
         self.validate()
         self.assert_called_with(treat_as_blocking=['ERROR'])
 
+    @mock_validation_setup()
     def test_ignore_finding_with_resource_parsed_to_class(self):
         self.args.extend(['--ignore-finding', 'MyResource'])
         self.validate()
@@ -244,6 +258,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         expected = ResourceOrCodeFindingToIgnore('MyResource')
         self.assert_called_with(ignore_finding=[expected])
 
+    @mock_validation_setup()
     def test_ignore_finding_with_code_parsed_to_class(self):
         self.args.extend(['--ignore-finding', 'PASS_ROLE_WITH_STAR_IN_RESOURCE'])
         self.validate()
@@ -251,6 +266,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         expected = ResourceOrCodeFindingToIgnore('PASS_ROLE_WITH_STAR_IN_RESOURCE')
         self.assert_called_with(ignore_finding=[expected])
 
+    @mock_validation_setup()
     def test_ignore_finding_with_code_and_resource_parsed_to_class(self):
         self.args.extend(['--ignore-finding', 'MyResource.PASS_ROLE_WITH_STAR_IN_RESOURCE'])
         self.validate()
@@ -258,6 +274,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         expected = ResourceAndCodeFindingToIgnore('MyResource', 'PASS_ROLE_WITH_STAR_IN_RESOURCE')
         self.assert_called_with(ignore_finding=[expected])
 
+    @mock_validation_setup()
     def test_ignore_finding_with_multiple_findings_to_ignore(self):
         self.args.extend(['--ignore-finding', 'MyResource.PASS_ROLE_WITH_STAR_IN_RESOURCE,MyResource2'])
         self.validate()
@@ -266,6 +283,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         expected2 = ResourceOrCodeFindingToIgnore('MyResource2')
         self.assert_called_with(ignore_finding=[expected1, expected2])
 
+    @mock_validation_setup()
     def test_ignore_finding_with_extra_whitespace(self):
         self.args.extend(['--ignore-finding', 'MyResource.PASS_ROLE_WITH_STAR_IN_RESOURCE,     MyResource2'])
         self.validate()
@@ -274,6 +292,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         expected2 = ResourceOrCodeFindingToIgnore('MyResource2')
         self.assert_called_with(ignore_finding=[expected1, expected2])
 
+    @mock_validation_setup()
     def test_allow_external_principals_with_account_id_parsed_to_class(self):
         self.args.extend(['--allow-external-principals', '123456789123'])
         self.validate()
@@ -281,6 +300,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         expected = AllowedExternalPrincipal('123456789123')
         self.assert_called_with(allowed_external_principals=[expected])
 
+    @mock_validation_setup()
     def test_allow_external_principals_with_arn_parsed_to_class(self):
         self.args.extend(['--allow-external-principals', 'arn:aws:iam::123456789123:role/MyOtherRole'])
         self.validate()
@@ -288,6 +308,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         expected = AllowedExternalArn('arn:aws:iam::123456789123:role/MyOtherRole')
         self.assert_called_with(allowed_external_principals=[expected])
 
+    @mock_validation_setup()
     def test_allow_external_principals_with_multiple_principals(self):
         self.args.extend(['--allow-external-principals', '123456789123,arn:aws:iam::123456789123:role/MyOtherRole'])
         self.validate()
@@ -296,6 +317,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         expected2 = AllowedExternalArn('arn:aws:iam::123456789123:role/MyOtherRole')
         self.assert_called_with(allowed_external_principals=[expected1, expected2])
 
+    @mock_validation_setup()
     def test_allow_external_principals_with_extra_whitespace(self):
         self.args.extend(['--allow-external-principals', '123456789123,     arn:aws:iam::123456789123:role/MyOtherRole'])
         self.validate()
@@ -304,6 +326,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         expected2 = AllowedExternalArn('arn:aws:iam::123456789123:role/MyOtherRole')
         self.assert_called_with(allowed_external_principals=[expected1, expected2])
 
+    @mock_validation_setup()
     def test_allow_external_principals_with_value_that_contains_arn(self):
         # test that even values that contain the word "arn" aren't parsed as ARNs
         self.args.extend(['--allow-external-principals', 'warning'])
@@ -342,21 +365,25 @@ class WhenParsingArgumentsForParse(unittest.TestCase):
         self.assertEqual(2, context_manager.exception.code)
         self.assertIn(error_message, err.getvalue())
 
+    @mock_validation_setup()
     def test_with_no_parameters(self):
         self.parse()
         self.assert_called_with(parameters={})
 
+    @mock_validation_setup()
     def test_parameters_are_parsed_to_dictionary(self):
         self.args.extend(['--parameters', 'Key1=Value1', 'Key2=Value2'])
         self.parse()
         self.assert_called_with(parameters={'Key1': 'Value1', 'Key2': 'Value2'})
 
+    @mock_validation_setup()
     def test_parameters_with_invalid_format(self):
         # this is just to ensure the parsing doesn't blow up if someone specifies parameters like this
         self.args.extend(['--parameters', 'Key1=Value1,Key2=Value2'])
         self.parse()
         self.assert_called_with(parameters={'Key1': 'Value1,Key2=Value2'})
 
+    @mock_validation_setup()
     def test_path_is_required(self):
         self.args = [
             'parse', '--region', account_config.region
@@ -364,6 +391,7 @@ class WhenParsingArgumentsForParse(unittest.TestCase):
 
         self.parse_with_expected_error("the following arguments are required: --template-path")
 
+    @mock_validation_setup()
     def test_region_is_required(self):
         self.args = [
             'parse', '--template-path', 'abcdef'
@@ -375,6 +403,7 @@ class WhenAnErrorOccursWhileValidatingTemplate(unittest.TestCase):
     def setUp(self):
         ignore_warnings()
 
+    @mock_validation_setup()
     def test_an_application_error(self):
         with patch.object(main, 'validate_from_cli', side_effect=ApplicationError('Something went wrong')), \
                 self.assertRaises(SystemExit) as context_manager, \
@@ -388,6 +417,7 @@ class WhenAnErrorOccursWhileValidatingTemplate(unittest.TestCase):
         self.assertEqual(1, context_manager.exception.code)
         self.assertEqual(err.getvalue(), "ERROR: Something went wrong\n")
 
+    @mock_validation_setup()
     def test_a_generic_error(self):
         with patch.object(main, 'validate_from_cli', side_effect=Exception('Something went wrong')), \
                 self.assertRaises(SystemExit) as context_manager, \
@@ -406,6 +436,7 @@ class WhenParsingAnInvalidJsonFile(unittest.TestCase):
     def setUp(self):
         ignore_warnings()
 
+    @mock_validation_setup()
     def test_exits_and_prints_error_message(self):
         json_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/invalid_file.json')
 
@@ -420,6 +451,7 @@ class WhenParsingAnInvalidYamlFile(unittest.TestCase):
     def setUp(self):
         ignore_warnings()
 
+    @mock_validation_setup()
     def test_exits_and_prints_error_message(self):
         yaml_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/invalid_file.yaml')
 
@@ -434,6 +466,7 @@ class WhenParsingTemplateThatThrowsAnError(unittest.TestCase):
     def setUp(self):
         ignore_warnings()
 
+    @mock_validation_setup()
     def test_exits_and_prints_error_message(self):
         with patch.object(main, '_parse_template_file', side_effect=ApplicationError('Something went wrong')), \
                 self.assertRaises(ApplicationError) as err:
@@ -446,6 +479,7 @@ class WhenParsingTemplateThatDoesNotExist(unittest.TestCase):
     def setUp(self):
         ignore_warnings()
 
+    @mock_validation_setup()
     def test_exits_and_prints_error_message(self):
         yaml_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/does_not_exist.yaml')
 
@@ -470,6 +504,7 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
             '--template-configuration-file', template_configuration_file
         ]
 
+    @mock_validation_setup()
     def test_when_used_without_explicit_parameters(self):
         args = self.build_args('test_files/template_configuration_file.json')
 
@@ -493,6 +528,7 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
         mock.assert_called_once()
         mock.assert_called_with(expected_args)
 
+    @mock_validation_setup()
     def test_is_overwritten_by_parameters(self):
         args = self.build_args('test_files/template_configuration_file.json')
         args.extend(['--parameters', 'EnvironmentName=prod', 'OtherParam=Other'])
@@ -518,6 +554,7 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
         mock.assert_called_once()
         mock.assert_called_with(expected_args)
 
+    @mock_validation_setup()
     def test_with_invalid_parameters_in_file(self):
         args = self.build_args('test_files/template_configuration_invalid_parameters.json')
 
@@ -528,6 +565,7 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
         self.assertEqual(1, context_manager.exception.code)
         self.assertIn('ERROR: The value for "Parameters" in the template configuration value must be a JSON object.', err.getvalue())
 
+    @mock_validation_setup()
     def test_with_file_that_doesnt_exist(self):
         args = self.build_args('test_files/does_not_exist.json')
 
@@ -538,6 +576,7 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
         self.assertEqual(1, context_manager.exception.code)
         self.assertIn('ERROR: Template configuration file not found: ', err.getvalue())
 
+    @mock_validation_setup()
     def test_with_invalid_file_json(self):
         args = self.build_args('test_files/template_configuration_invalid_json.json')
 
@@ -553,6 +592,7 @@ class WhenRunningWithNoSubparser(unittest.TestCase):
     def setUp(self):
         ignore_warnings()
 
+    @mock_validation_setup()
     def test_returns_error_message(self):
         with self.assertRaises(SystemExit) as context_manager, \
                 captured_output() as (out, err):
@@ -569,6 +609,7 @@ class WhenSettingProfileAndRegion(unittest.TestCase):
     def tearDown(self):
         client.set_profile(None)
 
+    @end_to_end
     def test_calls_to_boto3_session_must_include_profile_and_region(self):
         expected_profile_name = "default"
         expected_region_name = account_config.region
@@ -603,6 +644,7 @@ class WhenSettingProfileAndRegion(unittest.TestCase):
         self.assertEqual(2, context_manager.exception.code, print("output: " + out.getvalue() + "\n err: " + err.getvalue()))
         self.assertTrue(self.profile_is_set, 'Expected profile to be set.')
 
+    @end_to_end
     def test_calls_to_boto3_session_must_only_include_region_with_no_profile_set(self):
         expected_region_name = account_config.region
 

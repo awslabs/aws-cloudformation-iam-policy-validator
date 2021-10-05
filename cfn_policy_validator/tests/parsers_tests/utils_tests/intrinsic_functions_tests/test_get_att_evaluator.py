@@ -7,10 +7,13 @@ import unittest
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
 from cfn_policy_validator.tests import my_canonical_user_id
+from cfn_policy_validator.tests.boto_mocks import BotoResponse
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 from cfn_policy_validator.tests.utils import load, account_config, expected_type_error, load_resources
 
 
 class WhenEvaluatingAPolicyWithAGetAttToAResourceThatDoesNotExist(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_exception(self):
         template = load_resources({
             'ResourceA': {
@@ -32,6 +35,7 @@ class WhenEvaluatingAPolicyWithAGetAttToAResourceThatDoesNotExist(unittest.TestC
 
 
 class WhenEvaluatingAPolicyWithANestedGetAtt(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_returns_the_nested_value(self):
         template = load({
             'Parameters': {
@@ -70,6 +74,7 @@ class WhenEvaluatingAPolicyWithANestedGetAtt(unittest.TestCase):
 
 
 class WhenEvaluatingAPolicyWithAGetAttForAnArn(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_returns_arn(self):
         template = load_resources({
             'ResourceA': {
@@ -92,6 +97,7 @@ class WhenEvaluatingAPolicyWithAGetAttForAnArn(unittest.TestCase):
 
 
 class WhenEvaluatingAPolicyWithAGetAttForAResourceProperty(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_returns_property_value(self):
         template = load_resources({
             'ResourceA': {
@@ -117,6 +123,18 @@ class WhenEvaluatingAPolicyWithAGetAttForAResourceProperty(unittest.TestCase):
 
 
 class WhenEvaluatingAPolicyWithAGetAttForCloudFrontOriginAccessIdentityS3CanonicalUserId(unittest.TestCase):
+    @mock_node_evaluator_setup(
+        s3=[
+            BotoResponse(
+                method='list_buckets',
+                service_response={
+                    'Owner': {
+                        'ID': my_canonical_user_id
+                    }
+                }
+            )
+        ]
+    )
     def test_returns_property_value(self):
         template = load_resources({
             'ResourceA': {
@@ -142,6 +160,7 @@ class WhenEvaluatingAPolicyWithAGetAttForCloudFrontOriginAccessIdentityS3Canonic
 
 
 class WhenEvaluatingAPolicyWithAGetAttForAnInvalidResourceProperty(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_exception(self):
         template = load({
             'Resources': {
@@ -167,6 +186,7 @@ class WhenEvaluatingAPolicyWithAGetAttForAnInvalidResourceProperty(unittest.Test
 
 
 class WhenEvaluatingTemplateWithStringGetAttValue(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_error(self):
         template = load({
             'Resources': {
@@ -192,6 +212,7 @@ class WhenEvaluatingTemplateWithStringGetAttValue(unittest.TestCase):
 
 
 class WhenEvaluatingTemplateWithArrayGetAttValueOfInvalidLength(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_error(self):
         template = load_resources({
             'ResourceA': {

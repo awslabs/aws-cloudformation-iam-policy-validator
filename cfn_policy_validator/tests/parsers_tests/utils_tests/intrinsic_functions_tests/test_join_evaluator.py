@@ -6,10 +6,12 @@ import unittest
 
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 from cfn_policy_validator.tests.utils import load, account_config, expected_type_error, load_resources
 
 
 class WhenEvaluatingAPolicyWithAJoinFunction(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_returns_a_single_string(self):
         template = load({
             'Resources': {
@@ -42,6 +44,7 @@ class WhenEvaluatingAPolicyWithAJoinFunction(unittest.TestCase):
 
 
 class WhenEvaluatingAPolicyWithAJoinFunctionThatIsNotAList(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_exception(self):
         template = load_resources({
             'ResourceA': {
@@ -75,6 +78,7 @@ class WhenEvaluatingAPolicyWithAJoinFunctionThatIsNotAList(unittest.TestCase):
 
 
 class WhenEvaluatingAPolicyWithAJoinFunctionThatIsAListThatDoesNotHaveTwoValues(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_exception(self):
         template = load_resources({
             'ResourceA': {
@@ -108,6 +112,7 @@ class WhenEvaluatingAPolicyWithAJoinFunctionThatIsAListThatDoesNotHaveTwoValues(
 
 
 class WhenEvaluatingAPolicyWithAJoinFunctionWithNonStringDelimiter(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_exception(self):
         template = load_resources({
             'ResourceA': {
@@ -140,6 +145,7 @@ class WhenEvaluatingAPolicyWithAJoinFunctionWithNonStringDelimiter(unittest.Test
 
 
 class WhenEvaluatingAPolicyWithAJoinFunctionWithNonListValue(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_exception(self):
         template = load({
             'Resources': {
@@ -165,6 +171,7 @@ class WhenEvaluatingAPolicyWithAJoinFunctionWithNonListValue(unittest.TestCase):
 
 
 class WhenEvaluatingTemplateWithAJoinFunctionWithValuesThatAreNotStrings(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_returns_a_single_string(self):
         template = load_resources({
             'ResourceA': {

@@ -10,7 +10,7 @@ from unittest.mock import patch, ANY
 
 import cfn_policy_validator
 from cfn_policy_validator import parse, validate
-from cfn_policy_validator.tests import ParsingTest, account_config, ValidationTest
+from cfn_policy_validator.tests import ParsingTest, account_config, ValidationTest, end_to_end, mock_validation_setup
 from cfn_policy_validator.tests.utils import ignore_warnings
 from cfn_policy_validator.validation.reporter import ResourceAndCodeFindingToIgnore, AllowedExternalPrincipal, \
     ResourceOrCodeFindingToIgnore, AllowedExternalArn, default_finding_types_that_are_blocking
@@ -25,6 +25,7 @@ class WhenParsingATemplateAsLibrary(ParsingTest):
         # unittest resets this after every test, so it needs to go in setUp
         ignore_warnings()
 
+    @end_to_end
     def test_returns_parser_output_as_json(self):
         json_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/test_file_2.json')
         with open(json_file_path, 'r') as f:
@@ -71,6 +72,7 @@ class WhenValidatingATemplateAsLibrary(ValidationTest):
     def setUp(self):
         ignore_warnings()
 
+    @end_to_end
     def test_returns_json(self):
         json_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/test_file_2.json')
         with open(json_file_path, 'r') as f:

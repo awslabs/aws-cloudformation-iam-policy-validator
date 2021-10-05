@@ -8,18 +8,22 @@ import unittest
 
 from unittest.mock import patch, MagicMock
 
+from cfn_policy_validator.tests import offline_only
+from cfn_policy_validator.tests.boto_mocks import BotoClientError
+from cfn_policy_validator.tests.parsers_tests import mock_identity_parser_setup
 from cfn_policy_validator.tests.utils import required_property_error, load, account_config, expected_type_error, \
 	load_resources
 
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.identity import IdentityParser
-from cfn_policy_validator.parsers import identity
 
 from cfn_policy_validator.tests.parsers_tests.test_identity import has_policy, \
-	sample_policy_a, sample_policy_b, get_policy_side_effect, get_policy_version_side_effect, IdentityParserTest
+	sample_policy_a, sample_policy_b, IdentityParserTest, aws_lambda_basic_execution_response, \
+	aws_lambda_basic_execution_version_response, aws_lambda_execute_response, aws_lambda_execute_version_response
 
 
 class WhenParsingAnIAMGroupWithAName(IdentityParserTest):
+	@mock_identity_parser_setup()
 	def test_returns_a_group(self):
 		template = load({
 			'Resources': {
@@ -43,6 +47,7 @@ class WhenParsingAnIAMGroupWithAName(IdentityParserTest):
 
 
 class WhenParsingAnIAMGroupWithNoName(IdentityParserTest):
+	@mock_identity_parser_setup()
 	def test_returns_a_group(self):
 		template = load({
 			'Resources': {
@@ -65,6 +70,7 @@ class WhenParsingAnIAMGroupWithNoName(IdentityParserTest):
 
 
 class WhenParsingAnIAMPolicyAttachedToAGroup(IdentityParserTest):
+	@mock_identity_parser_setup()
 	def test_returns_a_group_and_policy(self):
 		template = load_resources({
 			'ResourceA': {
@@ -98,6 +104,7 @@ class WhenParsingAnIAMPolicyAttachedToAGroup(IdentityParserTest):
 
 class WhenParsingAnIAMGroupWithReferencesInEachField(IdentityParserTest):
 	# this is a test to ensure that each field is being evaluated for references in a group
+	@mock_identity_parser_setup()
 	def test_returns_a_group_with_references_resolved(self):
 		inline_policy = {
 			'Version': '2012-10-17',
@@ -162,6 +169,7 @@ class WhenParsingAnIAMGroupWithReferencesInEachField(IdentityParserTest):
 
 
 class WhenParsingManagedPoliciesAttachedToAGroupFromTheGroup(IdentityParserTest):
+	@mock_identity_parser_setup()
 	def test_returns_a_group_with_attached_policies(self):
 		template = load({
 			'Resources': {
@@ -200,6 +208,7 @@ class WhenParsingManagedPoliciesAttachedToAGroupFromTheGroup(IdentityParserTest)
 
 # note that the DependsOn is required here, otherwise the managed policy would not exist when the group attempts to find it
 class WhenParsingManagedPoliciesAttachedToAGroupFromTheGroupAndArnIsNotRef(IdentityParserTest):
+	@mock_identity_parser_setup()
 	def test_returns_groups_with_attached_policies(self):
 		template = load({
 			'Resources': {
@@ -231,6 +240,15 @@ class WhenParsingManagedPoliciesAttachedToAGroupFromTheGroupAndArnIsNotRef(Ident
 
 
 class WhenParsingManagedPolicyAttachedToAGroupAndThePolicyIsAWSManaged(IdentityParserTest):
+	@offline_only
+	@mock_identity_parser_setup(
+		iam=[
+			aws_lambda_basic_execution_response(),
+			aws_lambda_basic_execution_version_response(),
+			aws_lambda_execute_response(),
+			aws_lambda_execute_version_response()
+		]
+	)
 	def test_returns_group_with_attached_policies(self):
 		template = load({
 			'Resources': {
@@ -246,13 +264,7 @@ class WhenParsingManagedPolicyAttachedToAGroupAndThePolicyIsAWSManaged(IdentityP
 			}
 		})
 
-		mock_client = MagicMock()
-		mock_client.get_policy = MagicMock(side_effect=get_policy_side_effect)
-		mock_client.get_policy_version = MagicMock(side_effect=get_policy_version_side_effect)
-
-		with patch.object(identity.client, 'build', return_value=mock_client):
-			self.parse(template, account_config)
-
+		self.parse(template, account_config)
 		self.assertResults(number_of_groups=1)
 
 		group = self.groups[0]
@@ -262,6 +274,17 @@ class WhenParsingManagedPolicyAttachedToAGroupAndThePolicyIsAWSManaged(IdentityP
 
 
 class WhenParsingManagedPolicyAttachedToAGroupAndThePolicyDoesNotExistInTemplateOrAWS(unittest.TestCase):
+	@mock_identity_parser_setup(
+		iam=[
+			BotoClientError(
+				method='get_policy',
+				service_error_code='NoSuchEntity',
+				expected_params={
+					'PolicyArn': 'arn:aws:iam::aws:policy/DoesNotExist'
+				}
+			)
+		]
+	)
 	def test_throws_exception(self):
 		template = load({
 			'Resources': {
@@ -276,26 +299,15 @@ class WhenParsingManagedPolicyAttachedToAGroupAndThePolicyDoesNotExistInTemplate
 			}
 		})
 
-		import boto3
-		client = boto3.client('iam')
+		with self.assertRaises(ApplicationError) as cm:
+			IdentityParser.parse(template, account_config)
 
-		def get_non_existent_policy(*, PolicyArn):
-			if PolicyArn == 'arn:aws:iam::aws:policy/DoesNotExist':
-				raise client.exceptions.NoSuchEntityException({}, "")
-
-		mock_client = MagicMock()
-		mock_client.get_policy = MagicMock(side_effect=get_non_existent_policy)
-		mock_client.exceptions.NoSuchEntityException = client.exceptions.NoSuchEntityException
-
-		with patch.object(identity.client, 'build', return_value=mock_client):
-			with self.assertRaises(ApplicationError) as cm:
-				IdentityParser.parse(template, account_config)
-
-			self.assertEqual('Could not find managed policy with arn:aws:iam::aws:policy/DoesNotExist in template '
-							 'or in environment.', str(cm.exception))
+		self.assertEqual('Could not find managed policy with arn:aws:iam::aws:policy/DoesNotExist in template '
+						 'or in environment.', str(cm.exception))
 
 
 class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
+	@mock_identity_parser_setup()
 	def test_with_invalid_group_name_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -311,6 +323,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('ResourceA.Properties.GroupName', 'string', "['Invalid']"),  str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_path_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -326,6 +339,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('ResourceA.Properties.Path', 'string', "{'abc': 'def'}"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_policies_type(self):
 		template = load({
 			'Resources': {
@@ -343,6 +357,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual("'PolicyA' is not of type 'array', Path: ResourceA.Properties.Policies", str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_no_policy_document(self):
 		template = load_resources({
 			'ResourceA': {
@@ -362,6 +377,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('PolicyDocument', 'ResourceA.Properties.Policies.0'), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_policy_document_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -382,6 +398,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual("'Invalid' is not of type 'object', Path: ResourceA.Properties.Policies.0.PolicyDocument", str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_no_policy_name(self):
 		template = load_resources({
 			'ResourceA': {
@@ -401,6 +418,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('PolicyName', 'ResourceA.Properties.Policies.0'), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_policy_name_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -421,6 +439,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual("['Invalid'] is not of type 'string', Path: ResourceA.Properties.Policies.0.PolicyName", str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_policies_item_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -436,6 +455,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual("'PolicyA' is not of type 'object', Path: ResourceA.Properties.Policies.0", str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_managed_policy_arns_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -451,6 +471,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('ResourceA.Properties.ManagedPolicyArns', 'array', "'Invalid'"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_managed_policy_arn_item_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -466,6 +487,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('ResourceA.Properties.ManagedPolicyArns.0', 'string', "['Invalid']"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_unsupported_function_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {
@@ -480,6 +502,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 
 		self.assertTrue(True, 'Should not raise error.')
 
+	@mock_identity_parser_setup()
 	def test_with_ref_to_parameter_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {

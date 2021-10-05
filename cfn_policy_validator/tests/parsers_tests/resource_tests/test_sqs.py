@@ -7,6 +7,7 @@ import unittest
 
 from cfn_policy_validator.parsers.resource.parser import ResourceParser
 from cfn_policy_validator.parsers.output import Resource, Policy
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 
 from cfn_policy_validator.tests.utils import required_property_error, load, account_config, expected_type_error, \
 	load_resources
@@ -40,6 +41,7 @@ sqs_policy_with_reference = {
 
 
 class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_with_no_properties(self):
 		template = load_resources({
 			'ResourceA': {
@@ -52,6 +54,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_policy_document(self):
 		template = load_resources({
 			'ResourceA': {
@@ -70,6 +73,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('PolicyDocument', 'ResourceA.Properties'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_invalid_policy_document_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -89,6 +93,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('ResourceA.Properties.PolicyDocument', 'object', "'Invalid'"), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_queues(self):
 		template = load_resources({
 			'ResourceA': {
@@ -104,6 +109,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('Queues', 'ResourceA.Properties'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_invalid_queues_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -126,6 +132,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 											 "'https://sqs.us-east-1.amazonaws.com/123456/MySecondTestQueue': 2}"),
 						 str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_queues_items(self):
 		template = load_resources({
 			'ResourceA': {
@@ -142,6 +149,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual('[] is too short, Path: ResourceA.Properties.Queues', str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_invalid_queues_item_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -164,7 +172,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 											 "'https://sqs.us-east-1.amazonaws.com/123456/MySecondTestQueue': 2}"),
 						 str(cm.exception))
 
-
+	@mock_node_evaluator_setup()
 	def test_with_unsupported_function_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {
@@ -184,6 +192,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertTrue(True, 'Should not raise error.')
 
+	@mock_node_evaluator_setup()
 	def test_with_ref_to_parameter_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {
@@ -204,8 +213,8 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 		self.assertTrue(True, 'Should not raise error.')
 
 
-
 class WhenParsingAnSqsQueueWithInvalidQueueURL(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_an_error(self):
 		template = load({
 			'Resources': {
@@ -230,6 +239,7 @@ class WhenParsingAnSqsQueueWithInvalidQueueURL(unittest.TestCase):
 
 
 class WhenParsingAnSqsQueuePolicy(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_a_resource(self):
 		template = load_resources({
 			'ResourceA': {
@@ -257,7 +267,8 @@ class WhenParsingAnSqsQueuePolicy(unittest.TestCase):
 
 
 class WhenParsingAnSqsQueuePolicyWithReferencesInEachField(unittest.TestCase):
-	# this is a test to ensure that each field is being evaluated for references in a role
+	# this is a test to ensure that each field is being evaluated for references in a queue
+	@mock_node_evaluator_setup()
 	def test_returns_a_resource_with_references_resolved(self):
 		template = load_resources({
 			'TestQueueA': {
@@ -297,7 +308,8 @@ class WhenParsingAnSqsQueuePolicyWithReferencesInEachField(unittest.TestCase):
 
 
 class WhenParsingAnSqsQueuePolicyWithQueueThatHasExplicitName(unittest.TestCase):
-	# this is a test to ensure that each field is being evaluated for references in a role
+	# this is a test to ensure that each field is being evaluated for references in a queue
+	@mock_node_evaluator_setup()
 	def test_returns_a_resource_with_references_resolved(self):
 		template = load_resources({
 			'TestQueueA': {

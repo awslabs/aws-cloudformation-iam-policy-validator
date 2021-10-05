@@ -4,15 +4,33 @@ SPDX-License-Identifier: MIT-0
 """
 import unittest
 
-from botocore.stub import Stubber
-
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.cfn_tools.regex_patterns import dynamic_ssm_reference_regex
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
+from cfn_policy_validator.tests import offline_only
+from cfn_policy_validator.tests.boto_mocks import BotoResponse, BotoClientError
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 from cfn_policy_validator.tests.utils import load_resources, account_config, load
 
 
 class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
+	@mock_node_evaluator_setup(
+		ssm=[
+			BotoResponse(
+				method='get_parameter',
+				service_response={
+					'Parameter': {
+						'Version': 1,
+						'Value': 'Version1'
+					}
+				},
+				expected_params={
+					'Name': '/my/parameter1:1'
+				}
+			)
+		]
+	)
+	@offline_only
 	def test_simple_reference(self):
 		template = load_resources({
 			'ResourceA': {
@@ -24,22 +42,38 @@ class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
 		})
 
 		node_evaluator = NodeEvaluator(template, account_config, {})
+		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
+		self.assertEqual(result, 'Version1')
 
-		get_parameter_result = {
-			'Parameter': {
-				'Version': 1,
-				'Value': 'Version1'
-			}
-		}
-
-		with Stubber(node_evaluator.dynamic_reference_evaluator.ssm_client) as stubber:
-			stubber.add_response('get_parameter', get_parameter_result, {
-				'Name': '/my/parameter1:1'
-			})
-
-			result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
-			self.assertEqual(result, 'Version1')
-
+	@mock_node_evaluator_setup(
+		ssm=[
+			BotoResponse(
+				method='get_parameter',
+				service_response={
+					'Parameter': {
+						'Version': 1,
+						'Value': 'Parameter2Version1'
+					}
+				},
+				expected_params={
+					'Name': '/my/parameter2:1'
+				}
+			),
+			BotoResponse(
+				method='get_parameter',
+				service_response={
+					'Parameter': {
+						'Version': 1,
+						'Value': 'Parameter1Version1'
+					}
+				},
+				expected_params={
+					'Name': '/my/parameter1:1'
+				}
+			)
+		]
+	)
+	@offline_only
 	def test_multiple_dynamic_references_in_single_string(self):
 		template = load_resources({
 			'ResourceA': {
@@ -51,33 +85,10 @@ class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
 		})
 
 		node_evaluator = NodeEvaluator(template, account_config, {})
+		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
+		self.assertEqual(result, 'Parameter2Version1-Parameter1Version1')
 
-		get_parameter_responses = [
-			{
-				'Parameter': {
-					'Version': 1,
-					'Value': 'Parameter2Version1'
-				}
-			},
-			{
-				'Parameter': {
-					'Version': 1,
-					'Value': 'Parameter1Version1'
-				}
-			}
-		]
-
-		with Stubber(node_evaluator.dynamic_reference_evaluator.ssm_client) as stubber:
-			stubber.add_response('get_parameter', get_parameter_responses[0], {
-				'Name': '/my/parameter2:1'
-			})
-			stubber.add_response('get_parameter', get_parameter_responses[1], {
-				'Name': '/my/parameter1:1'
-			})
-
-			result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
-			self.assertEqual(result, 'Parameter2Version1-Parameter1Version1')
-
+	@mock_node_evaluator_setup()
 	def test_dynamic_reference_with_no_version(self):
 		template = load_resources({
 			'ResourceA': {
@@ -97,6 +108,23 @@ class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
 						 'between validation and deployment.  Invalid dynamic reference: {{resolve:ssm:MyParameter}}',
 						 str(cm.exception))
 
+	@mock_node_evaluator_setup(
+		ssm=[
+			BotoResponse(
+				method='get_parameter',
+				service_response={
+					'Parameter': {
+						'Version': 1,
+						'Value': 'Version1'
+					}
+				},
+				expected_params={
+					'Name': '/my/param1:1'
+				}
+			)
+		]
+	)
+	@offline_only
 	def test_nested_reference(self):
 		template = load({
 			'Parameters': {
@@ -128,22 +156,21 @@ class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
 		node_evaluator = NodeEvaluator(template, account_config, {
 			'MyParameter': '/my/param1:1'
 		})
+		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
+		self.assertEqual(result, 'Version1')
 
-		get_parameter_response = {
-			'Parameter': {
-				'Version': 1,
-				'Value': 'Version1'
-			}
-		}
-
-		with Stubber(node_evaluator.dynamic_reference_evaluator.ssm_client) as stubber:
-			stubber.add_response('get_parameter', get_parameter_response, expected_params={
-				'Name': '/my/param1:1'
-			})
-
-			result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
-			self.assertEqual(result, 'Version1')
-
+	@mock_node_evaluator_setup(
+		ssm=[
+			BotoClientError(
+				method='get_parameter',
+				service_error_code='ParameterVersionNotFound',
+				expected_params={
+					'Name': '/my/parameter:3'
+				}
+			)
+		]
+	)
+	@offline_only
 	def test_no_parameter_with_version_exists(self):
 		template = load_resources({
 			'ResourceA': {
@@ -156,17 +183,24 @@ class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
 
 		node_evaluator = NodeEvaluator(template, account_config, {})
 
-		with Stubber(node_evaluator.dynamic_reference_evaluator.ssm_client) as stubber:
-			stubber.add_client_error('get_parameter', 'ParameterVersionNotFound', expected_params={
-				'Name': '/my/parameter:3'
-			})
-
-			with self.assertRaises(ApplicationError) as cm:
-				node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
+		with self.assertRaises(ApplicationError) as cm:
+			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
 		self.assertEqual('Could not find version 3 of SSM parameter referenced by dynamic reference: {{resolve:ssm:/my/parameter:3}}',
 						 str(cm.exception))
 
+
+	@mock_node_evaluator_setup(
+		ssm=[
+			BotoClientError(
+				method='get_parameter',
+				service_error_code='ParameterNotFound',
+				expected_params={
+					'Name': '/my/parameter:3'
+				}
+			)
+		]
+	)
 	def test_no_parameter_with_name_exists(self):
 		template = load_resources({
 			'ResourceA': {
@@ -179,13 +213,8 @@ class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
 
 		node_evaluator = NodeEvaluator(template, account_config, {})
 
-		with Stubber(node_evaluator.dynamic_reference_evaluator.ssm_client) as stubber:
-			stubber.add_client_error('get_parameter', 'ParameterNotFound', expected_params={
-				'Name': '/my/parameter:3'
-			})
-
-			with self.assertRaises(ApplicationError) as cm:
-				node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
+		with self.assertRaises(ApplicationError) as cm:
+			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
 		self.assertEqual(
 			'Could not find SSM parameter referenced by dynamic reference: {{resolve:ssm:/my/parameter:3}}',
@@ -245,6 +274,7 @@ class WhenEvaluatingDynamicSSMReferenceRegex(unittest.TestCase):
 
 
 class WhenEvaluatingPolicyWithSsmSecureDynamicReference(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_dynamic_reference_is_ignored(self):
 		template = load_resources({
 			'ResourceA': {
@@ -262,6 +292,7 @@ class WhenEvaluatingPolicyWithSsmSecureDynamicReference(unittest.TestCase):
 
 
 class WhenEvaluatingPolicyWithSecretDynamicReference(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_dynamic_reference_is_ignored(self):
 		template = load_resources({
 			'ResourceA': {

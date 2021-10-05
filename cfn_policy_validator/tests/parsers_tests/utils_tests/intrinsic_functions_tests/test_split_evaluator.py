@@ -6,10 +6,12 @@ import unittest
 
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 from cfn_policy_validator.tests.utils import load, account_config, load_resources, expected_type_error
 
 
 class WhenEvaluatingATemplateWithASplitFunctionThatHasAReference(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_splits_into_list(self):
         template = load({
             'Parameters': {
@@ -38,6 +40,7 @@ class WhenEvaluatingATemplateWithASplitFunctionThatHasAReference(unittest.TestCa
 
 
 class WhenEvaluatingATemplateWithASplitFunction(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_splits_into_list(self):
         template = load_resources({
             'ResourceA': {
@@ -57,6 +60,7 @@ class WhenEvaluatingATemplateWithASplitFunction(unittest.TestCase):
 
 
 class WhenEvaluatingTemplateWithASplitFunctionWithNoList(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_error(self):
         template = load_resources({
             'ResourceA': {
@@ -78,6 +82,7 @@ class WhenEvaluatingTemplateWithASplitFunctionWithNoList(unittest.TestCase):
 
 
 class WhenEvaluatingTemplateWithASplitFunctionWithInvalidLength(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_raises_an_error(self):
         template = load_resources({
             'ResourceA': {

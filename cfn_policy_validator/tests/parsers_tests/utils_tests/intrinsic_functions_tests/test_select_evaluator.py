@@ -6,10 +6,12 @@ import unittest
 
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 from cfn_policy_validator.tests.utils import load, load_resources, account_config, expected_type_error
 
 
 class WhenEvaluatingAPolicyWithASelectFunction(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_value_at_index_1(self):
 		template = load_resources({
 			'ResourceA': {
@@ -29,6 +31,7 @@ class WhenEvaluatingAPolicyWithASelectFunction(unittest.TestCase):
 
 
 class WhenEvaluatingAPolicyWithASelectFunctionThatReturnsAnObject(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_value_at_index_0(self):
 		template = load_resources({
 			'ResourceA': {
@@ -48,6 +51,7 @@ class WhenEvaluatingAPolicyWithASelectFunctionThatReturnsAnObject(unittest.TestC
 
 
 class WhenEvaluatingAPolicyWithASelectFunctionAndInvalidValue(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_an_error(self):
 		template = load_resources({
 			'ResourceA': {
@@ -69,6 +73,7 @@ class WhenEvaluatingAPolicyWithASelectFunctionAndInvalidValue(unittest.TestCase)
 
 
 class WhenEvaluatingAPolicyWithASelectFunctionAndAListNotEqualToTwo(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_an_error(self):
 		template = load_resources({
 			'ResourceA': {
@@ -90,6 +95,7 @@ class WhenEvaluatingAPolicyWithASelectFunctionAndAListNotEqualToTwo(unittest.Tes
 
 
 class WhenEvaluatingAPolicyWithASelectFunctionAndAnInvalidFirstValue(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def tests_raises_an_error(self):
 		template = load({
 			'Resources': {
@@ -113,6 +119,7 @@ class WhenEvaluatingAPolicyWithASelectFunctionAndAnInvalidFirstValue(unittest.Te
 
 
 class WhenEvaluatingAPolicyWithASelectFunctionAndAnInvalidSecondValue(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def tests_raises_an_error(self):
 		template = load_resources({
 			'ResourceA': {
@@ -134,6 +141,7 @@ class WhenEvaluatingAPolicyWithASelectFunctionAndAnInvalidSecondValue(unittest.T
 
 
 class WhenEvaluatingAPolicyWithASelectFunctionAndIndexIsLargerThanList(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def tests_raises_an_error(self):
 		template = load({
 			'Resources': {
@@ -157,6 +165,7 @@ class WhenEvaluatingAPolicyWithASelectFunctionAndIndexIsLargerThanList(unittest.
 
 
 class WhenEvaluatingAPolicyWithASelectFunctionAndIndexIsNegative(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def tests_raises_an_error(self):
 		template = load({
 			'Resources': {

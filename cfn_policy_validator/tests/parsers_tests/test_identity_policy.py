@@ -5,6 +5,7 @@ SPDX-License-Identifier: MIT-0
 import copy
 import unittest
 
+from cfn_policy_validator.tests.parsers_tests import mock_identity_parser_setup
 from cfn_policy_validator.tests.utils import required_property_error, load, account_config, expected_type_error, \
 	load_resources
 
@@ -16,6 +17,7 @@ from cfn_policy_validator.tests.parsers_tests.test_identity import has_policy, \
 
 
 class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
+	@mock_identity_parser_setup()
 	def test_with_no_properties(self):
 		template = load_resources({
 			'InlinePolicy': {
@@ -28,6 +30,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('Properties', 'InlinePolicy'), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_no_policy_name(self):
 		template = load_resources({
 			'InlinePolicy': {
@@ -43,6 +46,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('PolicyName', 'InlinePolicy.Properties'), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_policy_name_type(self):
 		template = load_resources({
 			'InlinePolicy': {
@@ -59,6 +63,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('InlinePolicy.Properties.PolicyName', 'string', "['Invalid']"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_no_policy_document(self):
 		template = load_resources({
 			'InlinePolicy': {
@@ -74,6 +79,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('PolicyDocument', 'InlinePolicy.Properties'), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_policy_document_type(self):
 		template = load_resources({
 			'InlinePolicy': {
@@ -90,6 +96,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('InlinePolicy.Properties.PolicyDocument', 'object', "'Invalid'"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_roles_type(self):
 		template = load_resources({
 			'InlinePolicy': {
@@ -107,6 +114,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('InlinePolicy.Properties.Roles', 'array', "'Invalid'"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_role_item_type(self):
 		template = load_resources({
 			'InlinePolicy': {
@@ -124,6 +132,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('InlinePolicy.Properties.Roles.0', 'string', "['Invalid']"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_users_type(self):
 		template = load_resources({
 			'InlinePolicy': {
@@ -141,6 +150,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('InlinePolicy.Properties.Users', 'array', "'Invalid'"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_user_item_type(self):
 		template = load_resources({
 			'InlinePolicy': {
@@ -158,6 +168,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('InlinePolicy.Properties.Users.0', 'string', "['Invalid']"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_group_type(self):
 		template = load_resources({
 			'InlinePolicy': {
@@ -175,6 +186,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('InlinePolicy.Properties.Groups', 'array', "'Invalid'"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_group_item_type(self):
 		template = load_resources({
 			'InlinePolicy': {
@@ -192,6 +204,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('InlinePolicy.Properties.Groups.0', 'string', "['Invalid']"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_unsupported_function_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {
@@ -208,6 +221,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertTrue(True, 'Should not raise error.')
 
+	@mock_identity_parser_setup()
 	def test_with_ref_to_parameter_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {
@@ -227,6 +241,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 class WhenParsingAnInlinePolicyWithReferencesInEachField(IdentityParserTest):
 	# this is a test to ensure that each field is being evaluated for references in a managed policy
+	@mock_identity_parser_setup()
 	def test_returns_a_role_user_and_group_with_references_resolved(self):
 		inline_policy = {
 			'Version': '2012-10-17',
@@ -269,8 +284,7 @@ class WhenParsingAnInlinePolicyWithReferencesInEachField(IdentityParserTest):
 					}
 				}
 			}
-		},
-		{
+		}, {
 			'Path': '/custom/policy/path',
 			'Name': 'PolicyName',
 			'Resource': 'my_resource/*'
@@ -296,6 +310,7 @@ class WhenParsingAnInlinePolicyWithReferencesInEachField(IdentityParserTest):
 
 
 class WhenParsingAnInlinePolicyAttachedToRole(IdentityParserTest):
+	@mock_identity_parser_setup()
 	def test_returns_roles_with_attached_policy(self):
 		template = load({
 			'Resources': {
@@ -341,6 +356,7 @@ class WhenParsingAnInlinePolicyAttachedToRole(IdentityParserTest):
 
 
 class WhenParsingAnInlinePolicyAttachedToAUser(IdentityParserTest):
+	@mock_identity_parser_setup()
 	def test_returns_users_with_attached_policy(self):
 		template = load({
 			'Resources': {
@@ -380,6 +396,7 @@ class WhenParsingAnInlinePolicyAttachedToAUser(IdentityParserTest):
 
 
 class WhenParsingAnInlinePolicyAttachedToAGroup(IdentityParserTest):
+	@mock_identity_parser_setup()
 	def test_returns_groups_with_attached_policy(self):
 		template = load_resources({
 			'InlinePolicy': {

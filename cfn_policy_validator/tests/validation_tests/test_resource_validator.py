@@ -7,7 +7,7 @@ import unittest
 
 from botocore.stub import Stubber, ANY
 
-from cfn_policy_validator.tests import account_config
+from cfn_policy_validator.tests import account_config, offline_only
 from cfn_policy_validator.tests.boto_mocks import mock_test_setup, BotoResponse
 from cfn_policy_validator.tests.validation_tests import FINDING_TYPE, mock_access_analyzer_resource_setup, \
 	MockAccessPreviewFinding, MockNoFindings, MockInvalidConfiguration, MockUnknownError, \
@@ -80,6 +80,7 @@ class WhenValidatingResources(BaseResourcePolicyTest):
 	@mock_access_analyzer_resource_setup(
 		MockUnknownError()
 	)
+	@offline_only
 	def test_unknown_access_preview_failure(self):
 		policy = Policy('ResourcePolicy', copy.deepcopy(resource_policy_with_no_findings))
 		resources = [
@@ -95,6 +96,7 @@ class WhenValidatingResources(BaseResourcePolicyTest):
 	@mock_access_analyzer_resource_setup(
 		MockTimeout()
 	)
+	@offline_only
 	def test_unknown_access_preview_timeout(self):
 		policy = Policy('ResourcePolicy', copy.deepcopy(resource_policy_with_no_findings))
 		resources = [

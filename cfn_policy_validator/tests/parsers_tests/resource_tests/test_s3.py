@@ -6,6 +6,7 @@ import copy
 import unittest
 
 from cfn_policy_validator.parsers.resource.parser import ResourceParser
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 
 from cfn_policy_validator.tests.utils import required_property_error, load, account_config, expected_type_error, \
     load_resources
@@ -56,6 +57,7 @@ s3_policy_with_reference = {
 
 
 class WhenParsingAnS3BucketPolicyAndValidatingSchema(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_with_no_properties(self):
         template = load_resources({
             'ResourceA': {
@@ -68,6 +70,7 @@ class WhenParsingAnS3BucketPolicyAndValidatingSchema(unittest.TestCase):
 
         self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
 
+    @mock_node_evaluator_setup()
     def test_with_no_bucket(self):
         template = load({
             'Resources': {
@@ -85,6 +88,7 @@ class WhenParsingAnS3BucketPolicyAndValidatingSchema(unittest.TestCase):
 
         self.assertEqual(required_property_error('Bucket', 'ResourceA.Properties'), str(cm.exception))
 
+    @mock_node_evaluator_setup()
     def test_with_invalid_bucket_type(self):
         template = load_resources({
             'ResourceA': {
@@ -101,6 +105,7 @@ class WhenParsingAnS3BucketPolicyAndValidatingSchema(unittest.TestCase):
 
         self.assertEqual(expected_type_error('ResourceA.Properties.Bucket', 'string', "['MyBucket']"),  str(cm.exception))
 
+    @mock_node_evaluator_setup()
     def test_with_no_policy_document(self):
         template = load_resources({
             'ResourceA': {
@@ -116,6 +121,7 @@ class WhenParsingAnS3BucketPolicyAndValidatingSchema(unittest.TestCase):
 
         self.assertEqual(required_property_error('PolicyDocument', 'ResourceA.Properties'), str(cm.exception))
 
+    @mock_node_evaluator_setup()
     def test_with_invalid_policy_document_type(self):
         template = load_resources({
             'ResourceA': {
@@ -133,6 +139,7 @@ class WhenParsingAnS3BucketPolicyAndValidatingSchema(unittest.TestCase):
         self.assertEqual(expected_type_error('ResourceA.Properties.PolicyDocument', 'object', "['Invalid']"),
                          str(cm.exception))
 
+    @mock_node_evaluator_setup()
     def test_with_unsupported_function_in_unused_property(self):
         template = load_resources({
             'ResourceA': {
@@ -149,6 +156,7 @@ class WhenParsingAnS3BucketPolicyAndValidatingSchema(unittest.TestCase):
 
         self.assertTrue(True, 'Should not raise error.')
 
+    @mock_node_evaluator_setup()
     def test_with_ref_to_parameter_in_unused_property(self):
         template = load_resources({
             'ResourceA': {
@@ -167,6 +175,7 @@ class WhenParsingAnS3BucketPolicyAndValidatingSchema(unittest.TestCase):
 
 
 class WhenParsingAnS3BucketPolicy(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_returns_a_resource(self):
         template = load({
             'Resources': {
@@ -196,7 +205,8 @@ class WhenParsingAnS3BucketPolicy(unittest.TestCase):
 
 
 class WhenParsingAnS3BucketPolicyWithReferencesInEachField(unittest.TestCase):
-    # this is a test to ensure that each field is being evaluated for references in a role
+    # this is a test to ensure that each field is being evaluated for references in a bucket
+    @mock_node_evaluator_setup()
     def test_returns_a_resource_with_references_resolved(self):
         template = load_resources({
             'MyBucket': {
@@ -232,7 +242,8 @@ class WhenParsingAnS3BucketPolicyWithReferencesInEachField(unittest.TestCase):
 
 
 class WhenParsingAnS3BucketPolicyWithAnExplicitBucketName(unittest.TestCase):
-    # this is a test to ensure that each field is being evaluated for references in a role
+    # this is a test to ensure that each field is being evaluated for references in a bucket
+    @mock_node_evaluator_setup()
     def test_returns_a_resource_with_references_resolved(self):
         template = load_resources({
             'MyBucket': {
@@ -265,5 +276,3 @@ class WhenParsingAnS3BucketPolicyWithAnExplicitBucketName(unittest.TestCase):
         self.assertEqual('BucketPolicy', resource.Policy.Name)
         self.assertEqual(expected_policy, resource.Policy.Policy)
         self.assertEqual('/', resource.Policy.Path)
-
-

@@ -2,13 +2,24 @@
 Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: MIT-0
 """
-import uuid
-from datetime import datetime
+import os
 from unittest.mock import patch
 
 import boto3
 from botocore.stub import Stubber
 from cfn_policy_validator import client
+
+
+class TEST_MODE:
+    AWS = 'AWS'
+    OFFLINE = 'OFFLINE'
+
+
+def get_test_mode():
+    if os.getenv('TEST_MODE') == 'AWS':
+        return TEST_MODE.AWS
+    else:
+        return TEST_MODE.OFFLINE
 
 
 def build_mock_client(service_name):
@@ -33,6 +44,11 @@ def mock_test_setup(**kwargs):
 		def wrapper(*args):
 			self = args[0]
 
+			# don't mock if test mode is "AWS"
+			if get_test_mode() == TEST_MODE.AWS:
+				func(self)
+				return
+
 			stubbers = []
 			for service_name in kwargs:
 				if service_name == 'assert_no_pending_responses':
@@ -41,12 +57,19 @@ def mock_test_setup(**kwargs):
 				stubber = build_mock_client(service_name)
 				mock_clients[service_name] = stubber.client
 				stubbers.append(stubber)
-				for responses in kwargs[service_name]:
-					if not isinstance(responses, list):
-						responses = [responses]
+				for mocks in kwargs[service_name]:
+					if not isinstance(mocks, list):
+						mocks = [mocks]
 
-					for response in responses:
-						stubber.add_response(response.method, response.service_response, response.expected_params)
+					for mock in mocks:
+						if isinstance(mock, BotoResponse):
+							stubber.add_response(mock.method, mock.service_response, mock.expected_params)
+						elif isinstance(mock, BotoClientError):
+							stubber.add_client_error(mock.method, mock.service_error_code,
+													service_message=mock.service_message,
+													expected_params=mock.expected_params)
+						else:
+							raise Exception(f'Invalid mock: {mock}')
 
 			with patch.object(client, 'build') as mock_client_builder:
 				mock_client_builder.side_effect = get_mock_client
@@ -68,3 +91,12 @@ class BotoResponse:
 		self.method = method
 		self.service_response = service_response
 		self.expected_params = expected_params
+
+
+class BotoClientError:
+	def __init__(self, method, service_error_code, service_message='', expected_params=None):
+		self.method = method
+		self.service_error_code = service_error_code
+		self.expected_params = expected_params
+		self.service_message = service_message
+

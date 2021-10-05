@@ -6,6 +6,7 @@ import unittest
 
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.arn_generator import ArnGenerator
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 from cfn_policy_validator.tests.utils import account_config, load, load_resources, required_property_error, \
     expected_type_error
 
@@ -23,11 +24,13 @@ class WhenGeneratingAnArnForAKnownResource(unittest.TestCase):
     def setUp(self):
         self.arn_generator = ArnGenerator(account_config)
 
+    @mock_node_evaluator_setup()
     def test_generates_global_arn_from_ref(self):
         resource = build_resource({'Type': 'AWS::IAM::ManagedPolicy'})
         arn = self.arn_generator.try_generate_arn("MyTestPolicy", resource, "Ref")
         self.assertEqual(f"arn:aws:iam::{account_config.account_id}:policy/MyTestPolicy", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_from_attribute(self):
         resource = build_resource({'Type': "AWS::ECS::Cluster"})
         arn = self.arn_generator.try_generate_arn("MyTestCluster", resource, "Arn")
@@ -38,6 +41,7 @@ class WhenGeneratingAnArnForAnUnknownResource(unittest.TestCase):
     def setUp(self):
         self.arn_generator = ArnGenerator(account_config)
 
+    @mock_node_evaluator_setup()
     def test_does_not_generate_arn(self):
         resource = build_resource({'Type': "AWS::EC2::Instance"})
         arn = self.arn_generator.try_generate_arn("AnyName", resource, "Ref")
@@ -48,6 +52,7 @@ class WhenGeneratingAnArnAndValidatingSchema(unittest.TestCase):
     def setUp(self):
         self.arn_generator = ArnGenerator(account_config)
 
+    @mock_node_evaluator_setup()
     def test_with_invalid_resource_type(self):
         resource = build_resource({'Type': 'AWS::Instance'})
 
@@ -58,6 +63,7 @@ class WhenGeneratingAnArnAndValidatingSchema(unittest.TestCase):
 
 
 class WhenGeneratingAnArnForACloudFormationModule(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_should_raise_error(self):
         arn_generator = ArnGenerator(account_config)
         resource = build_resource({'Type': 'Org::ServiceName::UseCase::MODULE'})
@@ -69,6 +75,7 @@ class WhenGeneratingAnArnForACloudFormationModule(unittest.TestCase):
 
 
 class WhenGeneratingAnArnForAnIAMRoleAndValidatingSchema(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_with_no_properties(self):
         template = load_resources({
             'ResourceA': {
@@ -83,6 +90,7 @@ class WhenGeneratingAnArnForAnIAMRoleAndValidatingSchema(unittest.TestCase):
 
         self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
 
+    @mock_node_evaluator_setup()
     def test_with_invalid_path_type(self):
         template = load_resources({
             'ResourceA': {
@@ -100,6 +108,7 @@ class WhenGeneratingAnArnForAnIAMRoleAndValidatingSchema(unittest.TestCase):
 
         self.assertEqual(expected_type_error('ResourceA.Properties.Path', 'string', '[]'), str(cm.exception))
 
+    @mock_node_evaluator_setup()
     def test_with_invalid_role_name_type(self):
         template = load_resources({
             'ResourceA': {
@@ -147,6 +156,7 @@ class WhenGeneratingAnArnForAnIAMRole(unittest.TestCase):
     def setUp(self):
         self.arn_generator = ArnGenerator(account_config)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_with_path_and_name(self):
         resource = self.add_resource_to_template({
             'Type': 'AWS::IAM::Role',
@@ -158,6 +168,7 @@ class WhenGeneratingAnArnForAnIAMRole(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyRole", resource, "Arn")
         self.assertEqual(f"arn:aws:iam::{account_config.account_id}:role/my/custom/path/MyCustomRoleName", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_with_path_and_resource_name_if_no_name(self):
         resource = self.add_resource_to_template({
             'Type': 'AWS::IAM::Role',
@@ -168,6 +179,7 @@ class WhenGeneratingAnArnForAnIAMRole(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyRole", resource, "Arn")
         self.assertEqual(f"arn:aws:iam::{account_config.account_id}:role/my/custom/path/MyRole", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_with_default_path_and_name_if_no_path(self):
         resource = self.add_resource_to_template({
             'Type': 'AWS::IAM::Role',
@@ -180,6 +192,7 @@ class WhenGeneratingAnArnForAnIAMRole(unittest.TestCase):
 
 
 class WhenGeneratingAnArnForAnIAMUserAndValidatingSchema(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_with_invalid_path_type(self):
         template = load_resources({
             'ResourceA': {
@@ -197,6 +210,7 @@ class WhenGeneratingAnArnForAnIAMUserAndValidatingSchema(unittest.TestCase):
 
         self.assertEqual(expected_type_error('ResourceA.Properties.Path', 'string', '[]'), str(cm.exception))
 
+    @mock_node_evaluator_setup()
     def test_with_invalid_user_name_type(self):
         template = load_resources({
             'ResourceA': {
@@ -237,6 +251,7 @@ class WhenGeneratingAnArnForAnIAMUser(unittest.TestCase):
     def setUp(self):
         self.arn_generator = ArnGenerator(account_config)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_with_path_and_name(self):
         resource = self.add_resource_to_template({
             'Type': 'AWS::IAM::User',
@@ -248,6 +263,7 @@ class WhenGeneratingAnArnForAnIAMUser(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyUser", resource, "Arn")
         self.assertEqual(f"arn:aws:iam::{account_config.account_id}:user/my/custom/user/path/MyCustomUserName", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_with_path_and_resource_name_if_no_name(self):
         resource = self.add_resource_to_template({
             'Type': 'AWS::IAM::User',
@@ -258,6 +274,7 @@ class WhenGeneratingAnArnForAnIAMUser(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyUser", resource, "Arn")
         self.assertEqual(f"arn:aws:iam::{account_config.account_id}:user/my/custom/user/path/MyUser", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_with_default_path_and_name_if_no_path(self):
         resource = self.add_resource_to_template({
             'Type': 'AWS::IAM::User',
@@ -268,6 +285,7 @@ class WhenGeneratingAnArnForAnIAMUser(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyUser", resource, "Arn")
         self.assertEqual(f"arn:aws:iam::{account_config.account_id}:user/MyCustomUserName", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_with_all_defaults_if_no_properties(self):
         resource = self.add_resource_to_template({
             'Type': 'AWS::IAM::User'
@@ -280,6 +298,7 @@ class WhenGeneratingAnArnForELBv2ResourcesAndValidatingSchema(unittest.TestCase)
     def setUp(self):
         self.arn_generator = ArnGenerator(account_config)
 
+    @mock_node_evaluator_setup()
     def test_with_invalid_load_balancer_type_type(self):
         resource = build_resource({
             'Type': 'AWS::ElasticLoadBalancingV2::LoadBalancer',
@@ -293,6 +312,7 @@ class WhenGeneratingAnArnForELBv2ResourcesAndValidatingSchema(unittest.TestCase)
 
         self.assertEqual(expected_type_error('ResourceA.Properties.Type', 'string', '[]'), str(cm.exception))
 
+    @mock_node_evaluator_setup()
     def test_with_invalid_load_balancer_listener_protocol_type(self):
         resource = build_resource({
             'Type': 'AWS::ElasticLoadBalancingV2::Listener',
@@ -306,6 +326,7 @@ class WhenGeneratingAnArnForELBv2ResourcesAndValidatingSchema(unittest.TestCase)
 
         self.assertEqual(expected_type_error('ResourceA.Properties.Protocol', 'string', '[]'), str(cm.exception))
 
+    @mock_node_evaluator_setup()
     def test_with_invalid_load_balancer_target_group_protocol_type(self):
         resource = build_resource({
             'Type': 'AWS::ElasticLoadBalancingV2::TargetGroup',
@@ -325,11 +346,13 @@ class WhenGeneratingAnArnForELBv2Resources(unittest.TestCase):
     def setUp(self):
         self.arn_generator = ArnGenerator(account_config)
 
+    @mock_node_evaluator_setup()
     def test_does_not_generate_arn_for_alb_attributes(self):
         resource = build_resource({'Type': "AWS::ElasticLoadBalancingV2::LoadBalancer"})
         arn = self.arn_generator.try_generate_arn("MyAlb", resource, "Arn")
         self.assertIsNone(arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_for_implicit_alb(self):
         resource = build_resource({
             'Type': "AWS::ElasticLoadBalancingV2::LoadBalancer"
@@ -337,6 +360,7 @@ class WhenGeneratingAnArnForELBv2Resources(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyAlb", resource, "Ref")
         self.assertEqual(f"arn:aws:elasticloadbalancing:{account_config.region}:{account_config.account_id}:loadbalancer/app/MyAlb/MyAlb", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_for_explicit_alb(self):
         resource = build_resource({
             'Type': "AWS::ElasticLoadBalancingV2::LoadBalancer",
@@ -347,6 +371,7 @@ class WhenGeneratingAnArnForELBv2Resources(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyAlb", resource, "Ref")
         self.assertEqual(f"arn:aws:elasticloadbalancing:{account_config.region}:{account_config.account_id}:loadbalancer/app/MyAlb/MyAlb", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_for_nlb(self):
         resource = build_resource({
             'Type': "AWS::ElasticLoadBalancingV2::LoadBalancer",
@@ -357,6 +382,7 @@ class WhenGeneratingAnArnForELBv2Resources(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyNlb", resource, "Ref")
         self.assertEqual(f"arn:aws:elasticloadbalancing:{account_config.region}:{account_config.account_id}:loadbalancer/net/MyNlb/MyNlb", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_for_gwy_lb(self):
         resource = build_resource({
             'Type': "AWS::ElasticLoadBalancingV2::LoadBalancer",
@@ -367,6 +393,7 @@ class WhenGeneratingAnArnForELBv2Resources(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyGwlb", resource, "Ref")
         self.assertEqual(f"arn:aws:elasticloadbalancing:{account_config.region}:{account_config.account_id}:loadbalancer/gwy/MyGwlb/MyGwlb", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_for_alb_listener(self):
         resource = build_resource({
             'Type': "AWS::ElasticLoadBalancingV2::Listener",
@@ -377,6 +404,7 @@ class WhenGeneratingAnArnForELBv2Resources(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyAlb", resource, "Ref")
         self.assertEqual(f"arn:aws:elasticloadbalancing:{account_config.region}:{account_config.account_id}:listener/app/MyAlb/MyAlb/MyAlb", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_for_nlb_listener(self):
         resource = build_resource({
             'Type': "AWS::ElasticLoadBalancingV2::Listener",
@@ -387,6 +415,7 @@ class WhenGeneratingAnArnForELBv2Resources(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyNlb", resource, "Ref")
         self.assertEqual(f"arn:aws:elasticloadbalancing:{account_config.region}:{account_config.account_id}:listener/net/MyNlb/MyNlb/MyNlb", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_for_gwy_listener(self):
         resource = build_resource({
             'Type': 'AWS::ElasticLoadBalancingV2::Listener',
@@ -395,6 +424,7 @@ class WhenGeneratingAnArnForELBv2Resources(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyGwlb", resource, "Ref")
         self.assertEqual(f"arn:aws:elasticloadbalancing:{account_config.region}:{account_config.account_id}:listener/gwy/MyGwlb/MyGwlb/MyGwlb", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_for_alb_target_group_with_no_protocol(self):
         resource = build_resource({
             'Type': "AWS::ElasticLoadBalancingV2::TargetGroup",
@@ -403,6 +433,7 @@ class WhenGeneratingAnArnForELBv2Resources(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyAlbTargetGroup", resource, "LoadBalancerArns")
         self.assertEqual(f"arn:aws:elasticloadbalancing:{account_config.region}:{account_config.account_id}:loadbalancer/app/MyAlbTargetGroup/MyAlbTargetGroup", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_for_alb_target_group(self):
         resource = build_resource({
             'Type': "AWS::ElasticLoadBalancingV2::TargetGroup",
@@ -413,6 +444,7 @@ class WhenGeneratingAnArnForELBv2Resources(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyAlbTargetGroup", resource, "LoadBalancerArns")
         self.assertEqual(f"arn:aws:elasticloadbalancing:{account_config.region}:{account_config.account_id}:loadbalancer/app/MyAlbTargetGroup/MyAlbTargetGroup", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_for_nlb_target_group(self):
         resource = build_resource({
             'Type': "AWS::ElasticLoadBalancingV2::TargetGroup",
@@ -423,6 +455,7 @@ class WhenGeneratingAnArnForELBv2Resources(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyNlbTargetGroup", resource, "LoadBalancerArns")
         self.assertEqual(f"arn:aws:elasticloadbalancing:{account_config.region}:{account_config.account_id}:loadbalancer/net/MyNlbTargetGroup/MyNlbTargetGroup", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_for_gwy_target_group(self):
         resource = build_resource({
             'Type': "AWS::ElasticLoadBalancingV2::TargetGroup",
@@ -438,6 +471,7 @@ class WhenGeneratingAnArnForNetworkFirewallRuleGroupsAndValidatingSchema(unittes
     def setUp(self):
         self.arn_generator = ArnGenerator(account_config)
 
+    @mock_node_evaluator_setup()
     def test_with_no_rulegroup_type(self):
         resource = build_resource({
             'Type': 'AWS::NetworkFirewall::RuleGroup',
@@ -449,6 +483,7 @@ class WhenGeneratingAnArnForNetworkFirewallRuleGroupsAndValidatingSchema(unittes
 
         self.assertEqual(required_property_error('Type', 'ResourceA.Properties'), str(cm.exception))
 
+    @mock_node_evaluator_setup()
     def test_with_invalid_rulegroup_type(self):
         resource = build_resource({
             'Type': 'AWS::NetworkFirewall::RuleGroup',
@@ -468,11 +503,13 @@ class WhenGeneratingAnArnForNetworkFirewallRuleGroups(unittest.TestCase):
     def setUp(self):
         self.arn_generator = ArnGenerator(account_config)
 
+    @mock_node_evaluator_setup()
     def test_does_not_generate_arn_for_alb_attributes(self):
         resource = build_resource({'Type': "AWS::NetworkFirewall::RuleGroup"})
         arn = self.arn_generator.try_generate_arn("MyNFW", resource, "Arn")
         self.assertIsNone(arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_for_stateful_rulegroup(self):
         resource = build_resource({
             'Type': "AWS::NetworkFirewall::RuleGroup",
@@ -483,6 +520,7 @@ class WhenGeneratingAnArnForNetworkFirewallRuleGroups(unittest.TestCase):
         arn = self.arn_generator.try_generate_arn("MyNfw", resource, "Ref")
         self.assertEqual(f"arn:aws:network-firewall:{account_config.region}:{account_config.account_id}:stateful-rulegroup/MyNfw", arn)
 
+    @mock_node_evaluator_setup()
     def test_generates_arn_for_stateless_rulegroup(self):
         resource = build_resource({
             'Type': "AWS::NetworkFirewall::RuleGroup",

@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 
 from botocore.stub import Stubber, ANY
 
-from cfn_policy_validator.tests import account_config
+from cfn_policy_validator.tests import account_config, offline_only
 from cfn_policy_validator.tests.boto_mocks import mock_test_setup, BotoResponse
 from cfn_policy_validator.tests.validation_tests import MockAccessPreviewFinding, \
 	FINDING_TYPE, MockNoFindings, MockInvalidConfiguration, MockValidateResourcePolicyFinding, \
@@ -328,6 +328,7 @@ class WhenValidatingRoles(unittest.TestCase):
 	@mock_access_analyzer_role_setup(
 		MockUnknownError(),
 	)
+	@offline_only
 	def test_unknown_access_preview_failure(self):
 		role = Role('role1', role_path="/", trust_policy=copy.deepcopy(trust_policy_with_no_findings))
 		role.add_policy(Policy('Policy1', copy.deepcopy(identity_policy_with_no_findings)))
@@ -341,6 +342,7 @@ class WhenValidatingRoles(unittest.TestCase):
 	@mock_access_analyzer_role_setup(
 		MockTimeout()
 	)
+	@offline_only
 	def test_unknown_access_preview_timeout(self):
 		role = Role('role1', role_path="/", trust_policy=copy.deepcopy(trust_policy_with_no_findings))
 		role.add_policy(Policy('Policy1', copy.deepcopy(identity_policy_with_no_findings)))

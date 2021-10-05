@@ -7,6 +7,7 @@ import unittest
 
 from cfn_policy_validator.parsers.resource.parser import ResourceParser
 from cfn_policy_validator.parsers.output import Resource, Policy
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 
 from cfn_policy_validator.tests.utils import required_property_error, load, account_config, expected_type_error, \
 	load_resources
@@ -40,6 +41,7 @@ secrets_manager_policy_with_reference = {
 
 
 class WhenParsingASecretsManagerResourcePolicyAndValidatingSchema(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_with_no_properties(self):
 		template = load_resources({
 			'ResourceA': {
@@ -52,6 +54,7 @@ class WhenParsingASecretsManagerResourcePolicyAndValidatingSchema(unittest.TestC
 
 		self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_resource_policy(self):
 		template = load_resources({
 			'ResourceA': {
@@ -67,6 +70,7 @@ class WhenParsingASecretsManagerResourcePolicyAndValidatingSchema(unittest.TestC
 
 		self.assertEqual(required_property_error('ResourcePolicy', 'ResourceA.Properties'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_invalid_resource_policy_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -83,6 +87,7 @@ class WhenParsingASecretsManagerResourcePolicyAndValidatingSchema(unittest.TestC
 
 		self.assertEqual(expected_type_error('ResourceA.Properties.ResourcePolicy', 'object', "['Invalid']"), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_no_secret_id(self):
 		template = load_resources({
 			'ResourceA': {
@@ -98,6 +103,7 @@ class WhenParsingASecretsManagerResourcePolicyAndValidatingSchema(unittest.TestC
 
 		self.assertEqual(required_property_error('SecretId', 'ResourceA.Properties'), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_invalid_secret_id_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -114,6 +120,7 @@ class WhenParsingASecretsManagerResourcePolicyAndValidatingSchema(unittest.TestC
 
 		self.assertEqual(expected_type_error('ResourceA.Properties.SecretId', 'string', "['Invalid']"), str(cm.exception))
 
+	@mock_node_evaluator_setup()
 	def test_with_unsupported_function_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {
@@ -130,6 +137,7 @@ class WhenParsingASecretsManagerResourcePolicyAndValidatingSchema(unittest.TestC
 
 		self.assertTrue(True, 'Should not raise error.')
 
+	@mock_node_evaluator_setup()
 	def test_with_ref_to_parameter_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {
@@ -148,6 +156,7 @@ class WhenParsingASecretsManagerResourcePolicyAndValidatingSchema(unittest.TestC
 
 
 class WhenParsingASecretsManagerResourcePolicyWithInvalidSecretId(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_an_error(self):
 		template = load({
 			'Resources': {
@@ -170,6 +179,7 @@ class WhenParsingASecretsManagerResourcePolicyWithInvalidSecretId(unittest.TestC
 
 
 class WhenParsingASecretsManagerResourcePolicy(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_a_resource(self):
 		secret_name = 'aes128-1a2b3c'
 		template = load_resources({
@@ -191,7 +201,8 @@ class WhenParsingASecretsManagerResourcePolicy(unittest.TestCase):
 
 
 class WhenParsingASecretsManagerPolicyWithReferencesInEachField(unittest.TestCase):
-	# this is a test to ensure that each field is being evaluated for references in a role
+	# this is a test to ensure that each field is being evaluated for references in a secret
+	@mock_node_evaluator_setup()
 	def test_returns_a_resource_with_references_resolved(self):
 		template = load_resources({
 			'SecretA': {

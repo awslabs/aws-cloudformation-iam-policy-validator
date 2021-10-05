@@ -6,6 +6,7 @@ import unittest
 
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.topological_sorter import TopologicalSorter
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 from cfn_policy_validator.tests.utils import load, expected_type_error
 
 
@@ -18,6 +19,7 @@ def get_index_of(sorted_resources, name):
 
 
 class WhenSortingWithReferenceDependencies(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_resources_are_sorted_in_dependency_order(self):
         sorter = TopologicalSorter(load({
             'Resources': {
@@ -67,6 +69,7 @@ class WhenSortingWithReferenceDependencies(unittest.TestCase):
 
 
 class WhenSortingWithGetAttDependencies(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_resources_are_sorted_in_dependency_order(self):
         sorter = TopologicalSorter(load({
             'Resources': {
@@ -118,6 +121,7 @@ class WhenSortingWithGetAttDependencies(unittest.TestCase):
         self.assertGreater(d_index, a_index, "D does not appear after A")
         self.assertGreater(d_index, b_index, "D does not appear after B")
 
+    @mock_node_evaluator_setup()
     def test_schema_is_validated(self):
         sorter = TopologicalSorter(load({
             'Resources': {
@@ -138,6 +142,7 @@ class WhenSortingWithGetAttDependencies(unittest.TestCase):
 
 
 class WhenSortingWithSubDependencies(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_resources_are_sorted_in_dependency_order(self):
         sorter = TopologicalSorter(load({
             'Resources': {
@@ -189,6 +194,7 @@ class WhenSortingWithSubDependencies(unittest.TestCase):
         self.assertGreater(d_index, a_index, "D does not appear after A")
         self.assertGreater(d_index, b_index, "D does not appear after B")
 
+    @mock_node_evaluator_setup()
     def test_dependencies_with_long_form_sub_are_sorted_in_dependency_order(self):
         sorter = TopologicalSorter(load({
             'Resources': {
@@ -240,6 +246,7 @@ class WhenSortingWithSubDependencies(unittest.TestCase):
         self.assertGreater(d_index, a_index, "D does not appear after A")
         self.assertGreater(d_index, b_index, "D does not appear after B")
 
+    @mock_node_evaluator_setup()
     def test_schema_is_validated(self):
         sorter = TopologicalSorter(load({
             'Resources': {
@@ -260,6 +267,7 @@ class WhenSortingWithSubDependencies(unittest.TestCase):
 
 
 class WhenSortingWithExplicitDependsOn(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_resources_are_sorted_in_dependency_order(self):
         sorter = TopologicalSorter(load({
             'Resources': {
@@ -299,6 +307,7 @@ class WhenSortingWithExplicitDependsOn(unittest.TestCase):
 
 
 class WhenSortingWithRefDependenciesThatHaveCycle(unittest.TestCase):
+    @mock_node_evaluator_setup()
     def test_resources_are_sorted_in_dependency_order(self):
         sorter = TopologicalSorter(load({
             'Resources': {

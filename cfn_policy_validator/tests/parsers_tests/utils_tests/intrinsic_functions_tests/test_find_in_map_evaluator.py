@@ -6,10 +6,12 @@ import unittest
 
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
+from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 from cfn_policy_validator.tests.utils import load, account_config, expected_type_error
 
 
 class WhenEvaluatingAPolicyWithAFindInMapFunction(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_returns_mapping_value(self):
 		template = load({
 			'Mappings': {
@@ -69,6 +71,7 @@ class WhenEvaluatingAPolicyWithAFindInMapFunction(unittest.TestCase):
 
 
 class WhenEvaluatingAPolicyWithAFindInMapFunctionThatIsNotAList(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_an_error(self):
 		template = load({
 			'Mappings': {
@@ -99,6 +102,7 @@ class WhenEvaluatingAPolicyWithAFindInMapFunctionThatIsNotAList(unittest.TestCas
 
 
 class WhenEvaluatingAPolicyWithAFindInMapFunctionThatIsNotOfLength3(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_an_error(self):
 		template = load({
 			'Mappings': {
@@ -131,6 +135,7 @@ class WhenEvaluatingAPolicyWithAFindInMapFunctionThatIsNotOfLength3(unittest.Tes
 
 
 class WhenEvaluatingAPolicyWithAFindInMapFunctionWithMapNameThatIsNotString(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_an_error(self):
 		template = load({
 			'Mappings': {
@@ -161,6 +166,7 @@ class WhenEvaluatingAPolicyWithAFindInMapFunctionWithMapNameThatIsNotString(unit
 
 
 class WhenEvaluatingAPolicyWithAFindInMapFunctionWithTopLevelKeyThatIsNotString(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_an_error(self):
 		template = load({
 			'Mappings': {
@@ -191,6 +197,7 @@ class WhenEvaluatingAPolicyWithAFindInMapFunctionWithTopLevelKeyThatIsNotString(
 
 
 class WhenEvaluatingAPolicyWithAFindInMapFunctionWithSecondLevelKeyThatIsNotString(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_an_error(self):
 		template = load({
 			'Mappings': {
@@ -221,6 +228,7 @@ class WhenEvaluatingAPolicyWithAFindInMapFunctionWithSecondLevelKeyThatIsNotStri
 
 
 class WhenEvaluatingAPolicyWithAFindInMapFunctionAndMappingCannotBeFound(unittest.TestCase):
+	@mock_node_evaluator_setup()
 	def test_raises_an_error(self):
 		template = load({
 			'Resources': {

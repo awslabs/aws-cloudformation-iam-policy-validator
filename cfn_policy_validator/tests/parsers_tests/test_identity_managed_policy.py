@@ -5,6 +5,7 @@ SPDX-License-Identifier: MIT-0
 import copy
 import unittest
 
+from cfn_policy_validator.tests.parsers_tests import mock_identity_parser_setup
 from cfn_policy_validator.tests.utils import required_property_error, load, account_config, expected_type_error, \
 	load_resources
 
@@ -16,6 +17,7 @@ from cfn_policy_validator.tests.parsers_tests.test_identity import has_policy, \
 
 
 class WhenParsingAManagedPolicyAndValidatingSchema(unittest.TestCase):
+	@mock_identity_parser_setup()
 	def test_with_no_properties(self):
 		template = load_resources({
 			'ResourceA': {
@@ -28,6 +30,7 @@ class WhenParsingAManagedPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_no_policy_document(self):
 		template = load_resources({
 			'ResourceA': {
@@ -43,6 +46,7 @@ class WhenParsingAManagedPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(required_property_error('PolicyDocument', 'ResourceA.Properties'), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_managed_policy_name_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -60,6 +64,7 @@ class WhenParsingAManagedPolicyAndValidatingSchema(unittest.TestCase):
 		self.assertEqual(expected_type_error('ResourceA.Properties.ManagedPolicyName', 'string', "['Invalid']"),
 						 str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_managed_policy_document_type(self):
 		template = load_resources({
 			'ResourceA': {
@@ -76,6 +81,7 @@ class WhenParsingAManagedPolicyAndValidatingSchema(unittest.TestCase):
 		self.assertEqual(expected_type_error('ResourceA.Properties.PolicyDocument', 'object', "'Invalid'"),
 						 str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_roles_type(self):
 		template = load_resources({
 			'ManagedPolicy': {
@@ -92,6 +98,7 @@ class WhenParsingAManagedPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('ManagedPolicy.Properties.Roles', 'array', "'Invalid'"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_role_item_type(self):
 		template = load_resources({
 			'ManagedPolicy': {
@@ -109,6 +116,7 @@ class WhenParsingAManagedPolicyAndValidatingSchema(unittest.TestCase):
 		self.assertEqual(expected_type_error('ManagedPolicy.Properties.Roles.0', 'string', "['Invalid']"),
 						 str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_users_type(self):
 		template = load_resources({
 			'ManagedPolicy': {
@@ -125,6 +133,7 @@ class WhenParsingAManagedPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('ManagedPolicy.Properties.Users', 'array', "'Invalid'"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_user_item_type(self):
 		template = load_resources({
 			'ManagedPolicy': {
@@ -141,6 +150,7 @@ class WhenParsingAManagedPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('ManagedPolicy.Properties.Users.0', 'string', "['Invalid']"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_groups_type(self):
 		template = load_resources({
 			'ManagedPolicy': {
@@ -158,6 +168,7 @@ class WhenParsingAManagedPolicyAndValidatingSchema(unittest.TestCase):
 		self.assertEqual(expected_type_error('ManagedPolicy.Properties.Groups', 'array', "'Invalid'"),
 						 str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_invalid_group_item_type(self):
 		template = load_resources({
 			'ManagedPolicy': {
@@ -174,6 +185,7 @@ class WhenParsingAManagedPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertEqual(expected_type_error('ManagedPolicy.Properties.Groups.0', 'string', "['Invalid']"), str(cm.exception))
 
+	@mock_identity_parser_setup()
 	def test_with_unsupported_function_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {
@@ -189,6 +201,7 @@ class WhenParsingAManagedPolicyAndValidatingSchema(unittest.TestCase):
 
 		self.assertTrue(True, 'Should not raise error.')
 
+	@mock_identity_parser_setup()
 	def test_with_ref_to_parameter_in_unused_property(self):
 		template = load_resources({
 			'ResourceA': {
@@ -207,6 +220,7 @@ class WhenParsingAManagedPolicyAndValidatingSchema(unittest.TestCase):
 
 class WhenParsingAManagedPolicyWithReferencesInEachField(IdentityParserTest):
 	# this is a test to ensure that each field is being evaluated for references in a managed policy
+	@mock_identity_parser_setup()
 	def test_returns_a_role_and_user_with_references_resolved(self):
 		inline_policy = {
 			'Version': '2012-10-17',
@@ -250,13 +264,11 @@ class WhenParsingAManagedPolicyWithReferencesInEachField(IdentityParserTest):
 					'Type': 'AWS::IAM::Group'
 				}
 			}
-		},
-		{
-		   'Path': '/custom/policy/path',
-		   'Name': 'PolicyName',
-		   'Resource': 'my_resource/*'
+		}, {
+			'Path': '/custom/policy/path',
+			'Name': 'PolicyName',
+			'Resource': 'my_resource/*'
 		})
-
 
 		self.parse(template, account_config)
 		self.assertResults(number_of_users=1, number_of_groups=1, number_of_roles=1)
@@ -278,6 +290,7 @@ class WhenParsingAManagedPolicyWithReferencesInEachField(IdentityParserTest):
 
 
 class WhenParsingAManagedPolicyThatIsNotAttached(IdentityParserTest):
+	@mock_identity_parser_setup()
 	def test_returns_an_orphaned_policy(self):
 		template = load({
 			'Resources': {
@@ -300,7 +313,9 @@ class WhenParsingAManagedPolicyThatIsNotAttached(IdentityParserTest):
 		self.assertEqual("/my/custom/path", policy.Path)
 		self.assertEqual(sample_policy_a, policy.Policy)
 
+
 class WhenParsingAManagedPolicyThatIsNotAttachedWithNoNameOrPath(IdentityParserTest):
+	@mock_identity_parser_setup()
 	def test_returns_a_user_and_policy(self):
 		template = load({
 			'Resources': {
@@ -323,6 +338,7 @@ class WhenParsingAManagedPolicyThatIsNotAttachedWithNoNameOrPath(IdentityParserT
 
 
 class WhenParsingAManagedPolicyAttachedToRoleFromThePolicy(IdentityParserTest):
+	@mock_identity_parser_setup()
 	def test_returns_roles_with_attached_policy(self):
 		template = load({
 			'Resources': {
@@ -367,6 +383,7 @@ class WhenParsingAManagedPolicyAttachedToRoleFromThePolicy(IdentityParserTest):
 
 
 class WhenParsingAManagedPolicyAttachedToAUserFromThePolicy(IdentityParserTest):
+	@mock_identity_parser_setup()
 	def test_returns_users_with_attached_policy(self):
 		template = load({
 			'Resources': {
@@ -405,6 +422,7 @@ class WhenParsingAManagedPolicyAttachedToAUserFromThePolicy(IdentityParserTest):
 
 
 class WhenParsingAManagedPolicyAttachedToAGroupFromThePolicy(IdentityParserTest):
+	@mock_identity_parser_setup()
 	def test_returns_groups_with_attached_policy(self):
 		template = load({
 			'Resources': {

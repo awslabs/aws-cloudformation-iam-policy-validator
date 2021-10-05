@@ -6,6 +6,8 @@ import logging
 
 from abc import ABC
 
+from botocore.exceptions import ClientError
+
 from cfn_policy_validator import client
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.identity_schemas import groups_schema, managed_policy_schema, \
@@ -96,8 +98,11 @@ class PrincipalParser(ABC):
 			try:
 				# if the ARN is not a managed policy in the template, pull it from the environment
 				response = self.client.get_policy(PolicyArn=arn)
-			except self.client.exceptions.NoSuchEntityException:
-				raise ApplicationError(f'Could not find managed policy with {arn} in template or in environment.')
+			except ClientError as e:
+				if e.response['Error']['Code'] == 'NoSuchEntity':
+					raise ApplicationError(f'Could not find managed policy with {arn} in template or in environment.')
+				else:
+					raise
 
 			policy_name = response['Policy']['PolicyName']
 			default_version_id = response['Policy']['DefaultVersionId']
