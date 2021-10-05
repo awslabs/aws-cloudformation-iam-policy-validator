@@ -4,11 +4,14 @@ SPDX-License-Identifier: MIT-0
 """
 import copy
 import unittest
-from unittest.mock import MagicMock, patch
 
-from botocore.stub import Stubber
+from botocore.stub import Stubber, ANY
 
 from cfn_policy_validator.tests import account_config
+from cfn_policy_validator.tests.boto_mocks import mock_test_setup, BotoResponse
+from cfn_policy_validator.tests.validation_tests import FINDING_TYPE, mock_access_analyzer_resource_setup, \
+	MockAccessPreviewFinding, MockNoFindings, MockInvalidConfiguration, MockUnknownError, \
+	MockTimeout, MockValidateResourcePolicyFinding
 from cfn_policy_validator.validation.validator import validate_parser_output, Validator
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.output import Output, Policy, Resource
@@ -74,66 +77,59 @@ class WhenValidatingResources(BaseResourcePolicyTest):
 	def setUp(self):
 		self.output = Output(account_config)
 
+	@mock_access_analyzer_resource_setup(
+		MockUnknownError()
+	)
 	def test_unknown_access_preview_failure(self):
 		policy = Policy('ResourcePolicy', copy.deepcopy(resource_policy_with_no_findings))
 		resources = [
 			Resource('resource1', 'AWS::SQS::Queue', policy)
 		]
 
-		def get_access_preview(*args, **kwargs):
-			return {
-				'accessPreview': {
-					'status': 'FAILED',
-					'statusReason': {
-						'code': 'UNKNOWN_ERROR'
-					}
-				}
-			}
-
 		validator = Validator(account_config.account_id, account_config.region, account_config.partition)
-		with patch.object(validator, 'client', wraps=validator.client) as mock:
-			mock.get_access_preview = MagicMock(side_effect=get_access_preview)
+		with self.assertRaises(ApplicationError) as cm:
+			validator.validate_resources(resources)
 
-			validator.maximum_number_of_access_preview_attempts = 2
-			with self.assertRaises(ApplicationError) as cm:
-				validator.validate_resources(resources)
+		self.assertEqual('Failed to create access preview for resource1.  Reason: UNKNOWN_ERROR', str(cm.exception))
 
-			self.assertEqual('Failed to create access preview for resource1.  Reason: UNKNOWN_ERROR',
-							 str(cm.exception))
-
+	@mock_access_analyzer_resource_setup(
+		MockTimeout()
+	)
 	def test_unknown_access_preview_timeout(self):
 		policy = Policy('ResourcePolicy', copy.deepcopy(resource_policy_with_no_findings))
 		resources = [
 			Resource('resource1', 'AWS::SQS::Queue', policy)
 		]
 
-		def get_access_preview(*args, **kwargs):
-			return {
-				'accessPreview': {
-					'status': 'CREATING'
-				}
-			}
-
 		validator = Validator(account_config.account_id, account_config.region, account_config.partition)
-		with patch.object(validator, 'client', wraps=validator.client) as mock:
-			mock.get_access_preview = MagicMock(side_effect=get_access_preview)
+		validator.maximum_number_of_access_preview_attempts = 2
+		with self.assertRaises(ApplicationError) as cm:
+			validator.validate_resources(resources)
 
-			validator.maximum_number_of_access_preview_attempts = 2
-			with self.assertRaises(ApplicationError) as cm:
-				validator.validate_resources(resources)
+		self.assertEqual('Timed out after 5 minutes waiting for access analyzer preview to create.', str(cm.exception))
 
-			self.assertEqual('Timed out after 5 minutes waiting for access analyzer preview to create.', str(cm.exception))
-
+	@mock_test_setup(
+		accessanalyzer=[
+			BotoResponse(
+				method='list_analyzers',
+				service_response={'analyzers': []},
+				expected_params={'type': 'ACCOUNT'}
+			),
+			BotoResponse(
+				method='create_analyzer',
+				service_response={'arn': 'arn:aws:access-analyzer:us-east-1:123456789123:analyzer/MyAnalyzer'},
+				expected_params={'analyzerName': ANY, 'type': 'ACCOUNT'}
+			)
+		],
+		assert_no_pending_responses=True
+	)
 	def test_if_no_analyzer_exists_in_account(self):
 		validator = Validator(account_config.account_id, account_config.region, account_config.partition)
-		with Stubber(validator.client) as stubber:
-			stubber.add_response('list_analyzers', {'analyzers': []}, {'type': 'ACCOUNT'})
-			stubber.add_response('create_analyzer',
-								{'arn': 'arn:aws:access-analyzer:us-east-1:123456789123:analyzer/MyAnalyzer'},
-								{'analyzerName': validator.access_analyzer_name, 'type': 'ACCOUNT'})
-			validator.validate_resources([])
-			stubber.assert_no_pending_responses()
+		validator.validate_resources([])
 
+	@mock_access_analyzer_resource_setup(
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION)
+	)
 	def test_with_resource_type_that_is_not_supported_by_access_previews(self):
 		output = Output(account_config)
 
@@ -201,6 +197,10 @@ sqs_queue_invalid_policy = {
 
 
 class WhenValidatingSqsQueuePolicy(BaseResourcePolicyTest):
+	@mock_access_analyzer_resource_setup(
+		MockAccessPreviewFinding(),
+		MockAccessPreviewFinding()
+	)
 	def test_with_sqs_policy_that_allows_external_access(self):
 		self.add_resources_to_output('AWS::SQS::Queue', sqs_queue_policy_that_allows_external_access)
 
@@ -219,6 +219,10 @@ class WhenValidatingSqsQueuePolicy(BaseResourcePolicyTest):
 			expected_code='EXTERNAL_PRINCIPAL'
 		)
 
+	@mock_access_analyzer_resource_setup(
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION),
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION)
+	)
 	def test_with_sqs_policy_with_findings(self):
 		self.add_resources_to_output('AWS::SQS::Queue', sqs_queue_policy_with_findings)
 
@@ -237,12 +241,20 @@ class WhenValidatingSqsQueuePolicy(BaseResourcePolicyTest):
 			expected_code='EMPTY_OBJECT_PRINCIPAL'
 		)
 
+	@mock_access_analyzer_resource_setup(
+		MockNoFindings(),
+		MockNoFindings()
+	)
 	def test_with_sqs_queue_policy_with_no_findings(self):
 		self.add_resources_to_output('AWS::SQS::Queue', sqs_queue_policy_with_no_findings)
 
 		findings = validate_parser_output(self.output)
 		self.assert_has_findings(findings)
 
+	@mock_access_analyzer_resource_setup(
+		MockInvalidConfiguration(),
+		MockInvalidConfiguration()
+	)
 	def test_with_invalid_sqs_queue_policy(self):
 		self.add_resources_to_output('AWS::SQS::Queue', sqs_queue_invalid_policy)
 
@@ -301,6 +313,10 @@ kms_key_invalid_policy = {
 
 
 class WhenValidatingKmsKeyPolicy(BaseResourcePolicyTest):
+	@mock_access_analyzer_resource_setup(
+		MockAccessPreviewFinding(),
+		MockAccessPreviewFinding()
+	)
 	def test_with_kms_policy_that_allows_external_access(self):
 		self.add_resources_to_output('AWS::KMS::Key', kms_key_policy_that_allows_external_access)
 
@@ -319,6 +335,10 @@ class WhenValidatingKmsKeyPolicy(BaseResourcePolicyTest):
 			expected_code='EXTERNAL_PRINCIPAL'
 		)
 
+	@mock_access_analyzer_resource_setup(
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION),
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION)
+	)
 	def test_with_kms_policy_with_findings(self):
 		self.add_resources_to_output('AWS::KMS::Key', kms_key_policy_with_findings)
 
@@ -337,12 +357,20 @@ class WhenValidatingKmsKeyPolicy(BaseResourcePolicyTest):
 			expected_code='EMPTY_OBJECT_PRINCIPAL'
 		)
 
+	@mock_access_analyzer_resource_setup(
+		MockNoFindings(),
+		MockNoFindings()
+	)
 	def test_with_kms_policy_with_no_findings(self):
 		self.add_resources_to_output('AWS::KMS::Key', kms_key_policy_with_no_findings)
 
 		findings = validate_parser_output(self.output)
 		self.assert_has_findings(findings)
 
+	@mock_access_analyzer_resource_setup(
+		MockInvalidConfiguration(),
+		MockInvalidConfiguration()
+	)
 	def test_with_invalid_kms_policy(self):
 		self.add_resources_to_output('AWS::KMS::Key', kms_key_invalid_policy)
 
@@ -400,6 +428,10 @@ s3_bucket_invalid_policy = {
 
 
 class WhenValidatingS3BucketPolicy(BaseResourcePolicyTest):
+	@mock_access_analyzer_resource_setup(
+		MockAccessPreviewFinding(),
+		MockAccessPreviewFinding()
+	)
 	def test_with_s3_bucket_policy_that_allows_external_access(self):
 		self.add_resources_to_output('AWS::S3::Bucket',
 									 build_s3_bucket_policy_that_allows_external_access('resource1'),
@@ -420,6 +452,10 @@ class WhenValidatingS3BucketPolicy(BaseResourcePolicyTest):
 			expected_code='EXTERNAL_PRINCIPAL'
 		)
 
+	@mock_access_analyzer_resource_setup(
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION),
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION)
+	)
 	def test_with_s3_bucket_policy_with_findings(self):
 		self.add_resources_to_output('AWS::S3::Bucket',
 									 build_s3_bucket_policy_with_findings('resource1'),
@@ -440,6 +476,10 @@ class WhenValidatingS3BucketPolicy(BaseResourcePolicyTest):
 			expected_code='EMPTY_OBJECT_PRINCIPAL'
 		)
 
+	@mock_access_analyzer_resource_setup(
+		MockNoFindings(),
+		MockNoFindings()
+	)
 	def test_with_s3_bucket_policy_with_no_findings(self):
 		self.add_resources_to_output('AWS::S3::Bucket',
 									 build_s3_bucket_policy_with_no_findings('resource1'),
@@ -448,6 +488,10 @@ class WhenValidatingS3BucketPolicy(BaseResourcePolicyTest):
 		findings = validate_parser_output(self.output)
 		self.assert_has_findings(findings)
 
+	@mock_access_analyzer_resource_setup(
+		MockInvalidConfiguration(),
+		MockInvalidConfiguration()
+	)
 	def test_with_invalid_s3_bucket_policy(self):
 		self.add_resources_to_output('AWS::S3::Bucket', s3_bucket_invalid_policy)
 
@@ -508,7 +552,7 @@ class WhenValidatingSecretsManagerResourcePolicy(BaseResourcePolicyTest):
 	# the default KMS key is not publicly accessible, so the secret is therefore not publicly accessible.
 	# To make this work, we'd need to look up the KMS key from the environment OR from the key policy if it had
 	# yet to be created
-	@unittest.skip("Need to figure out why this isn't working")
+	@unittest.skip("Skip until this is supported")
 	def test_with_secrets_manager_resource_policy_that_allows_external_access(self):
 		self.add_resources_to_output('AWS::SecretsManager::Secret', secrets_manager_resource_policy_that_allows_external_access)
 
@@ -527,6 +571,10 @@ class WhenValidatingSecretsManagerResourcePolicy(BaseResourcePolicyTest):
 			expected_code='EXTERNAL_PRINCIPAL'
 		)
 
+	@mock_access_analyzer_resource_setup(
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION),
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION)
+	)
 	def test_with_secrets_manager_resource_policy_with_findings(self):
 		self.add_resources_to_output('AWS::SecretsManager::Secret', secrets_manager_resource_policy_with_findings)
 
@@ -545,12 +593,20 @@ class WhenValidatingSecretsManagerResourcePolicy(BaseResourcePolicyTest):
 			expected_code='EMPTY_OBJECT_PRINCIPAL'
 		)
 
+	@mock_access_analyzer_resource_setup(
+		MockNoFindings(),
+		MockNoFindings()
+	)
 	def test_with_secrets_manager_resource_policy_with_no_findings(self):
 		self.add_resources_to_output('AWS::SecretsManager::Secret', secrets_manager_resource_policy_with_no_findings)
 
 		findings = validate_parser_output(self.output)
 		self.assert_has_findings(findings)
 
+	@mock_access_analyzer_resource_setup(
+		MockInvalidConfiguration(),
+		MockInvalidConfiguration()
+	)
 	def test_with_invalid_secrets_manager_resource_policy(self):
 		self.add_resources_to_output('AWS::SecretsManager::Secret', secrets_manager_resource_invalid_policy)
 

@@ -60,13 +60,12 @@ class Validator:
 			'AWS::SecretsManager::Secret': SecretsManagerSecretConfigurationBuilder(account_id, region, partition)
 		}
 		self.maximum_number_of_access_preview_attempts = 150
+		self._try_create_analyzer()
 
 	def validate_roles(self, roles):
 		"""
 		Validate policies attached to roles
 		"""
-		self._try_create_analyzer()
-
 		previews_to_await = []
 		for role in roles:
 			LOGGER.info(f'Validating trust policy for role {role.RoleName}..')
@@ -156,8 +155,6 @@ class Validator:
 		"""
 		Validate resource policies
 		"""
-		self._try_create_analyzer()
-
 		previews_to_await = []
 		for resource in resources:
 			# we want to run validate_policy on all resource policies regardless of if they are supported policies

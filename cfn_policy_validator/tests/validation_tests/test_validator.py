@@ -5,6 +5,8 @@ SPDX-License-Identifier: MIT-0
 import copy
 import unittest
 
+from cfn_policy_validator.tests.validation_tests import MockNoFindings, \
+	mock_access_analyzer_identity_setup, FINDING_TYPE, MockValidateIdentityPolicyFinding
 from cfn_policy_validator.validation.validator import validate_parser_output
 from cfn_policy_validator.parsers.account_config import AccountConfig
 from cfn_policy_validator.parsers.output import Output, Policy, User, Group
@@ -51,6 +53,10 @@ class WhenValidatingPolicies(unittest.TestCase):
 		account_config = AccountConfig('aws', 'us-east-1', '123456789123')
 		self.output = Output(account_config)
 
+	@mock_access_analyzer_identity_setup(
+		MockNoFindings(),
+		MockNoFindings()
+	)
 	def test_does_not_add_identity_finding_for_good_policies(self):
 		self.output.OrphanedPolicies = [
 			Policy('Policy1', copy.deepcopy(policy_document_with_no_findings), 'MyPath'),
@@ -63,6 +69,10 @@ class WhenValidatingPolicies(unittest.TestCase):
 		self.assertEqual(0, len(findings.warnings))
 		self.assertEqual(0, len(findings.suggestions))
 
+	@mock_access_analyzer_identity_setup(
+		MockValidateIdentityPolicyFinding(code='PASS_ROLE_WITH_STAR_IN_RESOURCE', finding_type=FINDING_TYPE.SECURITY_WARNING),
+		MockValidateIdentityPolicyFinding(code='PASS_ROLE_WITH_STAR_IN_RESOURCE', finding_type=FINDING_TYPE.SECURITY_WARNING)
+	)
 	def test_adds_identity_finding_for_bad_policies(self):
 		self.output.OrphanedPolicies = [
 			Policy('Policy1', copy.deepcopy(policy_document_with_findings), 'MyPath'),
@@ -85,6 +95,10 @@ class WhenValidatingPolicies(unittest.TestCase):
 		self.assertEqual('No resource attached', second_finding.resourceName)
 		self.assertEqual('PASS_ROLE_WITH_STAR_IN_RESOURCE', second_finding.code)
 
+	@mock_access_analyzer_identity_setup(
+		MockValidateIdentityPolicyFinding(code='DATA_TYPE_MISMATCH', finding_type=FINDING_TYPE.ERROR),
+		MockValidateIdentityPolicyFinding(code='DATA_TYPE_MISMATCH', finding_type=FINDING_TYPE.ERROR)
+	)
 	def test_adds_identity_finding_with_invalid_policy(self):
 		self.output.OrphanedPolicies = [
 			Policy('Policy1', copy.deepcopy(invalid_policy_document), 'MyPath'),
@@ -125,6 +139,10 @@ class WhenValidatingUsers(unittest.TestCase):
 			user2
 		]
 
+	@mock_access_analyzer_identity_setup(
+		MockNoFindings(),
+		MockNoFindings()
+	)
 	def test_does_not_add_identity_finding_for_good_policies(self):
 		self.add_users_to_output(policy_document_with_no_findings)
 
@@ -134,6 +152,10 @@ class WhenValidatingUsers(unittest.TestCase):
 		self.assertEqual(0, len(findings.warnings))
 		self.assertEqual(0, len(findings.suggestions))
 
+	@mock_access_analyzer_identity_setup(
+		MockValidateIdentityPolicyFinding(code='PASS_ROLE_WITH_STAR_IN_RESOURCE', finding_type=FINDING_TYPE.SECURITY_WARNING),
+		MockValidateIdentityPolicyFinding(code='PASS_ROLE_WITH_STAR_IN_RESOURCE', finding_type=FINDING_TYPE.SECURITY_WARNING)
+	)
 	def test_adds_identity_finding_for_bad_policies(self):
 		self.add_users_to_output(policy_document_with_findings)
 
@@ -153,6 +175,10 @@ class WhenValidatingUsers(unittest.TestCase):
 		self.assertEqual('user2', second_finding.resourceName)
 		self.assertEqual('PASS_ROLE_WITH_STAR_IN_RESOURCE', second_finding.code)
 
+	@mock_access_analyzer_identity_setup(
+		MockValidateIdentityPolicyFinding(code='DATA_TYPE_MISMATCH', finding_type=FINDING_TYPE.ERROR),
+		MockValidateIdentityPolicyFinding(code='DATA_TYPE_MISMATCH', finding_type=FINDING_TYPE.ERROR)
+	)
 	def test_adds_identity_finding_with_invalid_policy(self):
 		self.add_users_to_output(invalid_policy_document)
 
@@ -190,6 +216,10 @@ class WhenValidatingGroups(unittest.TestCase):
 			group2
 		]
 
+	@mock_access_analyzer_identity_setup(
+		MockNoFindings(),
+		MockNoFindings()
+	)
 	def test_does_not_add_identity_finding_for_good_policies(self):
 		self.add_groups_to_output(policy_document_with_no_findings)
 
@@ -199,6 +229,10 @@ class WhenValidatingGroups(unittest.TestCase):
 		self.assertEqual(0, len(findings.warnings))
 		self.assertEqual(0, len(findings.suggestions))
 
+	@mock_access_analyzer_identity_setup(
+		MockValidateIdentityPolicyFinding(code='PASS_ROLE_WITH_STAR_IN_RESOURCE', finding_type=FINDING_TYPE.SECURITY_WARNING),
+		MockValidateIdentityPolicyFinding(code='PASS_ROLE_WITH_STAR_IN_RESOURCE', finding_type=FINDING_TYPE.SECURITY_WARNING)
+	)
 	def test_adds_identity_finding_for_bad_policies(self):
 		self.add_groups_to_output(policy_document_with_findings)
 
@@ -218,6 +252,10 @@ class WhenValidatingGroups(unittest.TestCase):
 		self.assertEqual('group2', second_finding.resourceName)
 		self.assertEqual('PASS_ROLE_WITH_STAR_IN_RESOURCE', second_finding.code)
 
+	@mock_access_analyzer_identity_setup(
+		MockValidateIdentityPolicyFinding(code='DATA_TYPE_MISMATCH', finding_type=FINDING_TYPE.ERROR),
+		MockValidateIdentityPolicyFinding(code='DATA_TYPE_MISMATCH', finding_type=FINDING_TYPE.ERROR)
+	)
 	def test_adds_identity_finding_with_invalid_policy(self):
 		self.add_groups_to_output(invalid_policy_document)
 

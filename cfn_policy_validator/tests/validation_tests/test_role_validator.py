@@ -6,9 +6,14 @@ import copy
 import unittest
 from unittest.mock import MagicMock, patch
 
-from botocore.stub import Stubber
+from botocore.stub import Stubber, ANY
 
 from cfn_policy_validator.tests import account_config
+from cfn_policy_validator.tests.boto_mocks import mock_test_setup, BotoResponse
+from cfn_policy_validator.tests.validation_tests import MockAccessPreviewFinding, \
+	FINDING_TYPE, MockNoFindings, MockInvalidConfiguration, MockValidateResourcePolicyFinding, \
+	MockValidateIdentityPolicyFinding, mock_access_analyzer_role_setup, MockValidateIdentityAndResourcePolicyFinding, \
+	MockUnknownError, MockTimeout
 from cfn_policy_validator.validation.validator import validate_parser_output, Validator
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.output import Output, Role, Policy
@@ -119,18 +124,26 @@ class WhenValidatingRoles(unittest.TestCase):
 
 	def add_roles_to_output(self, trust_policy, identity_policy=None, role_1_name='role1'):
 		role1 = Role(role_1_name, role_path="/", trust_policy=copy.deepcopy(trust_policy))
-		if identity_policy is not None:
-			role1.add_policy(Policy('Policy1', copy.deepcopy(identity_policy)))
+		if identity_policy is None:
+			identity_policy = identity_policy_with_no_findings
+
+		role1.add_policy(Policy('Policy1', copy.deepcopy(identity_policy)))
 
 		role2 = Role('role2', role_path='/', trust_policy=copy.deepcopy(trust_policy))
-		if identity_policy is not None:
-			role2.add_policy(Policy('Policy2', copy.deepcopy(identity_policy)))
+		if identity_policy is None:
+			identity_policy = identity_policy_with_no_findings
+
+		role2.add_policy(Policy('Policy2', copy.deepcopy(identity_policy)))
 
 		self.output.Roles = [
 			role1,
 			role2
 		]
 
+	@mock_access_analyzer_role_setup(
+		MockAccessPreviewFinding(),
+		MockAccessPreviewFinding()
+	)
 	def test_with_trust_policy_that_allows_external_access(self):
 		self.add_roles_to_output(trust_policy=trust_policy_that_allows_external_access)
 
@@ -149,6 +162,10 @@ class WhenValidatingRoles(unittest.TestCase):
 			expected_code='EXTERNAL_PRINCIPAL'
 		)
 
+	@mock_access_analyzer_role_setup(
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION),
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION)
+	)
 	def test_with_trust_policy_with_findings(self):
 		self.add_roles_to_output(trust_policy=trust_policy_with_findings)
 
@@ -167,12 +184,20 @@ class WhenValidatingRoles(unittest.TestCase):
 			expected_code='EMPTY_OBJECT_PRINCIPAL'
 		)
 
+	@mock_access_analyzer_role_setup(
+		MockNoFindings(),
+		MockNoFindings()
+	)
 	def test_with_trust_policy_with_no_findings(self):
 		self.add_roles_to_output(trust_policy=trust_policy_with_no_findings)
 
 		findings = validate_parser_output(self.output)
 		self.assert_has_findings(findings)
 
+	@mock_access_analyzer_role_setup(
+		MockInvalidConfiguration(),
+		MockInvalidConfiguration()
+	)
 	def test_with_invalid_trust_policy(self):
 		self.add_roles_to_output(trust_policy=invalid_trust_policy)
 
@@ -182,6 +207,10 @@ class WhenValidatingRoles(unittest.TestCase):
 		self.assertIn("Failed to create access preview for role1.  Validate that your trust or resource "
 						 "policy's schema is correct.\nThe following validation findings were detected for this resource:", str(cm.exception))
 
+	@mock_access_analyzer_role_setup(
+		MockValidateIdentityPolicyFinding(code='PASS_ROLE_WITH_STAR_IN_RESOURCE', finding_type=FINDING_TYPE.SECURITY_WARNING),
+		MockValidateIdentityPolicyFinding(code='PASS_ROLE_WITH_STAR_IN_RESOURCE', finding_type=FINDING_TYPE.SECURITY_WARNING)
+	)
 	def test_with_identity_policy_with_findings(self):
 		self.add_roles_to_output(trust_policy=trust_policy_with_no_findings, identity_policy=identity_policy_with_findings)
 
@@ -200,12 +229,20 @@ class WhenValidatingRoles(unittest.TestCase):
 			expected_code='PASS_ROLE_WITH_STAR_IN_RESOURCE'
 		)
 
+	@mock_access_analyzer_role_setup(
+		MockNoFindings(),
+		MockNoFindings()
+	)
 	def test_with_identity_policy_with_no_findings(self):
 		self.add_roles_to_output(trust_policy=trust_policy_with_no_findings, identity_policy=identity_policy_with_no_findings)
 
 		findings = validate_parser_output(self.output)
 		self.assert_has_findings(findings)
 
+	@mock_access_analyzer_role_setup(
+		MockValidateIdentityPolicyFinding(code='DATA_TYPE_MISMATCH', finding_type=FINDING_TYPE.ERROR),
+		MockValidateIdentityPolicyFinding(code='DATA_TYPE_MISMATCH', finding_type=FINDING_TYPE.ERROR)
+	)
 	def test_with_invalid_identity_policy(self):
 		self.add_roles_to_output(trust_policy=trust_policy_with_no_findings, identity_policy=invalid_identity_policy)
 
@@ -224,6 +261,19 @@ class WhenValidatingRoles(unittest.TestCase):
 			expected_code='DATA_TYPE_MISMATCH'
 		)
 
+	@mock_access_analyzer_role_setup(
+		MockNoFindings(
+			expected_params_create_access_preview={
+				'analyzerArn': ANY,
+				'configurations': {
+					f'arn:aws:iam::{account_config.account_id}:role/ResourceA1234567891234567891234567891234567891234567891234567891': {
+						'iamRole': ANY
+					}
+				}
+			}
+		),
+		MockNoFindings()
+	)
 	def test_with_role_name_that_exceeds_limit(self):
 		self.add_roles_to_output(
 			role_1_name='ResourceA123456789123456789123456789123456789123456789123456789123456789',
@@ -234,6 +284,17 @@ class WhenValidatingRoles(unittest.TestCase):
 		findings = validate_parser_output(self.output)
 		self.assert_has_findings(findings)
 
+
+	@mock_access_analyzer_role_setup(
+		MockValidateIdentityAndResourcePolicyFinding(
+			resource_code='EMPTY_OBJECT_PRINCIPAL', resource_finding_type=FINDING_TYPE.SUGGESTION,
+			identity_code='DATA_TYPE_MISMATCH', identity_finding_type=FINDING_TYPE.ERROR
+		),
+		MockValidateIdentityAndResourcePolicyFinding(
+			resource_code='EMPTY_OBJECT_PRINCIPAL', resource_finding_type=FINDING_TYPE.SUGGESTION,
+			identity_code='DATA_TYPE_MISMATCH', identity_finding_type=FINDING_TYPE.ERROR
+		)
+	)
 	def test_with_findings_in_both_trust_policy_and_identity_policy(self):
 		self.add_roles_to_output(trust_policy=trust_policy_with_findings, identity_policy=invalid_identity_policy)
 
@@ -264,60 +325,48 @@ class WhenValidatingRoles(unittest.TestCase):
 			expected_code='EMPTY_OBJECT_PRINCIPAL'
 		)
 
+	@mock_access_analyzer_role_setup(
+		MockUnknownError(),
+	)
 	def test_unknown_access_preview_failure(self):
-		roles = [
-			Role('role1', role_path="/", trust_policy=copy.deepcopy(trust_policy_with_no_findings))
-		]
-
-		def get_access_preview(*args, **kwargs):
-			return {
-				'accessPreview': {
-					'status': 'FAILED',
-					'statusReason': {
-						'code': 'UNKNOWN_ERROR'
-					}
-				}
-			}
+		role = Role('role1', role_path="/", trust_policy=copy.deepcopy(trust_policy_with_no_findings))
+		role.add_policy(Policy('Policy1', copy.deepcopy(identity_policy_with_no_findings)))
 
 		validator = Validator(account_config.account_id, account_config.region, account_config.partition)
-		with patch.object(validator, 'client', wraps=validator.client) as mock:
-			mock.get_access_preview = MagicMock(side_effect=get_access_preview)
+		with self.assertRaises(ApplicationError) as cm:
+			validator.validate_roles([role])
 
-			validator.maximum_number_of_access_preview_attempts = 2
-			with self.assertRaises(ApplicationError) as cm:
-				validator.validate_roles(roles)
+		self.assertEqual('Failed to create access preview for role1.  Reason: UNKNOWN_ERROR', str(cm.exception))
 
-			self.assertEqual('Failed to create access preview for role1.  Reason: UNKNOWN_ERROR',
-							 str(cm.exception))
-
+	@mock_access_analyzer_role_setup(
+		MockTimeout()
+	)
 	def test_unknown_access_preview_timeout(self):
-		roles = [
-			Role('role1', role_path="/", trust_policy=copy.deepcopy(trust_policy_with_no_findings))
-		]
-
-		def get_access_preview(*args, **kwargs):
-			return {
-				'accessPreview': {
-					'status': 'CREATING'
-				}
-			}
+		role = Role('role1', role_path="/", trust_policy=copy.deepcopy(trust_policy_with_no_findings))
+		role.add_policy(Policy('Policy1', copy.deepcopy(identity_policy_with_no_findings)))
 
 		validator = Validator(account_config.account_id, account_config.region, account_config.partition)
-		with patch.object(validator, 'client', wraps=validator.client) as mock:
-			mock.get_access_preview = MagicMock(side_effect=get_access_preview)
+		validator.maximum_number_of_access_preview_attempts = 2
+		with self.assertRaises(ApplicationError) as cm:
+			validator.validate_roles([role])
 
-			validator.maximum_number_of_access_preview_attempts = 2
-			with self.assertRaises(ApplicationError) as cm:
-				validator.validate_roles(roles)
+		self.assertEqual('Timed out after 5 minutes waiting for access analyzer preview to create.', str(cm.exception))
 
-			self.assertEqual('Timed out after 5 minutes waiting for access analyzer preview to create.', str(cm.exception))
-
+	@mock_test_setup(
+		accessanalyzer=[
+			BotoResponse(
+				method='list_analyzers',
+				service_response={'analyzers': []},
+				expected_params={'type': 'ACCOUNT'}
+			),
+			BotoResponse(
+				method='create_analyzer',
+				service_response={'arn': 'arn:aws:access-analyzer:us-east-1:123456789123:analyzer/MyAnalyzer'},
+				expected_params={'analyzerName': ANY, 'type': 'ACCOUNT'}
+			)
+		],
+		assert_no_pending_responses=True
+	)
 	def test_if_no_analyzer_exists_in_account(self):
 		validator = Validator(account_config.account_id, account_config.region, account_config.partition)
-		with Stubber(validator.client) as stubber:
-			stubber.add_response('list_analyzers', {'analyzers': []}, {'type': 'ACCOUNT'})
-			stubber.add_response('create_analyzer',
-								{'arn': 'arn:aws:access-analyzer:us-east-1:123456789123:analyzer/MyAnalyzer'},
-								{'analyzerName': validator.access_analyzer_name, 'type': 'ACCOUNT'})
-			validator.validate_roles([])
-			stubber.assert_no_pending_responses()
+		validator.validate_roles([])

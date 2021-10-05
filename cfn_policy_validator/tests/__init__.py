@@ -3,18 +3,21 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: MIT-0
 """
 import boto3
+import os
 import unittest
-
 
 from cfn_policy_validator import AccountConfig
 
-sts_client = boto3.client('sts')
-my_account_id = sts_client.get_caller_identity()['Account']
+if os.getenv('TEST_MODE') == 'AWS':
+    sts_client = boto3.client('sts')
+    my_account_id = sts_client.get_caller_identity()['Account']
+    s3_client = boto3.client('s3')
+    my_canonical_user_id = s3_client.list_buckets()['Owner']['ID']
+else:
+    my_account_id = '111222333444'
+    my_canonical_user_id = 'ABC12345'
+
 account_config = AccountConfig('aws', 'us-east-2', my_account_id)
-
-
-s3_client = boto3.client('s3')
-my_canonical_user_id = s3_client.list_buckets()['Owner']['ID']
 
 
 class ParsingTest(unittest.TestCase):
@@ -79,7 +82,6 @@ class ParsingTest(unittest.TestCase):
         self.assertTrue(policy_exists, f'Could not find orphaned policy with {policy_name}.')
 
 
-# this test runs through an entire happy path
 class ValidationTest(unittest.TestCase):
     def assert_warning(self, finding_type, code, resource_name, policy_name):
         self.assert_finding(self.output['NonBlockingFindings'], finding_type, code, resource_name, policy_name)
