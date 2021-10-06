@@ -233,6 +233,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         self.validate()
         self.assert_called_with(treat_as_blocking=['ERROR', 'SECURITY_WARNING'])
 
+    @mock_validation_setup()
     def test_treat_as_blocking_is_upper_cased(self):
         self.args.extend(['--treat-finding-type-as-blocking', 'warning,error'])
         self.validate()
