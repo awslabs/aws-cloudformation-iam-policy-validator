@@ -8,7 +8,7 @@ from botocore.config import Config
 config = Config(
 	retries={
 		# this number was chosen arbitrarily, tweak as necessary
-		'max_attempts': 20,
+		'max_attempts': 30,
 		'mode': 'standard'
 	}
 )
