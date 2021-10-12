@@ -37,6 +37,7 @@ def validate_parser_output(parser_output):
 	validator.validate_roles(parser_output.Roles)
 	validator.validate_users(parser_output.Users)
 	validator.validate_groups(parser_output.Groups)
+	validator.validate_permission_sets(parser_output.PermissionSets)
 	validator.validate_resources(parser_output.Resources)
 
 	return validator.findings
@@ -150,6 +151,20 @@ class Validator:
 				)
 				LOGGER.info(f'ValidatePolicy response {response}')
 				self.findings.add_validation_finding(response['findings'], group.GroupName, policy.Name)
+
+	def validate_permission_sets(self, permission_sets):
+		"""
+		Validate policies attached to permission sets
+		"""
+		for permission_set in permission_sets:
+			for policy in permission_set.Policies:
+				LOGGER.info(f'Validating identity policy for permission set {permission_set.Name} with policy name {policy.Name}')
+				response = self.client.validate_policy(
+					policyType='IDENTITY_POLICY',
+					policyDocument=json.dumps(policy.Policy)
+				)
+				LOGGER.info(f'ValidatePolicy response {response}')
+				self.findings.add_validation_finding(response['findings'], permission_set.Name, policy.Name)
 
 	def validate_resources(self, resources):
 		"""

@@ -9,7 +9,7 @@ from cfn_policy_validator.tests.validation_tests import MockNoFindings, \
 	mock_access_analyzer_identity_setup, FINDING_TYPE, MockValidateIdentityPolicyFinding
 from cfn_policy_validator.validation.validator import validate_parser_output
 from cfn_policy_validator.parsers.account_config import AccountConfig
-from cfn_policy_validator.parsers.output import Output, Policy, User, Group
+from cfn_policy_validator.parsers.output import Output, Policy, User, Group, PermissionSet
 
 policy_document_with_no_findings = {
 	'Version': '2012-10-17',
@@ -273,4 +273,81 @@ class WhenValidatingGroups(unittest.TestCase):
 		second_finding = findings.errors[1]
 		self.assertEqual('Policy2', second_finding.policyName)
 		self.assertEqual('group2', second_finding.resourceName)
+		self.assertEqual('DATA_TYPE_MISMATCH', second_finding.code)
+
+
+class WhenValidatingPermissionSets(unittest.TestCase):
+	def setUp(self):
+		account_config = AccountConfig('aws', 'us-east-1', '123456789123')
+		self.output = Output(account_config)
+
+	def add_permission_sets_to_output(self, policy_document):
+		permission_set = PermissionSet('permission_set1')
+		permission_set.add_policy(Policy('Policy1', copy.deepcopy(policy_document)))
+
+		permission_set2 = PermissionSet('permission_set2')
+		permission_set2.add_policy(Policy('Policy2', copy.deepcopy(policy_document)))
+
+		self.output.PermissionSets = [
+			permission_set,
+			permission_set2
+		]
+
+	@mock_access_analyzer_identity_setup(
+		MockNoFindings(),
+		MockNoFindings()
+	)
+	def test_does_not_add_identity_finding_for_good_policies(self):
+		self.add_permission_sets_to_output(policy_document_with_no_findings)
+
+		findings = validate_parser_output(self.output)
+		self.assertEqual(0, len(findings.errors))
+		self.assertEqual(0, len(findings.security_warnings))
+		self.assertEqual(0, len(findings.warnings))
+		self.assertEqual(0, len(findings.suggestions))
+
+	@mock_access_analyzer_identity_setup(
+		MockValidateIdentityPolicyFinding(code='PASS_ROLE_WITH_STAR_IN_RESOURCE', finding_type=FINDING_TYPE.SECURITY_WARNING),
+		MockValidateIdentityPolicyFinding(code='PASS_ROLE_WITH_STAR_IN_RESOURCE', finding_type=FINDING_TYPE.SECURITY_WARNING)
+	)
+	def test_adds_identity_finding_for_bad_policies(self):
+		self.add_permission_sets_to_output(policy_document_with_findings)
+
+		findings = validate_parser_output(self.output)
+		self.assertEqual(0, len(findings.errors))
+		self.assertEqual(2, len(findings.security_warnings))
+		self.assertEqual(0, len(findings.warnings))
+		self.assertEqual(0, len(findings.suggestions))
+
+		first_finding = findings.security_warnings[0]
+		self.assertEqual('Policy1', first_finding.policyName)
+		self.assertEqual('permission_set1', first_finding.resourceName)
+		self.assertEqual('PASS_ROLE_WITH_STAR_IN_RESOURCE', first_finding.code)
+
+		second_finding = findings.security_warnings[1]
+		self.assertEqual('Policy2', second_finding.policyName)
+		self.assertEqual('permission_set2', second_finding.resourceName)
+		self.assertEqual('PASS_ROLE_WITH_STAR_IN_RESOURCE', second_finding.code)
+
+	@mock_access_analyzer_identity_setup(
+		MockValidateIdentityPolicyFinding(code='DATA_TYPE_MISMATCH', finding_type=FINDING_TYPE.ERROR),
+		MockValidateIdentityPolicyFinding(code='DATA_TYPE_MISMATCH', finding_type=FINDING_TYPE.ERROR)
+	)
+	def test_adds_identity_finding_with_invalid_policy(self):
+		self.add_permission_sets_to_output(invalid_policy_document)
+
+		findings = validate_parser_output(self.output)
+		self.assertEqual(2, len(findings.errors))
+		self.assertEqual(0, len(findings.security_warnings))
+		self.assertEqual(0, len(findings.warnings))
+		self.assertEqual(0, len(findings.suggestions))
+
+		first_finding = findings.errors[0]
+		self.assertEqual('Policy1', first_finding.policyName)
+		self.assertEqual('permission_set1', first_finding.resourceName)
+		self.assertEqual('DATA_TYPE_MISMATCH', first_finding.code)
+
+		second_finding = findings.errors[1]
+		self.assertEqual('Policy2', second_finding.policyName)
+		self.assertEqual('permission_set2', second_finding.resourceName)
 		self.assertEqual('DATA_TYPE_MISMATCH', second_finding.code)

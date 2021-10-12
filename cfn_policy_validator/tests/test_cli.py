@@ -91,6 +91,10 @@ class WhenParsingATemplateAsCLI(ParsingTest):
         self.assertEqual(1, len(groups))
         self.assert_group(group_name='MyIAMGroup', group_path='/my-test-group-path/', number_of_policies=2)
 
+        permission_sets = self.output['PermissionSets']
+        self.assertEqual(1, len(permission_sets))
+        self.assert_permission_set(permission_set_name='MyPermissionSet', number_of_policies=3)
+
         resources = self.output['Resources']
         self.assertEqual(3, len(resources))
         self.assert_resource(resource_name='MyQueue', resource_type='AWS::SQS::Queue')
@@ -135,11 +139,12 @@ class WhenValidatingATemplateAsCLI(ValidationTest):
         self.assert_warning('WARNING', 'MISSING_VERSION', 'prod-app-artifacts', 'BucketPolicy')
         self.assert_warning('WARNING', 'MISSING_VERSION', 'MyQueue', 'QueuePolicy')
 
-        self.assertEqual(5, len(self.output['BlockingFindings']))
+        self.assertEqual(6, len(self.output['BlockingFindings']))
         self.assert_error('ERROR', 'MISSING_ARN_FIELD', 'CodePipelineServiceRole', 'root')
         self.assert_error('ERROR', 'MISSING_PRINCIPAL', 'MyQueue', 'QueuePolicy')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'CodePipelineServiceRole', 'root')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'MyIAMGroup', 'root')
+        self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'MyPermissionSet', 'InlinePolicy')
         self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'prod-app-artifacts', 'BucketPolicy')
 
 

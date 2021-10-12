@@ -82,6 +82,17 @@ class ParsingTest(unittest.TestCase):
 
         self.assertTrue(group_exists, f'Could not find group with {group_name}, {group_path}, {number_of_policies}.')
 
+    def assert_permission_set(self, permission_set_name, number_of_policies):
+        permission_sets = self.output['PermissionSets']
+
+        permission_set_exists = any(
+            permission_set['Name'] == permission_set_name and
+            len(permission_set['Policies']) == number_of_policies
+            for permission_set in permission_sets
+        )
+
+        self.assertTrue(permission_set_exists, f'Could not find permission set with {permission_set_name}, {number_of_policies}.')
+
     def assert_resource(self, resource_name, resource_type):
         resources = self.output['Resources']
 

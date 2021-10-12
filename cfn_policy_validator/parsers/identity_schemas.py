@@ -92,6 +92,26 @@ users_schema = {
 	}
 }
 
+permission_set_schema = {
+	'type': 'object',
+	'properties': {
+		'Properties': {
+			'type': 'object',
+			'properties': {
+				'Name': {
+					'type': 'string'
+				},
+				'InlinePolicy': {
+					'type': 'object'
+				},
+				'ManagedPolicies': managed_policy_arns_schema
+			},
+			'required': ['Name']
+		}
+	},
+	'required': ['Properties']
+}
+
 managed_policy_schema = {
 	'type': 'object',
 	'properties': {

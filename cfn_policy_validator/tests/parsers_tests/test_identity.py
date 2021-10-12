@@ -61,15 +61,16 @@ def has_policy(principal, name, document, path="/"):
 
 class IdentityParserTest(unittest.TestCase):
     def parse(self, template, account_config):
-        self.roles, self.users, self.groups, self.orphaned_policies = \
+        self.roles, self.users, self.groups, self.permission_sets, self.orphaned_policies = \
             IdentityParser.parse(template, account_config)
 
     def assertResults(self, number_of_roles=0, number_of_users=0, number_of_groups=0,
-                      number_of_orphaned_policies=0):
-        self.assertEqual(len(self.users), number_of_users, "Expected number of users not equal.")
-        self.assertEqual(len(self.groups), number_of_groups, "Expected number of groups not equal.")
-        self.assertEqual(len(self.roles), number_of_roles, "Expected number of roles not equal.")
-        self.assertEqual(len(self.orphaned_policies), number_of_orphaned_policies, "Expected number of orphaned policies not equal.")
+                      number_of_orphaned_policies=0, number_of_permission_sets=0):
+        self.assertEqual(number_of_users, len(self.users), "Expected number of users not equal.")
+        self.assertEqual(number_of_groups, len(self.groups), "Expected number of groups not equal.")
+        self.assertEqual(number_of_roles, len(self.roles), "Expected number of roles not equal.")
+        self.assertEqual(number_of_permission_sets, len(self.permission_sets), "Expected number of permission sets not equal.")
+        self.assertEqual(number_of_orphaned_policies, len(self.orphaned_policies), "Expected number of orphaned policies not equal.")
 
 
 # General template tests
@@ -152,6 +153,7 @@ def aws_lambda_execute_response():
             'PolicyArn': 'arn:aws:iam::aws:policy/AWSLambdaExecute'
         }
     )
+
 
 def aws_lambda_execute_version_response():
     return BotoResponse(

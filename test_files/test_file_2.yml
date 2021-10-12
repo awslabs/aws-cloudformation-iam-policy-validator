@@ -362,3 +362,37 @@ Resources:
               - Resource: !Ref MySNSTopic
                 Effect: Allow
                 Action: sns:Publish
+
+  MyPermissionSet:
+    Type: AWS::SSO::PermissionSet
+    Properties:
+      InstanceArn: arn:aws:sso:::instance/ssoins-111222333444
+      Name: 'MyPermissionSet'
+      ManagedPolicies:
+        - !Ref MyManagedPolicy
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      InlinePolicy:
+        Version: 2012-10-17
+        Statement:
+          - Resource: '*'
+            Effect: Allow
+            Action:
+              - iam:PassRole
+          - Resource: !Sub arn:aws:s3:::${ArtifactBucket}/*
+            Effect: Allow
+            Action:
+              - s3:PutObject
+              - s3:GetObject
+              - s3:GetObjectVersion
+          - Resource: '*'
+            Effect: Allow
+            Action:
+              - ecr:BatchCheckLayerAvailability
+              - ecr:CompleteLayerUpload
+              - ecr:GetAuthorizationToken
+              - ecr:InitiateLayerUpload
+              - ecr:PutImage
+              - ecr:UploadLayerPart
+          - Resource: !Ref MySNSTopic
+            Effect: Allow
+            Action: sns:Publish

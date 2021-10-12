@@ -11,9 +11,9 @@ from botocore.exceptions import ClientError
 from cfn_policy_validator import client
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.identity_schemas import groups_schema, managed_policy_schema, \
-	roles_schema, inline_policy_schema, users_schema
+	roles_schema, inline_policy_schema, users_schema, permission_set_schema
 from cfn_policy_validator.parsers.utils.arn_generator import ArnGenerator
-from cfn_policy_validator.parsers.output import Role, User, Policy, Group
+from cfn_policy_validator.parsers.output import Role, User, Policy, Group, PermissionSet
 from cfn_policy_validator.parsers.utils.topological_sorter import TopologicalSorter
 
 
@@ -33,7 +33,8 @@ class IdentityParser:
 			'AWS::IAM::Policy': InlinePolicyParser(),
 			'AWS::IAM::ManagedPolicy': ManagedPolicyParser(account_config),
 			'AWS::IAM::User': UserParser(account_config.region),
-			'AWS::IAM::Group': GroupParser(account_config.region)
+			'AWS::IAM::Group': GroupParser(account_config.region),
+			'AWS::SSO::PermissionSet': PermissionSetParser(account_config.region)
 		}
 
 		# topologically sort which allows us to process dependent resources first
@@ -52,6 +53,7 @@ class IdentityParser:
 		return list(RoleParser.roles.values()), \
 			list(UserParser.users.values()), \
 			list(GroupParser.groups.values()), \
+			list(PermissionSetParser.permission_sets.values()), \
 			orphaned_policies
 
 	@classmethod
@@ -62,17 +64,19 @@ class IdentityParser:
 		role_policies = [policy for role in RoleParser.roles.values() for policy in role.Policies]
 		user_policies = [policy for user in UserParser.users.values() for policy in user.Policies]
 		group_policies = [policy for group in GroupParser.groups.values() for policy in group.Policies]
+		permission_set_policies = [policy for permission_set in PermissionSetParser.permission_sets.values()
+								   for policy in permission_set.Policies]
 
-		all_attached_policies = list(set(role_policies) | set(user_policies) | set(group_policies))
+		all_attached_policies = list(set(role_policies) | set(user_policies) | set(group_policies) | set(permission_set_policies))
 		all_managed_policies = list(ManagedPolicyParser.managed_policies.values())
 
 		return [managed_policy for managed_policy in all_managed_policies if
 				managed_policy not in all_attached_policies]
 
 
-class PrincipalParser(ABC):
+class AttachedPolicyParser:
 	"""
-	Base class to handle common principal parsing
+	Handles parsing managed and inline policies from other resources
 	"""
 	def __init__(self, region):
 		self.client = client.build('iam', region)
@@ -87,8 +91,8 @@ class PrincipalParser(ABC):
 			policy = Policy(policy_name, policy_document)
 			principal.add_policy(policy)
 
-	def parse_managed_policies(self, principal, properties):
-		managed_policy_arns = properties.get('ManagedPolicyArns', [])
+	def parse_managed_policies(self, principal, properties, property_name='ManagedPolicyArns'):
+		managed_policy_arns = properties.get(property_name, [])
 		for arn in managed_policy_arns:
 			policy = ManagedPolicyParser.managed_policies.get(arn)
 			if policy is not None:
@@ -115,7 +119,7 @@ class PrincipalParser(ABC):
 			principal.add_policy(policy)
 
 
-class RoleParser(PrincipalParser):
+class RoleParser:
 	""" Parser for AWS::IAM::Role
 	"""
 
@@ -123,7 +127,7 @@ class RoleParser(PrincipalParser):
 	roles = {}
 
 	def __init__(self, region):
-		super(RoleParser, self).__init__(region)
+		self.attached_policy_parser = AttachedPolicyParser(region)
 		RoleParser.roles = {}
 
 	@classmethod
@@ -147,13 +151,13 @@ class RoleParser(PrincipalParser):
 
 		role = Role(role_name, path, trust_policy)
 
-		self.parse_inline_policies(role, properties)
-		self.parse_managed_policies(role, properties)
+		self.attached_policy_parser.parse_inline_policies(role, properties)
+		self.attached_policy_parser.parse_managed_policies(role, properties)
 
 		self.roles[resource_name] = role
 
 
-class UserParser(PrincipalParser):
+class UserParser:
 	""" AWS::IAM::User
 	"""
 
@@ -161,7 +165,7 @@ class UserParser(PrincipalParser):
 	users = {}
 
 	def __init__(self, region):
-		super(UserParser, self).__init__(region)
+		self.attached_policy_parser = AttachedPolicyParser(region)
 		UserParser.users = {}
 
 	@classmethod
@@ -182,13 +186,13 @@ class UserParser(PrincipalParser):
 
 		user = User(user_name, path)
 
-		self.parse_inline_policies(user, properties)
-		self.parse_managed_policies(user, properties)
+		self.attached_policy_parser.parse_inline_policies(user, properties)
+		self.attached_policy_parser.parse_managed_policies(user, properties)
 
 		self.users[resource_name] = user
 
 
-class GroupParser(PrincipalParser):
+class GroupParser:
 	""" AWS::IAM::Group
 	"""
 
@@ -196,7 +200,7 @@ class GroupParser(PrincipalParser):
 	groups = {}
 
 	def __init__(self, region):
-		super(GroupParser, self).__init__(region)
+		self.attached_policy_parser = AttachedPolicyParser(region)
 		GroupParser.groups = {}
 
 	@classmethod
@@ -217,10 +221,46 @@ class GroupParser(PrincipalParser):
 
 		group = Group(group_name, path)
 
-		self.parse_inline_policies(group, properties)
-		self.parse_managed_policies(group, properties)
+		self.attached_policy_parser.parse_inline_policies(group, properties)
+		self.attached_policy_parser.parse_managed_policies(group, properties)
 
 		self.groups[resource_name] = group
+
+
+class PermissionSetParser:
+	""" Parser for AWS::SSO::PermissionSet
+	"""
+
+	permission_sets = {}
+
+	def __init__(self, region):
+		self.attached_policy_parser = AttachedPolicyParser(region)
+		PermissionSetParser.permission_sets = {}
+
+	def parse(self, resource_name, resource):
+		evaluated_resource = resource.eval(permission_set_schema)
+
+		properties = evaluated_resource['Properties']
+
+		name = properties['Name']
+
+		permission_set = PermissionSet(name)
+
+		self.parse_inline_policy(permission_set, properties)
+		self.attached_policy_parser.parse_managed_policies(permission_set, properties, property_name="ManagedPolicies")
+
+		self.permission_sets[resource_name] = permission_set
+
+	@staticmethod
+	def parse_inline_policy(permission_set, properties):
+		""" PermissionSets can only have a single inline policy so the parsing logic is slightly different
+		"""
+		inline_policy = properties.get('InlinePolicy')
+		if inline_policy is None:
+			return
+
+		policy = Policy('InlinePolicy', inline_policy)
+		permission_set.add_policy(policy)
 
 
 class PolicyParser(ABC):

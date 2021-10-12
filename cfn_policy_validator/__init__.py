@@ -141,7 +141,7 @@ def _parse_template_file(file_path, account_config, template_parameters):
 
 def _parse_template_output(template, account_config):
     output = Output(account_config)
-    output.Roles, output.Users, output.Groups, output.OrphanedPolicies = \
+    output.Roles, output.Users, output.Groups, output.PermissionSets, output.OrphanedPolicies = \
         IdentityParser.parse(template, account_config)
     output.Resources = ResourceParser.parse(template, account_config)
 

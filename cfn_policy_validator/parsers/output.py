@@ -16,6 +16,7 @@ class Output:
         self.Account = account_config.account_id
         self.Partition = account_config.partition
         self.Roles = []
+        self.PermissionSets = []
         self.Users = []
         self.Groups = []
         self.Resources = []
@@ -42,19 +43,20 @@ class Output:
             return False
 
         # written this way to allow for debugging
+        permission_sets_are_equal = sorted(self.PermissionSets) == sorted(other.PermissionSets)
         roles_are_equal = sorted(self.Roles) == sorted(other.Roles)
         users_are_equal = sorted(self.Users) == sorted(other.Users)
         groups_are_equal = sorted(self.Groups) == sorted(other.Groups)
         resources_are_equal = sorted(self.Resources) == sorted(other.Resources)
         policies_are_equal = sorted(self.OrphanedPolicies) == sorted(other.OrphanedPolicies)
         return roles_are_equal and users_are_equal and groups_are_equal and \
-               resources_are_equal and policies_are_equal
+               resources_are_equal and policies_are_equal and permission_sets_are_equal
 
     def __hash__(self):
         return hash((self.Roles, self.Users, self.Groups, self.Resources, self.OrphanedPolicies))
 
 
-class Principal:
+class IdentityWithPolicies:
     def __init__(self):
         self.Policies = []
 
@@ -62,7 +64,7 @@ class Principal:
         self.Policies.append(policy)
 
     def __eq__(self, other):
-        if not isinstance(other, Principal):
+        if not isinstance(other, IdentityWithPolicies):
             return False
 
         return self.Policies == other.Policies
@@ -71,7 +73,7 @@ class Principal:
         return hash(self.Policies)
 
 
-class User(Principal):
+class User(IdentityWithPolicies):
     def __init__(self, user_name, user_path):
         self.UserName = user_name
         self.UserPath = user_path
@@ -92,7 +94,7 @@ class User(Principal):
         return hash((self.UserName, self.UserPath, super().__hash__()))
 
 
-class Group(Principal):
+class Group(IdentityWithPolicies):
     def __init__(self, group_name, group_path):
         self.GroupName = group_name
         self.GroupPath = group_path
@@ -113,7 +115,7 @@ class Group(Principal):
         return hash((self.GroupName, self.GroupPath, super().__hash__()))
 
 
-class Role(Principal):
+class Role(IdentityWithPolicies):
     def __init__(self, role_name, role_path, trust_policy):
         self.RoleName = role_name
         self.RolePath = role_path
@@ -133,6 +135,25 @@ class Role(Principal):
 
     def __hash__(self):
         return hash((self.RoleName, self.RolePath, super().__hash__()))
+
+
+class PermissionSet(IdentityWithPolicies):
+    def __init__(self, name):
+        self.Name = name
+        super(PermissionSet, self).__init__()
+
+    def __eq__(self, other):
+        if not isinstance(other, PermissionSet):
+            return False
+
+        return self.Name == other.Name and\
+            super().__eq__(other)
+
+    def __lt__(self, other):
+        return self.Name < other.Name
+
+    def __hash__(self):
+        return hash((self.Name, super().__hash__()))
 
 
 class Policy:

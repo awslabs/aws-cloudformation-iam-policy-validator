@@ -5,8 +5,6 @@ SPDX-License-Identifier: MIT-0
 import copy
 import unittest
 
-from unittest.mock import patch, MagicMock
-
 from cfn_policy_validator.tests import offline_only
 from cfn_policy_validator.tests.boto_mocks import BotoClientError
 from cfn_policy_validator.tests.parsers_tests import mock_identity_parser_setup
