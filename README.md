@@ -131,6 +131,7 @@ Supported pseudo parameters:
 - AWS::AccountId
 - AWS::Partition
 - AWS::StackName (returns the literal string "StackName")
+- AWS::NoValue
 
 [Dynamic SSM references](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html) are supported, but must have a version number.  This is to help ensure the same parameter that is validated is the one that is deployed.
 
@@ -156,7 +157,7 @@ You can also specify a [named profile](https://docs.aws.amazon.com/cli/latest/us
 
 The principal used to execute the cfn-policy-validator requires the following permissions.
 
-###  Sample IAM policy for running the IAM Policy Validator for AWS CloudFormation
+###  IAM policy required to run the IAM Policy Validator for AWS CloudFormation
 
 ```json
 {

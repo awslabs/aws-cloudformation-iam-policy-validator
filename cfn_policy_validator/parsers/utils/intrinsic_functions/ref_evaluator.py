@@ -9,6 +9,7 @@ from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.cfn_tools.schema_validator import validate_schema
 from cfn_policy_validator.parsers.utils.cycle_detection import validate_no_cycle
 from cfn_policy_validator.parsers.utils.intrinsic_functions import name_hints
+from cfn_policy_validator.parsers.utils.intrinsic_functions.aws_no_value_evaluator import NoValue
 
 
 class RefEvaluator:
@@ -52,6 +53,9 @@ class RefEvaluator:
 		if resource_logical_name_or_param == "AWS::StackName":
 			# just return some default value, we won't know this in advance
 			return "StackName"
+
+		if resource_logical_name_or_param == "AWS::NoValue":
+			return NoValue()
 
 		# check to see if the reference is for a resource
 		resource = self.resources.get(resource_logical_name_or_param)

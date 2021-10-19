@@ -284,7 +284,9 @@ Resources:
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-              - Resource: '*'
+              - Resource:
+                  - '*'
+                  - !Ref 'AWS::NoValue'
                 Effect: Allow
                 Action:
                   - iam:PassRole

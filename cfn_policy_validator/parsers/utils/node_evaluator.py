@@ -8,6 +8,7 @@ import functools
 from cfn_policy_validator.cfn_tools.cfn_object import CfnObject
 from cfn_policy_validator.cfn_tools.schema_validator import validate_schema
 from cfn_policy_validator.parsers.utils.arn_generator import ArnGenerator
+from cfn_policy_validator.parsers.utils.intrinsic_functions.aws_no_value_evaluator import AwsNoValueEvaluator
 from cfn_policy_validator.parsers.utils.intrinsic_functions.dynamic_ref_evaluator import DynamicReferenceEvaluator
 from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_find_in_map_evaluator import FindInMapEvaluator
 from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_get_att_evaluator import GetAttEvaluator
@@ -34,6 +35,16 @@ def evaluate_dynamic_references(func):
     return wrapper
 
 
+def prune_references_to_no_value(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        no_value_evaluator = args[0].no_value_evaluator
+        value = func(*args, **kwargs)
+        return no_value_evaluator.evaluate(value)
+
+    return wrapper
+
+
 class NodeEvaluator:
     def __init__(self, template, account_config, parameter_values):
         resources = template['Resources']
@@ -43,6 +54,7 @@ class NodeEvaluator:
         arn_generator = ArnGenerator(account_config)
 
         self.dynamic_reference_evaluator = DynamicReferenceEvaluator(account_config.region)
+        self.no_value_evaluator = AwsNoValueEvaluator()
 
         ref_evaluator = RefEvaluator(resources, arn_generator, parameters, parameter_values, account_config, self)
         get_att_evaluator = GetAttEvaluator(resources, arn_generator, self, account_config.region)
@@ -64,6 +76,7 @@ class NodeEvaluator:
 
         return value
 
+    @prune_references_to_no_value
     @evaluate_dynamic_references
     def eval(self, value: Any, resource_properties_to_eval=None, visited_values=None):
         """ Evaluates the value of a CloudFormation key/value pair by evaluating intrinsic functions and pseudo
