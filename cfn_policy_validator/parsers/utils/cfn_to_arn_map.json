@@ -162,6 +162,20 @@
                 "ServicePrefix": "backup",
                 "ResourceType": "backup-vault"
             }
+        },
+        "Framework": {
+            "FrameworkArn": {
+                "Value": "arn:${Partition}:backup:${Region}:${Account}:framework:${FrameworkName}-${FrameworkId}",
+                "ServicePrefix": "backup",
+                "ResourceType": "framework"
+            }
+        },
+        "ReportPlan": {
+            "ReportPlanArn": {
+                "Value": "arn:${Partition}:backup:${Region}:${Account}:report-plan:${ReportPlanName}-${ReportPlanId}",
+                "ServicePrefix": "backup",
+                "ResourceType": "report-plan"
+            }
         }
     },
     "Elasticsearch": {
@@ -955,6 +969,13 @@
                 "ServicePrefix": "wafv2",
                 "ResourceType": "webacl"
             }
+        },
+        "LoggingConfiguration": {
+            "Ref": {
+                "Value": "arn:${Partition}:wafv2:${Region}:${Account}:${Scope}/webacl/${Name}/${Id}",
+                "ServicePrefix": "wafv2",
+                "ResourceType": "webacl"
+            }
         }
     },
     "Batch": {
@@ -1255,9 +1276,23 @@
         },
         "DomainConfiguration": {
             "Arn": {
-                "Value": "arn:${Partition}:iot:${Region}:${Account}:domainconfiguration/${domainConfigurationName}",
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:domainconfiguration/${DomainConfigurationName}/${Id}",
                 "ServicePrefix": "iot",
                 "ResourceType": "domainconfiguration"
+            }
+        },
+        "JobTemplate": {
+            "Arn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:jobtemplate/${JobTemplateId}",
+                "ServicePrefix": "iot",
+                "ResourceType": "jobtemplate"
+            }
+        },
+        "FleetMetric": {
+            "MetricArn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:fleetmetric/${FleetMetricName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "fleetmetric"
             }
         }
     },
@@ -1276,6 +1311,11 @@
         },
         "SimulationApplicationVersion": {
             "Ref": {
+                "Value": "arn:${Partition}:robomaker:${Region}:${Account}:simulation-application/${ApplicationName}/${CreatedOnEpoch}",
+                "ServicePrefix": "robomaker",
+                "ResourceType": "simulation-application"
+            },
+            "Arn": {
                 "Value": "arn:${Partition}:robomaker:${Region}:${Account}:simulation-application/${ApplicationName}/${CreatedOnEpoch}",
                 "ServicePrefix": "robomaker",
                 "ResourceType": "simulation-application"
@@ -1310,10 +1350,20 @@
                 "Value": "arn:${Partition}:robomaker:${Region}:${Account}:robot-application/${ApplicationName}/${CreatedOnEpoch}",
                 "ServicePrefix": "robomaker",
                 "ResourceType": "robot-application"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:robomaker:${Region}:${Account}:robot-application/${ApplicationName}/${CreatedOnEpoch}",
+                "ServicePrefix": "robomaker",
+                "ResourceType": "robot-application"
             }
         },
         "Robot": {
             "Ref": {
+                "Value": "arn:${Partition}:robomaker:${Region}:${Account}:robot/${RobotName}/${CreatedOnEpoch}",
+                "ServicePrefix": "robomaker",
+                "ResourceType": "robot"
+            },
+            "Arn": {
                 "Value": "arn:${Partition}:robomaker:${Region}:${Account}:robot/${RobotName}/${CreatedOnEpoch}",
                 "ServicePrefix": "robomaker",
                 "ResourceType": "robot"
@@ -1393,6 +1443,11 @@
     "Config": {
         "AggregationAuthorization": {
             "Ref": {
+                "Value": "arn:${Partition}:config:${Region}:${Account}:aggregation-authorization/${AggregatorAccount}/${AggregatorRegion}",
+                "ServicePrefix": "config",
+                "ResourceType": "aggregation-authorization"
+            },
+            "AggregationAuthorizationArn": {
                 "Value": "arn:${Partition}:config:${Region}:${Account}:aggregation-authorization/${AggregatorAccount}/${AggregatorRegion}",
                 "ServicePrefix": "config",
                 "ResourceType": "aggregation-authorization"
@@ -1796,6 +1851,11 @@
     "CodeStarNotifications": {
         "NotificationRule": {
             "Ref": {
+                "Value": "arn:${Partition}:codestar-notifications:${Region}:${Account}:notificationrule/${NotificationRuleId}",
+                "ServicePrefix": "codestar-notifications",
+                "ResourceType": "notificationrule"
+            },
+            "Arn": {
                 "Value": "arn:${Partition}:codestar-notifications:${Region}:${Account}:notificationrule/${NotificationRuleId}",
                 "ServicePrefix": "codestar-notifications",
                 "ResourceType": "notificationrule"
@@ -2791,72 +2851,72 @@
     "FraudDetector": {
         "EntityType": {
             "Ref": {
-                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:entity-type/${resourcePath}",
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:entity-type/${ResourcePath}",
                 "ServicePrefix": "frauddetector",
                 "ResourceType": "entity-type"
             },
             "Arn": {
-                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:entity-type/${resourcePath}",
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:entity-type/${ResourcePath}",
                 "ServicePrefix": "frauddetector",
                 "ResourceType": "entity-type"
             }
         },
         "Outcome": {
             "Ref": {
-                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:outcome/${resourcePath}",
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:outcome/${ResourcePath}",
                 "ServicePrefix": "frauddetector",
                 "ResourceType": "outcome"
             },
             "Arn": {
-                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:outcome/${resourcePath}",
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:outcome/${ResourcePath}",
                 "ServicePrefix": "frauddetector",
                 "ResourceType": "outcome"
             }
         },
         "EventType": {
             "Ref": {
-                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:event-type/${resourcePath}",
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:event-type/${ResourcePath}",
                 "ServicePrefix": "frauddetector",
                 "ResourceType": "event-type"
             },
             "Arn": {
-                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:event-type/${resourcePath}",
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:event-type/${ResourcePath}",
                 "ServicePrefix": "frauddetector",
                 "ResourceType": "event-type"
             }
         },
         "Detector": {
             "Ref": {
-                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:detector/${resourcePath}",
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:detector/${ResourcePath}",
                 "ServicePrefix": "frauddetector",
                 "ResourceType": "detector"
             },
             "Arn": {
-                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:detector/${resourcePath}",
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:detector/${ResourcePath}",
                 "ServicePrefix": "frauddetector",
                 "ResourceType": "detector"
             }
         },
         "Label": {
             "Ref": {
-                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:label/${resourcePath}",
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:label/${ResourcePath}",
                 "ServicePrefix": "frauddetector",
                 "ResourceType": "label"
             },
             "Arn": {
-                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:label/${resourcePath}",
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:label/${ResourcePath}",
                 "ServicePrefix": "frauddetector",
                 "ResourceType": "label"
             }
         },
         "Variable": {
             "Ref": {
-                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:variable/${resourcePath}",
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:variable/${ResourcePath}",
                 "ServicePrefix": "frauddetector",
                 "ResourceType": "variable"
             },
             "Arn": {
-                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:variable/${resourcePath}",
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:variable/${ResourcePath}",
                 "ServicePrefix": "frauddetector",
                 "ResourceType": "variable"
             }
@@ -2912,7 +2972,11 @@
     },
     "FinSpace": {
         "Environment": {
-            "EnvironmentArn": null
+            "EnvironmentArn": {
+                "Value": "arn:${Partition}:finspace:${Region}:${Account}:environment/${environmentId}",
+                "ServicePrefix": "finspace",
+                "ResourceType": "environment"
+            }
         }
     },
     "EMR": {
@@ -2951,6 +3015,11 @@
         },
         "GeofenceCollection": {
             "CollectionArn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:geofence-collection/${GeofenceCollectionName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "geofence-collection"
+            },
+            "Arn": {
                 "Value": "arn:${Partition}:geo:${Region}:${Account}:geofence-collection/${GeofenceCollectionName}",
                 "ServicePrefix": "geo",
                 "ResourceType": "geofence-collection"
@@ -3012,6 +3081,80 @@
                 "Value": "arn:${Partition}:medialive:${Region}:${Account}:inputSecurityGroup:*",
                 "ServicePrefix": "medialive",
                 "ResourceType": "input-security-group"
+            }
+        }
+    },
+    "Lightsail": {
+        "Instance": {
+            "InstanceArn": {
+                "Value": "arn:${Partition}:lightsail:${Region}:${Account}:Instance/${Id}",
+                "ServicePrefix": "lightsail",
+                "ResourceType": "instance"
+            }
+        },
+        "Disk": {
+            "DiskArn": {
+                "Value": "arn:${Partition}:lightsail:${Region}:${Account}:Disk/${Id}",
+                "ServicePrefix": "lightsail",
+                "ResourceType": "disk"
+            }
+        }
+    },
+    "HealthLake": {
+        "FHIRDatastore": {
+            "DatastoreArn": {
+                "Value": "arn:${Partition}:healthlake:${Region}:${AccountId}:datastore/fhir/${DatastoreId}",
+                "ServicePrefix": "healthlake",
+                "ResourceType": "datastore"
+            }
+        }
+    },
+    "Kendra": {
+        "DataSource": {
+            "Arn": {
+                "Value": "arn:${Partition}:kendra:${Region}:${Account}:index/${IndexId}/data-source/${DataSourceId}",
+                "ServicePrefix": "kendra",
+                "ResourceType": "data-source"
+            }
+        }
+    },
+    "APS": {
+        "Workspace": {
+            "Ref": {
+                "Value": "arn:${Partition}:aps:${Region}:${Account}:workspace/${WorkspaceId}",
+                "ServicePrefix": "aps",
+                "ResourceType": "workspace"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:aps:${Region}:${Account}:workspace/${WorkspaceId}",
+                "ServicePrefix": "aps",
+                "ResourceType": "workspace"
+            }
+        },
+        "RuleGroupsNamespace": {
+            "Ref": {
+                "Value": "arn:${Partition}:aps:${Region}:${Account}:rulegroupsnamespace/${WorkspaceId}/${Namespace}",
+                "ServicePrefix": "aps",
+                "ResourceType": "rulegroupsnamespace"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:aps:${Region}:${Account}:rulegroupsnamespace/${WorkspaceId}/${Namespace}",
+                "ServicePrefix": "aps",
+                "ResourceType": "rulegroupsnamespace"
+            }
+        }
+    },
+    "OpenSearchService": {
+        "Domain": {
+            "Arn": {
+                "Value": "arn:${Partition}:es:${Region}:${Account}:domain/${DomainName}",
+                "ServicePrefix": "es",
+                "ResourceType": "domain"
+            },
+            "DomainArn": {
+                "Value": "arn:${Partition}:es:${Region}:${Account}:domain/${DomainName}",
+                "ServicePrefix": "es",
+                "ResourceType": "domain"
             }
         }
     }
