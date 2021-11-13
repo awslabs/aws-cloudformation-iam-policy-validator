@@ -69,7 +69,10 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: codepipeline.amazonaws.com
+              Service: !Join
+                - ''
+                - - 'codepipeline.'
+                  - !Ref AWS::URLSuffix
             Action: sts:AssumeRole
       Policies:
         - PolicyName: root
