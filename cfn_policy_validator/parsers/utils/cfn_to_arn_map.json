@@ -365,6 +365,11 @@
                 "Value": "arn:${Partition}:states:${Region}:${Account}:activity:${ActivityName}",
                 "ServicePrefix": "states",
                 "ResourceType": "activity"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:states:${Region}:${Account}:activity:${ActivityName}",
+                "ServicePrefix": "states",
+                "ResourceType": "activity"
             }
         },
         "StateMachine": {
@@ -998,6 +1003,18 @@
                 "Value": "arn:${Partition}:batch:${Region}:${Account}:compute-environment/${ComputeEnvironmentName}",
                 "ServicePrefix": "batch",
                 "ResourceType": "compute-environment"
+            }
+        },
+        "SchedulingPolicy": {
+            "Ref": {
+                "Value": "arn:${Partition}:batch:${Region}:${Account}:scheduling-policy/${SchedulingPolicyName}",
+                "ServicePrefix": "batch",
+                "ResourceType": "scheduling-policy"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:batch:${Region}:${Account}:scheduling-policy/${SchedulingPolicyName}",
+                "ServicePrefix": "batch",
+                "ResourceType": "scheduling-policy"
             }
         }
     },
@@ -1688,6 +1705,13 @@
                 "ServicePrefix": "transfer",
                 "ResourceType": "user"
             }
+        },
+        "Workflow": {
+            "Arn": {
+                "Value": "arn:${Partition}:transfer:${region}:${account}:workflow/${workflowId}",
+                "ServicePrefix": "transfer",
+                "ResourceType": "workflow"
+            }
         }
     },
     "Events": {
@@ -2211,6 +2235,18 @@
                 "ServicePrefix": "datasync",
                 "ResourceType": "location"
             }
+        },
+        "LocationHDFS": {
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            },
+            "LocationArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            }
         }
     },
     "MediaConnect": {
@@ -2526,6 +2562,18 @@
                 "ServicePrefix": "ec2",
                 "ResourceType": "network-insights-analysis"
             }
+        },
+        "IPAM": {
+            "Arn": null
+        },
+        "IPAMPool": {
+            "Arn": null,
+            "IpamScopeArn": null,
+            "IpamArn": null
+        },
+        "IPAMScope": {
+            "Arn": null,
+            "IpamArn": null
         }
     },
     "DevOpsGuru": {
@@ -2543,7 +2591,7 @@
     "AuditManager": {
         "Assessment": {
             "Arn": {
-                "Value": "arn:${Partition}:auditmanager:${Region}:${Account}:assessment/${assessmentId}",
+                "Value": "arn:${Partition}:auditmanager:${Region}:${Account}:assessment/${AssessmentId}",
                 "ServicePrefix": "auditmanager",
                 "ResourceType": "assessment"
             }
@@ -2709,6 +2757,23 @@
                 "Value": "arn:${Partition}:timestream:${Region}:${Account}:database/${DatabaseName}/table/${TableName}",
                 "ServicePrefix": "timestream",
                 "ResourceType": "table"
+            }
+        },
+        "ScheduledQuery": {
+            "Ref": {
+                "Value": "arn:${Partition}:timestream:${Region}:${Account}:scheduled-query/${ScheduledQueryName}",
+                "ServicePrefix": "timestream",
+                "ResourceType": "scheduled-query"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:timestream:${Region}:${Account}:scheduled-query/${ScheduledQueryName}",
+                "ServicePrefix": "timestream",
+                "ResourceType": "scheduled-query"
+            },
+            "SQScheduledQueryExecutionRoleArn": {
+                "Value": "arn:${Partition}:iam::${Account}:role/${RoleNameWithPath}",
+                "ServicePrefix": "iam",
+                "ResourceType": "role"
             }
         }
     },
@@ -3098,6 +3163,20 @@
                 "ServicePrefix": "lightsail",
                 "ResourceType": "disk"
             }
+        },
+        "Database": {
+            "DatabaseArn": {
+                "Value": "arn:${Partition}:lightsail:${Region}:${Account}:RelationalDatabase/${Id}",
+                "ServicePrefix": "lightsail",
+                "ResourceType": "relational-database"
+            }
+        },
+        "StaticIp": {
+            "StaticIpArn": {
+                "Value": "arn:${Partition}:lightsail:${Region}:${Account}:StaticIp/${Id}",
+                "ServicePrefix": "lightsail",
+                "ResourceType": "static-ip"
+            }
         }
     },
     "HealthLake": {
@@ -3155,6 +3234,163 @@
                 "Value": "arn:${Partition}:es:${Region}:${Account}:domain/${DomainName}",
                 "ServicePrefix": "es",
                 "ResourceType": "domain"
+            }
+        }
+    },
+    "MemoryDB": {
+        "User": {
+            "Arn": {
+                "Value": "arn:${Partition}:memorydb:${Region}:${Account}:user/${UserName}",
+                "ServicePrefix": "memorydb",
+                "ResourceType": "user"
+            }
+        },
+        "ParameterGroup": {
+            "ARN": {
+                "Value": "arn:${Partition}:memorydb:${Region}:${Account}:parametergroup/${ParameterGroupName}",
+                "ServicePrefix": "memorydb",
+                "ResourceType": "parametergroup"
+            }
+        },
+        "SubnetGroup": {
+            "ARN": {
+                "Value": "arn:${Partition}:memorydb:${Region}:${Account}:subnetgroup/${SubnetGroupName}",
+                "ServicePrefix": "memorydb",
+                "ResourceType": "subnetgroup"
+            }
+        },
+        "Cluster": {
+            "ARN": {
+                "Value": "arn:${Partition}:memorydb:${Region}:${Account}:cluster/${ClusterName}",
+                "ServicePrefix": "memorydb",
+                "ResourceType": "cluster"
+            }
+        },
+        "ACL": {
+            "Arn": {
+                "Value": "arn:${Partition}:memorydb:${Region}:${Account}:acl/${AclName}",
+                "ServicePrefix": "memorydb",
+                "ResourceType": "acl"
+            }
+        }
+    },
+    "RefactorSpaces": {
+        "Environment": {
+            "Arn": {
+                "Value": "arn:${Partition}:refactor-spaces:${Region}:${Account}:environment/${EnvironmentId}",
+                "ServicePrefix": "refactor-spaces",
+                "ResourceType": "environment"
+            }
+        },
+        "Service": {
+            "Arn": {
+                "Value": "arn:${Partition}:refactor-spaces:${Region}:${Account}:environment/${EnvironmentId}/application/${ApplicationId}/service/${ServiceId}",
+                "ServicePrefix": "refactor-spaces",
+                "ResourceType": "service"
+            }
+        },
+        "Route": {
+            "Arn": {
+                "Value": "arn:${Partition}:refactor-spaces:${Region}:${Account}:environment/${EnvironmentId}/application/${ApplicationId}/route/${RouteId}",
+                "ServicePrefix": "refactor-spaces",
+                "ResourceType": "route"
+            }
+        },
+        "Application": {
+            "Arn": {
+                "Value": "arn:${Partition}:refactor-spaces:${Region}:${Account}:environment/${EnvironmentId}/application/${ApplicationId}",
+                "ServicePrefix": "refactor-spaces",
+                "ResourceType": "application"
+            },
+            "NlbArn": {
+                "Value": "arn:${Partition}:elasticloadbalancing:${Region}:${Account}:loadbalancer/net/${LoadBalancerName}/${LoadBalancerId}",
+                "ServicePrefix": "elasticloadbalancing",
+                "ResourceType": "loadbalancer/net/"
+            }
+        }
+    },
+    "Evidently": {
+        "Launch": {
+            "Ref": {
+                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}/launch/${LaunchName}",
+                "ServicePrefix": "evidently",
+                "ResourceType": "launch"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}/launch/${LaunchName}",
+                "ServicePrefix": "evidently",
+                "ResourceType": "launch"
+            }
+        },
+        "Experiment": {
+            "Ref": {
+                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}/experiment/${ExperimentName}",
+                "ServicePrefix": "evidently",
+                "ResourceType": "experiment"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}/experiment/${ExperimentName}",
+                "ServicePrefix": "evidently",
+                "ResourceType": "experiment"
+            }
+        },
+        "Project": {
+            "Ref": {
+                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}",
+                "ServicePrefix": "evidently",
+                "ResourceType": "project"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}",
+                "ServicePrefix": "evidently",
+                "ResourceType": "project"
+            }
+        },
+        "Feature": {
+            "Ref": {
+                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}/feature/${FeatureName}",
+                "ServicePrefix": "evidently",
+                "ResourceType": "feature"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}/feature/${FeatureName}",
+                "ServicePrefix": "evidently",
+                "ResourceType": "feature"
+            }
+        }
+    },
+    "Rekognition": {
+        "Project": {
+            "Arn": {
+                "Value": "arn:${Partition}:rekognition:${Region}:${Account}:project/${ProjectName}/${CreationTimestamp}",
+                "ServicePrefix": "rekognition",
+                "ResourceType": "project"
+            }
+        }
+    },
+    "ResilienceHub": {
+        "App": {
+            "Ref": {
+                "Value": "arn:${Partition}:resiliencehub:${Region}:${Account}:app/${AppID}",
+                "ServicePrefix": "resiliencehub",
+                "ResourceType": "application"
+            },
+            "AppArn": {
+                "Value": "arn:${Partition}:resiliencehub:${Region}:${Account}:app/${AppID}",
+                "ServicePrefix": "resiliencehub",
+                "ResourceType": "application"
+            }
+        },
+        "ResiliencyPolicy": {
+            "Ref": {
+                "Value": "arn:${Partition}:resiliencehub:${Region}:${Account}:resiliency-policy/${ResiliencyPolicyID}",
+                "ServicePrefix": "resiliencehub",
+                "ResourceType": "resiliency-policy"
+            },
+            "PolicyArn": {
+                "Value": "arn:${Partition}:resiliencehub:${Region}:${Account}:resiliency-policy/${ResiliencyPolicyID}",
+                "ServicePrefix": "resiliencehub",
+                "ResourceType": "resiliency-policy"
             }
         }
     }
