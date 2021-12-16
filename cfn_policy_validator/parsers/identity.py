@@ -136,7 +136,9 @@ class RoleParser:
 			if role.RoleName == name:
 				return role
 
-		raise ApplicationError(f'Could not find role with name: {name}')
+		# this means that it the template is referencing a role external to the template,
+		# but we still want to validate policies in the template
+		return None
 
 	def parse(self, resource_name, resource):
 		evaluated_resource = resource.eval(roles_schema)
@@ -174,7 +176,9 @@ class UserParser:
 			if user.UserName == name:
 				return user
 
-		raise ApplicationError(f'Could not find referenced user with name: {name}')
+		# this means that it the template is referencing a role external to the template,
+		# but we still want to validate policies in the template
+		return None
 
 	def parse(self, resource_name, resource):
 		evaluated_resource = resource.eval(users_schema)
@@ -209,7 +213,9 @@ class GroupParser:
 			if group.GroupName == name:
 				return group
 
-		raise ApplicationError(f'Could not find referenced user with name: {name}')
+		# this means that it the template is referencing a role external to the template,
+		# but we still want to validate policies in the template
+		return None
 
 	def parse(self, resource_name, resource):
 		evaluated_resource = resource.eval(groups_schema)
@@ -273,21 +279,24 @@ class PolicyParser(ABC):
 		roles_to_apply_policy = properties.get('Roles', [])
 		for role_name in roles_to_apply_policy:
 			referenced_role = RoleParser.get_role_by(role_name)
-			referenced_role.add_policy(policy)
+			if referenced_role is not None:
+				referenced_role.add_policy(policy)
 
 	@staticmethod
 	def parse_users(policy, properties):
 		users_to_apply_policy = properties.get('Users', [])
 		for user_name in users_to_apply_policy:
 			referenced_user = UserParser.get_user_by(user_name)
-			referenced_user.add_policy(policy)
+			if referenced_user is not None:
+				referenced_user.add_policy(policy)
 
 	@staticmethod
 	def parse_groups(policy, properties):
 		groups_to_apply_policy = properties.get('Groups', [])
 		for group_name in groups_to_apply_policy:
 			referenced_group = GroupParser.get_group_by(group_name)
-			referenced_group.add_policy(policy)
+			if referenced_group is not None:
+				referenced_group.add_policy(policy)
 
 
 class InlinePolicyParser(PolicyParser):
@@ -331,6 +340,7 @@ class ManagedPolicyParser(PolicyParser):
 
 		policy = Policy(policy_name, policy_document, path)
 
+		# attempt to see if this managed policy is attached to any roles, users or groups in the template
 		self.parse_roles(policy, properties)
 		self.parse_users(policy, properties)
 		self.parse_groups(policy, properties)

@@ -314,6 +314,114 @@ class WhenParsingAManagedPolicyThatIsNotAttached(IdentityParserTest):
 		self.assertEqual(sample_policy_a, policy.Policy)
 
 
+class WhenParsingAManagedPolicyThatIsAttachedToAnExternalRole(IdentityParserTest):
+	@mock_identity_parser_setup()
+	def test_returns_an_orphaned_policy(self):
+		template = load({
+			'Parameters': {
+				'RoleA': {},
+				'RoleB': {}
+			},
+			'Resources': {
+				'ManagedPolicy': {
+					'Type': 'AWS::IAM::ManagedPolicy',
+					'Properties': {
+						'ManagedPolicyName': 'MyManagedPolicy',
+						'Path': '/my/custom/path',
+						'PolicyDocument': copy.deepcopy(sample_policy_a),
+						'Roles': [
+							{'Ref': 'RoleA'},
+							{'Ref': 'RoleB'}
+						]
+					}
+				}
+			}
+		}, {
+			'RoleA': 'MyRoleA',
+			'RoleB': 'MyRoleB'
+		})
+
+		self.parse(template, account_config)
+		self.assertResults(number_of_orphaned_policies=1)
+
+		policy = self.orphaned_policies[0]
+		self.assertEqual("MyManagedPolicy", policy.Name)
+		self.assertEqual("/my/custom/path", policy.Path)
+		self.assertEqual(sample_policy_a, policy.Policy)
+
+
+class WhenParsingAManagedPolicyThatIsAttachedToAnExternalUser(IdentityParserTest):
+	@mock_identity_parser_setup()
+	def test_returns_an_orphaned_policy(self):
+		template = load({
+			'Parameters': {
+				'UserA': {},
+				'UserB': {}
+			},
+			'Resources': {
+				'ManagedPolicy': {
+					'Type': 'AWS::IAM::ManagedPolicy',
+					'Properties': {
+						'ManagedPolicyName': 'MyManagedPolicy',
+						'Path': '/my/custom/path',
+						'PolicyDocument': copy.deepcopy(sample_policy_a),
+						'Users': [
+							{'Ref': 'UserA'},
+							{'Ref': 'UserB'}
+						]
+					}
+				}
+			}
+		}, {
+			'UserA': 'MyUserA',
+			'UserB': 'MyUserB'
+		})
+
+		self.parse(template, account_config)
+		self.assertResults(number_of_orphaned_policies=1)
+
+		policy = self.orphaned_policies[0]
+		self.assertEqual("MyManagedPolicy", policy.Name)
+		self.assertEqual("/my/custom/path", policy.Path)
+		self.assertEqual(sample_policy_a, policy.Policy)
+
+
+class WhenParsingAManagedPolicyThatIsAttachedToAnExternalGroup(IdentityParserTest):
+	@mock_identity_parser_setup()
+	def test_returns_an_orphaned_policy(self):
+		template = load({
+			'Parameters': {
+				'GroupA': {},
+				'GroupB': {}
+			},
+			'Resources': {
+				'ManagedPolicy': {
+					'Type': 'AWS::IAM::ManagedPolicy',
+					'Properties': {
+						'ManagedPolicyName': 'MyManagedPolicy',
+						'Path': '/my/custom/path',
+						'PolicyDocument': copy.deepcopy(sample_policy_a),
+						'Groups': [
+							{'Ref': 'GroupA'},
+							{'Ref': 'GroupB'}
+						]
+					}
+				}
+			}
+		}, {
+			'GroupA': 'MyGroupA',
+			'GroupB': 'MyGroupB'
+		})
+
+		self.parse(template, account_config)
+		self.assertResults(number_of_orphaned_policies=1)
+
+		policy = self.orphaned_policies[0]
+		self.assertEqual("MyManagedPolicy", policy.Name)
+		self.assertEqual("/my/custom/path", policy.Path)
+		self.assertEqual(sample_policy_a, policy.Policy)
+
+
 class WhenParsingAManagedPolicyThatIsNotAttachedWithNoNameOrPath(IdentityParserTest):
 	@mock_identity_parser_setup()
 	def test_returns_a_user_and_policy(self):
