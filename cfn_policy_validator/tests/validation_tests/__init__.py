@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from unittest.mock import ANY
 
 from cfn_policy_validator.tests.boto_mocks import mock_test_setup, BotoResponse
 
@@ -54,23 +55,30 @@ class FINDING_TYPE:
 
 
 class MockValidationResult:
-	def __init__(self, expected_params_create_access_preview=None):
+	def __init__(self, expected_params_create_access_preview=None, expected_params_validate_policy=None):
 		self.expected_params_create_access_preview = expected_params_create_access_preview
+		self.expected_params_validate_policy = expected_params_validate_policy
 
 	def get_validate_resource_policy_response(self):
+		expected_params = self.__get_expected_params_for_validate_policy('RESOURCE_POLICY')
+
 		return BotoResponse(
 			method='validate_policy',
 			service_response={
 				'findings': []
-			}
+			},
+			expected_params=expected_params
 		)
 
 	def get_validate_identity_policy_response(self):
+		expected_params = self.__get_expected_params_for_validate_policy('IDENTITY_POLICY')
+
 		return BotoResponse(
 			method='validate_policy',
 			service_response={
 				'findings': []
-			}
+			},
+			expected_params=expected_params
 		)
 
 	def get_create_access_preview_response(self, access_preview_id):
@@ -112,10 +120,33 @@ class MockValidationResult:
 			}
 		)
 
+	def __get_expected_params_for_validate_policy(self, default_policy_type):
+		if self.expected_params_validate_policy is None:
+			return {
+				'policyType': default_policy_type,
+				'policyDocument': ANY
+			}
+		else:
+			return self.expected_params_validate_policy
+
 
 class MockAccessPreviewFinding(MockValidationResult):
+	def __init__(self, source_type=None, custom_validate_policy_type=None):
+		self.source_type = source_type
+
+		if custom_validate_policy_type is not None:
+			expected_params_validate_policy = {
+				'policyType': 'RESOURCE_POLICY',
+				'policyDocument': ANY,
+				'validatePolicyResourceType': custom_validate_policy_type
+			}
+		else:
+			expected_params_validate_policy = None
+
+		super(MockAccessPreviewFinding, self).__init__(expected_params_validate_policy=expected_params_validate_policy)
+
 	def get_list_access_preview_findings_response(self, access_preview_id):
-		return BotoResponse(
+		response = BotoResponse(
 			method='list_access_preview_findings',
 			service_response={
 				'findings':  [{
@@ -133,14 +164,28 @@ class MockAccessPreviewFinding(MockValidationResult):
 			}
 		)
 
+		if self.source_type is not None:
+			response.service_response['findings'][0]['sources'] = [{'type': self.source_type}]
+
+		return response
+
 
 class MockValidateResourcePolicyFinding(MockValidationResult):
-	def __init__(self, code, finding_type='ERROR'):
+	def __init__(self, code, finding_type='ERROR', custom_resource_type=None):
 		super(MockValidateResourcePolicyFinding, self).__init__()
 		self.code = code
 		self.finding_type = finding_type
+		self.custom_resource_type = custom_resource_type
 
 	def get_validate_resource_policy_response(self):
+		expected_params = {
+			'policyType': 'RESOURCE_POLICY',
+			'policyDocument': ANY
+		}
+
+		if self.custom_resource_type is not None:
+			expected_params['validatePolicyResourceType'] = self.custom_resource_type
+
 		return BotoResponse(
 			method='validate_policy',
 			service_response={
@@ -151,7 +196,8 @@ class MockValidateResourcePolicyFinding(MockValidationResult):
 					'learnMoreLink': 'link',
 					'locations': []
 				}]
-			}
+			},
+			expected_params=expected_params
 		)
 
 
@@ -190,8 +236,17 @@ class MockValidateIdentityAndResourcePolicyFinding(MockValidationResult):
 
 
 class MockNoFindings(MockValidationResult):
-	def __init__(self, expected_params_create_access_preview=None):
-		super(MockNoFindings, self).__init__(expected_params_create_access_preview)
+	def __init__(self, expected_params_create_access_preview=None, custom_validate_policy_type=None):
+		if custom_validate_policy_type is not None:
+			expected_params_validate_policy = {
+				'policyType': 'RESOURCE_POLICY',
+				'policyDocument': ANY,
+				'validatePolicyResourceType': custom_validate_policy_type
+			}
+		else:
+			expected_params_validate_policy = None
+
+		super(MockNoFindings, self).__init__(expected_params_create_access_preview, expected_params_validate_policy)
 
 
 class MockUnknownError(MockValidationResult):

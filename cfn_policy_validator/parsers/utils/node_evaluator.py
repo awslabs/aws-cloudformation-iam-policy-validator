@@ -119,7 +119,7 @@ class NodeEvaluator:
                 copy_of_visited_values = copy.deepcopy(visited_values)
                 value[key] = self.eval(value[key], resource_properties_to_eval, copy_of_visited_values)
 
-            return value
+            return dict(value)
 
         else:
             return value

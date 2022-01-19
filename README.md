@@ -107,6 +107,8 @@ Parses IAM identity-based and resource-based policies from AWS CloudFormation te
 | AWS::Lambda::Permission      | x                  | |
 | AWS::Lambda::LayerVersionPermission | x           | |
 | AWS::S3::BucketPolicy        | x                  | x |
+| AWS::S3::AccessPoint         | x                  | x |
+| AWS::S3::MultiRegionAccessPoint | x | x |
 | AWS::SQS::QueuePolicy        | x                  | x |
 | AWS::SNS::TopicPolicy        | x                  | |
 | AWS::SecretsManager::ResourcePolicy | x           | |
@@ -143,7 +145,7 @@ Notes:
 
 ### Credentials
 
-The cfn-policy-validator uses boto3 to interact with your AWS environment. You can use one of the following methods to specify credentials:
+The cfn-policy-validator should be run using credentials from the AWS account that you plan to deploy the CloudFormation template to. The tool uses boto3 to interact with your AWS account. You can use one of the following methods to specify credentials:
 
 - Environment variables
 - Shared credential file (~/.aws/credentials)

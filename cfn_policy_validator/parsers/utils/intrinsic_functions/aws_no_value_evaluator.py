@@ -19,7 +19,7 @@ class AwsNoValueEvaluator:
 	is also removed.
 	"""
 	def evaluate(self, value):
-		if isinstance(value, CfnObject):
+		if isinstance(value, dict):
 			for key in list(value.keys()):
 				child_value = value[key]
 				if isinstance(child_value, NoValue):

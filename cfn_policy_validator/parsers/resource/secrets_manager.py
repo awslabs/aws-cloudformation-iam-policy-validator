@@ -22,7 +22,7 @@ class SecretsManagerPolicyParser:
         try:
             secret_name = secret_arn.split("secret:", 1)[1]
         except IndexError:
-            raise ApplicationError(f'Invalid value for {properties.ancestors_as_string()}.SecretId. Must be a valid Secret ARN. SecretId value: {secret_arn}')
+            raise ApplicationError(f'Invalid value for {resource.ancestors_as_string()}.Properties.SecretId. Must be a valid Secret ARN. SecretId value: {secret_arn}')
 
         policy = Policy('ResourcePolicy', policy_document)
         resource = Resource(secret_name, 'AWS::SecretsManager::Secret', policy)

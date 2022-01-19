@@ -5,7 +5,8 @@ SPDX-License-Identifier: MIT-0
 import logging
 
 from cfn_policy_validator.parsers.resource.kms import KmsKeyPolicyParser
-from cfn_policy_validator.parsers.resource.s3 import S3BucketPolicyParser
+from cfn_policy_validator.parsers.resource.s3 import S3BucketPolicyParser, S3AccessPointPolicyParser, \
+    S3MultiRegionAccessPointPolicyParser
 from cfn_policy_validator.parsers.resource.sns import SnsTopicPolicyParser
 from cfn_policy_validator.parsers.resource.sqs import SqsQueuePolicyParser
 from cfn_policy_validator.parsers.resource.lambda_aws import LambdaPermissionPolicyParser, LambdaLayerVersionPermissionParser
@@ -30,6 +31,8 @@ class ResourceParser:
         sorted_resources = sorter.sort_resources()
 
         parsers = {
+            'AWS::S3::AccessPoint': S3AccessPointPolicyParser(),
+            'AWS::S3::MultiRegionAccessPointPolicy': S3MultiRegionAccessPointPolicyParser(),
             'AWS::S3::BucketPolicy': S3BucketPolicyParser(),
             'AWS::SQS::QueuePolicy': SqsQueuePolicyParser(),
             'AWS::SNS::TopicPolicy': SnsTopicPolicyParser(),

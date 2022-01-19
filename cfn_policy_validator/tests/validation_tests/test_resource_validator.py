@@ -431,8 +431,8 @@ s3_bucket_invalid_policy = {
 
 class WhenValidatingS3BucketPolicy(BaseResourcePolicyTest):
 	@mock_access_analyzer_resource_setup(
-		MockAccessPreviewFinding(),
-		MockAccessPreviewFinding()
+		MockAccessPreviewFinding(custom_validate_policy_type='AWS::S3::Bucket'),
+		MockAccessPreviewFinding(custom_validate_policy_type='AWS::S3::Bucket')
 	)
 	def test_with_s3_bucket_policy_that_allows_external_access(self):
 		self.add_resources_to_output('AWS::S3::Bucket',
@@ -455,8 +455,8 @@ class WhenValidatingS3BucketPolicy(BaseResourcePolicyTest):
 		)
 
 	@mock_access_analyzer_resource_setup(
-		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION),
-		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION)
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION, custom_resource_type='AWS::S3::Bucket'),
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION, custom_resource_type='AWS::S3::Bucket')
 	)
 	def test_with_s3_bucket_policy_with_findings(self):
 		self.add_resources_to_output('AWS::S3::Bucket',
@@ -479,8 +479,8 @@ class WhenValidatingS3BucketPolicy(BaseResourcePolicyTest):
 		)
 
 	@mock_access_analyzer_resource_setup(
-		MockNoFindings(),
-		MockNoFindings()
+		MockNoFindings(custom_validate_policy_type='AWS::S3::Bucket'),
+		MockNoFindings(custom_validate_policy_type='AWS::S3::Bucket')
 	)
 	def test_with_s3_bucket_policy_with_no_findings(self):
 		self.add_resources_to_output('AWS::S3::Bucket',

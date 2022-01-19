@@ -284,7 +284,6 @@ class WhenValidatingRoles(unittest.TestCase):
 		findings = validate_parser_output(self.output)
 		self.assert_has_findings(findings)
 
-
 	@mock_access_analyzer_role_setup(
 		MockValidateIdentityAndResourcePolicyFinding(
 			resource_code='EMPTY_OBJECT_PRINCIPAL', resource_finding_type=FINDING_TYPE.SUGGESTION,

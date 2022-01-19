@@ -96,10 +96,12 @@ class WhenParsingATemplateAsCLI(ParsingTest):
         self.assert_permission_set(permission_set_name='MyPermissionSet', number_of_policies=3)
 
         resources = self.output['Resources']
-        self.assertEqual(3, len(resources))
+        self.assertEqual(5, len(resources))
         self.assert_resource(resource_name='MyQueue', resource_type='AWS::SQS::Queue')
         self.assert_resource(resource_name='prod-app-artifacts', resource_type='AWS::S3::Bucket')
         self.assert_resource(resource_name='MySecret', resource_type='AWS::SecretsManager::Secret')
+        self.assert_resource(resource_name='MyAccessPoint', resource_type='AWS::S3::AccessPoint')
+        self.assert_resource(resource_name='MyMultiRegionAccessPoint', resource_type='AWS::S3::MultiRegionAccessPoint')
 
         policies = self.output['OrphanedPolicies']
         self.assertEqual(1, len(policies))
@@ -139,13 +141,15 @@ class WhenValidatingATemplateAsCLI(ValidationTest):
         self.assert_warning('WARNING', 'MISSING_VERSION', 'prod-app-artifacts', 'BucketPolicy')
         self.assert_warning('WARNING', 'MISSING_VERSION', 'MyQueue', 'QueuePolicy')
 
-        self.assertEqual(6, len(self.output['BlockingFindings']))
+        self.assertEqual(8, len(self.output['BlockingFindings']))
         self.assert_error('ERROR', 'MISSING_ARN_FIELD', 'CodePipelineServiceRole', 'root')
         self.assert_error('ERROR', 'MISSING_PRINCIPAL', 'MyQueue', 'QueuePolicy')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'CodePipelineServiceRole', 'root')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'MyIAMGroup', 'root')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'MyPermissionSet', 'InlinePolicy')
         self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'prod-app-artifacts', 'BucketPolicy')
+        self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'MyAccessPoint', 'AccessPointPolicy')
+        self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'MyMultiRegionAccessPoint', 'MultiRegionAccessPointPolicy')
 
 
 class WhenParsingArgumentsForVersion(unittest.TestCase):

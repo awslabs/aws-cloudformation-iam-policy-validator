@@ -60,6 +60,39 @@ Resources:
                 - "arn:aws:iam::111222333444:role/MyOtherRole"
                 - "arn:aws:iam::123456789123:role/MyOtherRole"
 
+  ArtifactBucketAccessPoint:
+    Type: AWS::S3::AccessPoint
+    Properties:
+      Bucket: !Ref ArtifactBucket
+      Name: MyAccessPoint
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - 's3:GetObject'
+            Effect: Allow
+            Resource: !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/MyAccessPoint/object/*'
+            Principal:
+              AWS:
+                - "arn:aws:iam::111222333444:role/MyOtherRole"
+                - "arn:aws:iam::123456789123:role/MyOtherRole"
+
+  ArtifactBucketMRAccessPoint:
+    Type: AWS::S3::MultiRegionAccessPointPolicy
+    Properties:
+      MrapName: MyMultiRegionAccessPoint
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - 's3:GetObject'
+            Effect: Allow
+            Resource: !Sub 'arn:aws:s3::${AWS::AccountId}:accesspoint/MyAccessPoint.mrap/object/*'
+            Principal:
+              AWS:
+                - "arn:aws:iam::111222333444:role/MyOtherRole"
+                - "arn:aws:iam::123456789123:role/MyOtherRole"
+
   CodePipelineServiceRole:
     Type: AWS::IAM::Role
     Properties:

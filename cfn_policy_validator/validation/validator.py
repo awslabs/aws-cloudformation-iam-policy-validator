@@ -2,13 +2,16 @@
 Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: MIT-0
 """
+import copy
 import json
 import logging
+import re
 import time
+import uuid
 
 from cfn_policy_validator import client
 from cfn_policy_validator.validation.findings import Findings
-from cfn_policy_validator.validation import default_to_json
+from cfn_policy_validator.validation import default_to_json, InvalidPolicyException
 from cfn_policy_validator.validation.reporter import Reporter
 from cfn_policy_validator.application_error import ApplicationError
 
@@ -51,15 +54,27 @@ class Validator:
 
 		self.client = client.build('accessanalyzer', region)
 
-		# config builders are used to build the access preview configuration for an individual resource type
-		# a config builder must be added to add support for access previews for a resource
-		self.config_builders = {
-			'AWS::SQS::Queue': SqsQueueConfigurationBuilder(account_id, region, partition),
-			'AWS::KMS::Key': KmsKeyConfigurationBuilder(account_id, region, partition),
-			'AWS::S3::Bucket': S3BucketConfigurationBuilder(partition),
-			'AWS::IAM::Role::TrustPolicy': RoleTrustPolicyConfigurationBuilder(account_id, partition),
-			'AWS::SecretsManager::Secret': SecretsManagerSecretConfigurationBuilder(account_id, region, partition)
+		# preview builders are used to build the access preview configuration for an individual resource type
+		# a preview builder must be added to add support for access previews for a given resource
+		self.preview_builders = {
+			'AWS::SQS::Queue': SqsQueuePreviewBuilder(account_id, region, partition),
+			'AWS::KMS::Key': KmsKeyPreviewBuilder(account_id, region, partition),
+			'AWS::S3::AccessPoint': S3SingleRegionAccessPointPreviewBuilder(account_id, region, partition),
+			'AWS::S3::MultiRegionAccessPoint': S3MultiRegionAccessPointPreviewBuilder(account_id, partition),
+			'AWS::S3::Bucket': S3BucketPreviewBuilder(partition),
+			'AWS::IAM::Role::TrustPolicy': RoleTrustPolicyPreviewBuilder(account_id, partition),
+			'AWS::SecretsManager::Secret': SecretsManagerSecretPreviewBuilder(account_id, region, partition)
 		}
+
+		# maps the resource type to the parameter for validate_policy that enables service specific policy validation
+		# not all services have service specific policy validation.  The names may be identical for now, but we don't
+		# want to rely on that
+		self.service_specific_policy_validation = {
+			'AWS::S3::Bucket': 'AWS::S3::Bucket',
+			'AWS::S3::AccessPoint': 'AWS::S3::AccessPoint',
+			'AWS::S3::MultiRegionAccessPoint': 'AWS::S3::MultiRegionAccessPoint'
+		}
+
 		self.maximum_number_of_access_preview_attempts = 150
 		self._try_create_analyzer()
 
@@ -80,8 +95,7 @@ class Validator:
 			self.findings.add_validation_finding(validation_findings, role.RoleName, 'TrustPolicy')
 
 			# use access previews to validate a role's trust policy
-			preview_id = self.__validate_role_trust_policy(role)
-			preview = Preview(preview_id, role, role.RoleName, validation_findings)
+			preview = self.__validate_role_trust_policy(role, validation_findings)
 			previews_to_await.append(preview)
 
 			# validate identity policies attached to the role
@@ -98,9 +112,9 @@ class Validator:
 		for access_preview_finding in access_preview_findings:
 			self.findings.add_trust_policy_finding(access_preview_finding.findings, access_preview_finding.resource.RoleName)
 
-	def __validate_role_trust_policy(self, role):
-		config_builder = self.config_builders['AWS::IAM::Role::TrustPolicy']
-		configuration = config_builder.build_configuration(role)
+	def __validate_role_trust_policy(self, role, validation_findings):
+		preview_builder = self.preview_builders['AWS::IAM::Role::TrustPolicy']
+		configuration = preview_builder.build_configuration(role)
 
 		LOGGER.info(f'Creating access preview with configuration {configuration}')
 		response = self.client.create_access_preview(
@@ -108,7 +122,7 @@ class Validator:
 			configurations=configuration
 		)
 		LOGGER.info(f'CreateAccessPreview response: {response}')
-		return response['id']
+		return PreviewAwaitingResponse(response['id'], role, role.RoleName, validation_findings)
 
 	def validate_policies(self, policies):
 		"""
@@ -175,18 +189,32 @@ class Validator:
 			# we want to run validate_policy on all resource policies regardless of if they are supported policies
 			# for access previews
 			LOGGER.info(f'Validating resource policy for resource {resource.ResourceName} of type {resource.ResourceType}')
-			response = self.client.validate_policy(
-				policyType='RESOURCE_POLICY',
-				policyDocument=json.dumps(resource.Policy.Policy)
-			)
+
+			validate_policy_resource_type = self.service_specific_policy_validation.get(resource.ResourceType)
+			if validate_policy_resource_type is None:
+				response = self.client.validate_policy(
+					policyType='RESOURCE_POLICY',
+					policyDocument=json.dumps(resource.Policy.Policy)
+				)
+			else:
+				LOGGER.info(f'Running service specific policy validation for {validate_policy_resource_type}')
+				response = self.client.validate_policy(
+					policyType='RESOURCE_POLICY',
+					policyDocument=json.dumps(resource.Policy.Policy),
+					validatePolicyResourceType=validate_policy_resource_type
+				)
+
 			LOGGER.info(f'ValidatePolicy response {response}')
 			validation_findings = response['findings']
 			self.findings.add_validation_finding(validation_findings, resource.ResourceName, resource.Policy.Name)
 
 			# only supported policies for access previews will have config builders
-			config_builder = self.config_builders.get(resource.ResourceType)
-			if config_builder is not None:
-				configuration = config_builder.build_configuration(resource)
+			preview_builder = self.preview_builders.get(resource.ResourceType)
+			if preview_builder is not None:
+				try:
+					configuration = preview_builder.build_configuration(resource)
+				except InvalidPolicyException as e:
+					self._raise_invalid_configuration_error_for(resource.ResourceName, validation_findings, e.to_string())
 
 				LOGGER.info(f'Creating access preview for resource {resource.ResourceName} of type {resource.ResourceType}')
 				LOGGER.info(f'Using access preview configuration: {configuration}')
@@ -195,7 +223,7 @@ class Validator:
 					configurations=configuration
 				)
 				LOGGER.info(f'CreateAccessPreview response: {response}')
-				preview = Preview(response['id'], resource, resource.ResourceName, validation_findings)
+				preview = PreviewAwaitingResponse(response['id'], resource, resource.ResourceName, validation_findings)
 				previews_to_await.append(preview)
 
 		# batch and wait for all access previews to complete
@@ -233,7 +261,7 @@ class Validator:
 			if status == 'FAILED':
 				reason = response["accessPreview"]["statusReason"]["code"]
 				if reason == 'INVALID_CONFIGURATION':
-					self._raise_invalid_configuration_error_for(preview)
+					self._raise_invalid_configuration_error_for(preview.name, preview.validation_findings)
 
 				raise ApplicationError(f'Failed to create access preview for {preview.name}.  Reason: {reason}')
 
@@ -242,6 +270,19 @@ class Validator:
 				findings.append(AccessPreviewFindings(preview.resource, page['findings']))
 
 		return findings
+
+	@staticmethod
+	def _filter_findings_for_source_type(raw_findings, desired_source_type):
+		filtered_findings = []
+		for raw_finding in raw_findings:
+			sources = raw_finding.get('sources')
+			if sources is None:
+				continue
+
+			if any([source for source in sources if source.get('type') == desired_source_type]):
+				filtered_findings.append(raw_finding)
+
+		return filtered_findings
 
 	def _try_create_analyzer(self):
 		if self.analyzer_arn is not None:
@@ -264,14 +305,17 @@ class Validator:
 		self.analyzer_arn = response['arn']
 
 	@staticmethod
-	def _raise_invalid_configuration_error_for(preview):
+	def _raise_invalid_configuration_error_for(resource_name, validation_findings, custom_message=None):
 		# if we get an invalid configuration error, surface the validation findings as they likely point
 		# to the issue
-		message = f'Failed to create access preview for {preview.name}.  Validate that your trust or resource policy\'s ' \
+		message = f'Failed to create access preview for {resource_name}.  Validate that your trust or resource policy\'s ' \
 				  f'schema is correct.'
-		if len(preview.validation_findings) > 0:
+		if len(validation_findings) > 0:
 			message += f'\nThe following validation findings were detected for this resource: ' \
-					   f'{json.dumps(preview.validation_findings, default=default_to_json, indent=4)}.'
+					   f'{json.dumps(validation_findings, default=default_to_json, indent=4)}.'
+
+		if custom_message is not None:
+			message += f'\nAdditional information:\n{custom_message}'
 
 		raise ApplicationError(message)
 
@@ -282,7 +326,7 @@ class AccessPreviewFindings:
 		self.findings = findings
 
 
-class Preview:
+class PreviewAwaitingResponse:
 	def __init__(self, preview_id, resource, name, validation_findings):
 		self.id = preview_id
 		self.resource = resource
@@ -290,7 +334,7 @@ class Preview:
 		self.validation_findings = validation_findings
 
 
-class SqsQueueConfigurationBuilder:
+class SqsQueuePreviewBuilder:
 	def __init__(self, account_id, region, partition):
 		self.region = region
 		self.account_id = account_id
@@ -308,7 +352,7 @@ class SqsQueueConfigurationBuilder:
 		}
 
 
-class KmsKeyConfigurationBuilder:
+class KmsKeyPreviewBuilder:
 	def __init__(self, account_id, region, partition):
 		self.account_id = account_id
 		self.region = region
@@ -328,7 +372,7 @@ class KmsKeyConfigurationBuilder:
 		}
 
 
-class S3BucketConfigurationBuilder:
+class S3BucketPreviewBuilder:
 	def __init__(self, partition):
 		self.partition = partition
 
@@ -344,7 +388,107 @@ class S3BucketConfigurationBuilder:
 		}
 
 
-class RoleTrustPolicyConfigurationBuilder:
+class S3AccessPointPreviewBuilder:
+	def __init__(self, account_id, partition, region=None):
+		self.partition = partition
+		self.account_id = account_id
+		self.region = region
+
+	def build_configuration(self, resource):
+		policy_json = resource.Policy.Policy
+		policy = json.dumps(resource.Policy.Policy)
+
+		# since we're evaluating the access point independently, the name of the bucket does not matter
+		bucket_name = str(uuid.uuid4())
+
+		bucket_policy_json = self.build_bucket_policy(bucket_name)
+		bucket_policy = json.dumps(bucket_policy_json)
+
+		access_point_arn = self.build_access_point_arn(resource.ResourceName, policy_json)
+
+		return {
+			f'arn:{self.partition}:s3:::{bucket_name}': {
+				's3Bucket': {
+					'accessPoints': {
+						access_point_arn: {
+							'accessPointPolicy': policy
+						}
+					},
+					'bucketPolicy': bucket_policy
+				}
+			}
+		}
+
+	# this bucket policy enforces that access must come through an access point so that we can evaluate the access point
+	# policy independent of the bucket policy
+	def build_bucket_policy(self, bucket_name):
+		return {
+			"Version": "2012-10-17",
+			"Statement": [
+				{
+					"Effect": "Allow",
+					"Principal": {
+						"AWS": "*"
+					},
+					"Action": "*",
+					"Resource": [
+						f"arn:aws:s3:::{bucket_name}",
+						f"arn:aws:s3:::{bucket_name}/*"
+					],
+					"Condition": {
+						"StringEquals": {
+							"s3:DataAccessPointAccount": self.account_id
+						}
+					}
+				}
+			]
+		}
+
+
+class S3MultiRegionAccessPointPreviewBuilder(S3AccessPointPreviewBuilder):
+	def __init__(self, account_id, partition):
+		super(S3MultiRegionAccessPointPreviewBuilder, self).__init__(account_id, partition)
+
+	# match the alias of the multi region access point in an access point's ARN:
+	# "arn:aws:s3::111111111111:accesspoint/MyAccessPoint.mrap/object/abc/*" would find "MyAccessPoint.mrap"
+	access_point_alias_regex = re.compile(r'arn:[^:]*:s3::[^:]*:accesspoint/([^/]*)')
+
+	def build_access_point_arn(self, access_point_name, access_point_policy):
+		error_message_prefix = f"Access point policy for {access_point_name}"
+		statements = access_point_policy.get('Statement')
+		if not isinstance(statements, list):
+			statements = [statements]
+
+		# we only need to look at the first resource in the first statement.  All statements must have resources
+		# and all resources must include the multi region access point ARN.
+		first_statement = next(iter(statements), None)
+		if not isinstance(first_statement, dict):
+			raise InvalidPolicyException(f"{error_message_prefix} has 'Statement' that is missing or is of invalid type.", access_point_policy)
+
+		resource = first_statement.get('Resource')
+		if not isinstance(resource, list):
+			resource = [resource]
+
+		resource = next(iter(resource), None)
+		if not isinstance(resource, str):
+			raise InvalidPolicyException(f"{error_message_prefix} has 'Resource' element that is missing or is of invalid type.", access_point_policy)
+
+		match = self.access_point_alias_regex.search(resource)
+		if match is None:
+			raise InvalidPolicyException(f"{error_message_prefix} has entry for 'Resource' with invalid multi-region access point ARN.", access_point_policy)
+		else:
+			return f'arn:{self.partition}:s3::{self.account_id}:accesspoint/{match.group(1)}'
+
+
+class S3SingleRegionAccessPointPreviewBuilder(S3AccessPointPreviewBuilder):
+	def __init__(self, account_id, region, partition):
+		super(S3SingleRegionAccessPointPreviewBuilder, self).__init__(account_id, partition, region)
+
+	def build_access_point_arn(self, access_point_name, _):
+		return f'arn:{self.partition}:s3:{self.region}:{self.account_id}:accesspoint/{access_point_name}'
+
+
+class RoleTrustPolicyPreviewBuilder:
 	def __init__(self, account_id, partition):
 		self.account_id = account_id
 		self.partition = partition
@@ -363,7 +507,7 @@ class RoleTrustPolicyConfigurationBuilder:
 		}
 
 
-class SecretsManagerSecretConfigurationBuilder:
+class SecretsManagerSecretPreviewBuilder:
 	def __init__(self, account_id, region, partition):
 		self.account_id = account_id
 		self.region = region
