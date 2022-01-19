@@ -2564,16 +2564,54 @@
             }
         },
         "IPAM": {
-            "Arn": null
+            "Arn": {
+                "Value": "arn:${Partition}:ec2::${Account}:ipam/${IpamId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "ipam"
+            }
         },
         "IPAMPool": {
-            "Arn": null,
-            "IpamScopeArn": null,
-            "IpamArn": null
+            "Arn": {
+                "Value": "arn:${Partition}:ec2::${Account}:ipam-pool/${IpamPoolId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "ipam-pool"
+            },
+            "IpamScopeArn": {
+                "Value": "arn:${Partition}:ec2::${Account}:ipam-scope/${IpamScopeId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "ipam-scope"
+            },
+            "IpamArn": {
+                "Value": "arn:${Partition}:ec2::${Account}:ipam/${IpamId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "ipam"
+            }
         },
         "IPAMScope": {
-            "Arn": null,
-            "IpamArn": null
+            "Arn": {
+                "Value": "arn:${Partition}:ec2::${Account}:ipam-scope/${IpamScopeId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "ipam-scope"
+            },
+            "IpamArn": {
+                "Value": "arn:${Partition}:ec2::${Account}:ipam/${IpamId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "ipam"
+            }
+        },
+        "NetworkInsightsAccessScope": {
+            "NetworkInsightsAccessScopeArn": {
+                "Value": "arn:${Partition}:ec2:${Region}:${Account}:network-insights-access-scope/${NetworkInsightsAccessScopeId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "network-insights-access-scope"
+            }
+        },
+        "NetworkInsightsAccessScopeAnalysis": {
+            "NetworkInsightsAccessScopeAnalysisArn": {
+                "Value": "arn:${Partition}:ec2:${Region}:${Account}:network-insights-access-scope-analysis/${NetworkInsightsAccessScopeAnalysisId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "network-insights-access-scope-analysis"
+            }
         }
     },
     "DevOpsGuru": {
@@ -3064,6 +3102,11 @@
                 "Value": "arn:${Partition}:geo:${Region}:${Account}:tracker/${TrackerName}",
                 "ServicePrefix": "geo",
                 "ResourceType": "tracker"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:tracker/${TrackerName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "tracker"
             }
         },
         "Map": {
@@ -3073,6 +3116,11 @@
                 "ResourceType": "map"
             },
             "Arn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:map/${MapName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "map"
+            },
+            "Ref": {
                 "Value": "arn:${Partition}:geo:${Region}:${Account}:map/${MapName}",
                 "ServicePrefix": "geo",
                 "ResourceType": "map"
@@ -3088,6 +3136,11 @@
                 "Value": "arn:${Partition}:geo:${Region}:${Account}:geofence-collection/${GeofenceCollectionName}",
                 "ServicePrefix": "geo",
                 "ResourceType": "geofence-collection"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:geofence-collection/${GeofenceCollectionName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "geofence-collection"
             }
         },
         "RouteCalculator": {
@@ -3097,6 +3150,11 @@
                 "ResourceType": "route-calculator"
             },
             "Arn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:route-calculator/${CalculatorName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "route-calculator"
+            },
+            "Ref": {
                 "Value": "arn:${Partition}:geo:${Region}:${Account}:route-calculator/${CalculatorName}",
                 "ServicePrefix": "geo",
                 "ResourceType": "route-calculator"
@@ -3112,6 +3170,18 @@
                 "Value": "arn:${Partition}:geo:${Region}:${Account}:place-index/${IndexName}",
                 "ServicePrefix": "geo",
                 "ResourceType": "place-index"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:place-index/${IndexName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "place-index"
+            }
+        },
+        "TrackerConsumer": {
+            "Ref": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:geofence-collection/${GeofenceCollectionName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "geofence-collection"
             }
         }
     },
@@ -3176,6 +3246,34 @@
                 "Value": "arn:${Partition}:lightsail:${Region}:${Account}:StaticIp/${Id}",
                 "ServicePrefix": "lightsail",
                 "ResourceType": "static-ip"
+            }
+        },
+        "LoadBalancer": {
+            "LoadBalancerArn": {
+                "Value": "arn:${Partition}:lightsail:${Region}:${Account}:LoadBalancer/${Id}",
+                "ServicePrefix": "lightsail",
+                "ResourceType": "load-balancer"
+            }
+        },
+        "Bucket": {
+            "BucketArn": {
+                "Value": "arn:${Partition}:lightsail:${Region}:${Account}:Bucket/${Id}",
+                "ServicePrefix": "lightsail",
+                "ResourceType": "bucket"
+            }
+        },
+        "Alarm": {
+            "AlarmArn": {
+                "Value": "arn:${Partition}:lightsail:${Region}:${Account}:Alarm/${Id}",
+                "ServicePrefix": "lightsail",
+                "ResourceType": "alarm"
+            }
+        },
+        "LoadBalancerTlsCertificate": {
+            "LoadBalancerTlsCertificateArn": {
+                "Value": "arn:${Partition}:lightsail:${Region}:${Account}:LoadBalancerTlsCertificate/${Id}",
+                "ServicePrefix": "lightsail",
+                "ResourceType": "load-balancer-tls-certificate"
             }
         }
     },
@@ -3391,6 +3489,52 @@
                 "Value": "arn:${Partition}:resiliencehub:${Region}:${Account}:resiliency-policy/${ResiliencyPolicyID}",
                 "ServicePrefix": "resiliencehub",
                 "ResourceType": "resiliency-policy"
+            }
+        }
+    },
+    "KinesisVideo": {
+        "Stream": {
+            "Arn": {
+                "Value": "arn:${Partition}:kinesisvideo:${Region}:${Account}:stream/${StreamName}/${CreationTime}",
+                "ServicePrefix": "kinesisvideo",
+                "ResourceType": "stream"
+            }
+        },
+        "SignalingChannel": {
+            "Arn": {
+                "Value": "arn:${Partition}:kinesisvideo:${Region}:${Account}:channel/${ChannelName}/${CreationTime}",
+                "ServicePrefix": "kinesisvideo",
+                "ResourceType": "channel"
+            }
+        }
+    },
+    "Forecast": {
+        "DatasetGroup": {
+            "DatasetGroupArn": {
+                "Value": "arn:${Partition}:forecast:${Region}:${Account}:dataset-group/${ResourceId}",
+                "ServicePrefix": "forecast",
+                "ResourceType": "dataset-group"
+            }
+        },
+        "Dataset": {
+            "Arn": {
+                "Value": "arn:${Partition}:forecast:${Region}:${Account}:dataset/${ResourceId}",
+                "ServicePrefix": "forecast",
+                "ResourceType": "dataset"
+            }
+        }
+    },
+    "InspectorV2": {
+        "Filter": {
+            "Ref": {
+                "Value": "arn:${Partition}:inspector2:${Region}:${Account}:owner/${OwnerId}/filter/${FilterId}",
+                "ServicePrefix": "inspector2",
+                "ResourceType": "filter"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:inspector2:${Region}:${Account}:owner/${OwnerId}/filter/${FilterId}",
+                "ServicePrefix": "inspector2",
+                "ResourceType": "filter"
             }
         }
     }
