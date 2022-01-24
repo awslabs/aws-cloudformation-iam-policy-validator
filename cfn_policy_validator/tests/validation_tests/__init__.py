@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from unittest.mock import ANY
 
-from cfn_policy_validator.tests.boto_mocks import mock_test_setup, BotoResponse
+from cfn_policy_validator.tests.boto_mocks import mock_test_setup, BotoResponse, BotoClientError
 
 analyzer_arn = 'arn:aws:access-analyzer:us-east-1:111222333444:analyzer/MyAnalyzer'
 
@@ -308,6 +308,27 @@ class MockTimeout(MockValidationResult):
 
 	def get_list_access_preview_findings_response(self, access_preview_id):
 		return None
+
+
+class MockBadRequest(MockValidationResult):
+	def __init__(self, custom_validate_policy_type=None):
+		if custom_validate_policy_type is not None:
+			expected_params_validate_policy = {
+				'policyType': 'RESOURCE_POLICY',
+				'policyDocument': ANY,
+				'validatePolicyResourceType': custom_validate_policy_type
+			}
+		else:
+			expected_params_validate_policy = None
+
+		super(MockBadRequest, self).__init__(expected_params_validate_policy=expected_params_validate_policy)
+
+	def get_create_access_preview_response(self, access_preview_id):
+		return BotoClientError(
+			method='create_access_preview',
+			service_error_code='BadRequestException',
+			service_message='[instance failed to match exactly one schema (matched 0 out of 12)]'
+		)
 
 
 class MockInvalidConfiguration(MockValidationResult):

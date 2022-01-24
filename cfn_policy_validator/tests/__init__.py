@@ -93,17 +93,20 @@ class ParsingTest(unittest.TestCase):
 
         self.assertTrue(permission_set_exists, f'Could not find permission set with {permission_set_name}, {number_of_policies}.')
 
-    def assert_resource(self, resource_name, resource_type):
+    def assert_resource(self, resource_name, resource_type, configuration=None):
         resources = self.output['Resources']
 
-        resource_exists = any(
-            resource['ResourceName'] == resource_name and
-            resource['ResourceType'] == resource_type and
-            'Policy' in resource
-            for resource in resources
-        )
+        resource = next((resource for resource in resources if
+                        resource['ResourceName'] == resource_name and
+                        resource['ResourceType'] == resource_type and
+                        'Policy in resource'), None)
 
-        self.assertTrue(resource_exists, f'Could not find resource with {resource_name} and {resource_type}.')
+        self.assertIsNotNone(resource, f'Could not find resource with {resource_name} and {resource_type}.')
+        if configuration is None:
+            # metadata should only be visible in the output if it has a value
+            self.assertNotIn('Configuration', resource, 'Configuration found in resource and should not exist in output.')
+        else:
+            self.assertEqual(configuration, resource['Configuration'])
 
     def assert_orphaned_policy(self, policy_name):
         policies = self.output['OrphanedPolicies']

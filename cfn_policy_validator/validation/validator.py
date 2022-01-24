@@ -218,10 +218,15 @@ class Validator:
 
 				LOGGER.info(f'Creating access preview for resource {resource.ResourceName} of type {resource.ResourceType}')
 				LOGGER.info(f'Using access preview configuration: {configuration}')
-				response = self.client.create_access_preview(
-					analyzerArn=self.analyzer_arn,
-					configurations=configuration
-				)
+
+				try:
+					response = self.client.create_access_preview(
+						analyzerArn=self.analyzer_arn,
+						configurations=configuration
+					)
+				except Exception as e:
+					raise ApplicationError(f'Failed to create access preview for {resource.ResourceName}.', e)
+
 				LOGGER.info(f'CreateAccessPreview response: {response}')
 				preview = PreviewAwaitingResponse(response['id'], resource, resource.ResourceName, validation_findings)
 				previews_to_await.append(preview)
@@ -394,31 +399,6 @@ class S3AccessPointPreviewBuilder:
 		self.account_id = account_id
 		self.region = region
 
-	def build_configuration(self, resource):
-		policy_json = resource.Policy.Policy
-		policy = json.dumps(resource.Policy.Policy)
-
-		# since we're evaluating the access point independently, the name of the bucket does not matter
-		bucket_name = str(uuid.uuid4())
-
-		bucket_policy_json = self.build_bucket_policy(bucket_name)
-		bucket_policy = json.dumps(bucket_policy_json)
-
-		access_point_arn = self.build_access_point_arn(resource.ResourceName, policy_json)
-
-		return {
-			f'arn:{self.partition}:s3:::{bucket_name}': {
-				's3Bucket': {
-					'accessPoints': {
-						access_point_arn: {
-							'accessPointPolicy': policy
-						}
-					},
-					'bucketPolicy': bucket_policy
-				}
-			}
-		}
-
 	# this bucket policy enforces that access must come through an access point so that we can evaluate the access point
 	# policy independent of the bucket policy
 	def build_bucket_policy(self, bucket_name):
@@ -449,10 +429,36 @@ class S3MultiRegionAccessPointPreviewBuilder(S3AccessPointPreviewBuilder):
 	def __init__(self, account_id, partition):
 		super(S3MultiRegionAccessPointPreviewBuilder, self).__init__(account_id, partition)
 
+	def build_configuration(self, resource):
+		policy_json = resource.Policy.Policy
+		policy = json.dumps(resource.Policy.Policy)
+
+		# since we're evaluating the access point independently, the name of the bucket does not matter
+		bucket_name = str(uuid.uuid4())
+
+		bucket_policy_json = self.build_bucket_policy(bucket_name)
+		bucket_policy = json.dumps(bucket_policy_json)
+
+		access_point_arn = self.build_access_point_arn(resource.ResourceName, policy_json)
+
+		return {
+			f'arn:{self.partition}:s3:::{bucket_name}': {
+				's3Bucket': {
+					'accessPoints': {
+						access_point_arn: {
+							'accessPointPolicy': policy
+						}
+					},
+					'bucketPolicy': bucket_policy
+				}
+			}
+		}
+
 	# match the alias of the multi region access point in an access point's ARN:
 	# "arn:aws:s3::111111111111:accesspoint/MyAccessPoint.mrap/object/abc/*" would find "MyAccessPoint.mrap"
 	access_point_alias_regex = re.compile(r'arn:[^:]*:s3::[^:]*:accesspoint/([^/]*)')
 
+	# find the access point ARN from the first resource in the access point policy
 	def build_access_point_arn(self, access_point_name, access_point_policy):
 		error_message_prefix = f"Access point policy for {access_point_name}"
 		statements = access_point_policy.get('Statement')
@@ -484,9 +490,39 @@ class S3SingleRegionAccessPointPreviewBuilder(S3AccessPointPreviewBuilder):
 	def __init__(self, account_id, region, partition):
 		super(S3SingleRegionAccessPointPreviewBuilder, self).__init__(account_id, partition, region)
 
-	def build_access_point_arn(self, access_point_name, _):
-		return f'arn:{self.partition}:s3:{self.region}:{self.account_id}:accesspoint/{access_point_name}'
+	def build_configuration(self, resource):
+		policy = json.dumps(resource.Policy.Policy)
 
+		# since we're evaluating the access point independently, the name of the bucket does not matter
+		bucket_name = str(uuid.uuid4())
+
+		bucket_policy_json = self.build_bucket_policy(bucket_name)
+		bucket_policy = json.dumps(bucket_policy_json)
+
+		network_origin = {
+			'internetConfiguration': {}
+		}
+
+		if resource.Configuration is not None and 'VpcId' in resource.Configuration:
+			network_origin = {
+				'vpcConfiguration': {
+					'vpcId': resource.Configuration['VpcId']
+				}
+			}
+
+		return {
+			f'arn:{self.partition}:s3:::{bucket_name}': {
+				's3Bucket': {
+					'accessPoints': {
+						f'arn:{self.partition}:s3:{self.region}:{self.account_id}:accesspoint/{resource.ResourceName}': {
+							'accessPointPolicy': policy,
+							'networkOrigin': network_origin
+						}
+					},
+					'bucketPolicy': bucket_policy
+				}
+			}
+		}
 
 class RoleTrustPolicyPreviewBuilder:
 	def __init__(self, account_id, partition):

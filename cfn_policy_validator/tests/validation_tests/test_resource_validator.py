@@ -46,15 +46,15 @@ class BaseResourcePolicyTest(unittest.TestCase):
 	def setUp(self):
 		self.output = Output(account_config)
 
-	def add_resources_to_output(self, resource_type, resource_policy, resource_policy_2=None):
+	def add_resources_to_output(self, resource_type, resource_policy, resource_policy_2=None, configuration_1=None, configuration_2=None):
 		if resource_policy_2 is None:
 			resource_policy_2 = resource_policy
 
 		policy1 = Policy('policy1', copy.deepcopy(resource_policy))
-		resource1 = Resource('resource1', resource_type, policy1)
+		resource1 = Resource('resource1', resource_type, policy1, configuration_1)
 
 		policy2 = Policy('policy2', copy.deepcopy(resource_policy_2))
-		resource2 = Resource('resource2', resource_type, policy2)
+		resource2 = Resource('resource2', resource_type, policy2, configuration_2)
 
 		self.output.Resources = [
 			resource1,

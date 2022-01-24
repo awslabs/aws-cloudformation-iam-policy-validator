@@ -35,8 +35,13 @@ class Output:
     def default_to_json(cls, value):
         if isinstance(value, datetime.date):
             return value.isoformat()
-        else:
+
+        # allow a class to specify custom JSON serialization
+        custom_to_json = getattr(value, "custom_to_json", None)
+        if custom_to_json is None:
             return value.__dict__
+        else:
+            return custom_to_json()
 
     def __eq__(self, other):
         if not isinstance(other, Output):
@@ -180,10 +185,11 @@ class Policy:
 
 
 class Resource:
-    def __init__(self, resource_name, resource_type, policy):
+    def __init__(self, resource_name, resource_type, policy, configuration=None):
         self.ResourceName = resource_name
         self.ResourceType = resource_type
         self.Policy = policy
+        self.Configuration = configuration
 
     def __eq__(self, other):
         if not isinstance(other, Resource):
@@ -192,8 +198,16 @@ class Resource:
         names_are_equal = self.ResourceName == other.ResourceName
         types_are_equal = self.ResourceType == other.ResourceType
         policies_are_equal = self.Policy == other.Policy
+        configuration_is_equal = self.Configuration == other.Configuration
 
-        return names_are_equal and types_are_equal and policies_are_equal
+        return names_are_equal and types_are_equal and policies_are_equal and configuration_is_equal
+
+    def custom_to_json(self):
+        self_as_dict = self.__dict__
+        if self_as_dict['Configuration'] is None:
+            self_as_dict.pop('Configuration')
+
+        return self_as_dict
 
     def __lt__(self, other):
         return self.ResourceName < other.ResourceName

@@ -83,7 +83,8 @@ class WhenParsingAnS3AccessPointPolicyAndValidatingSchema(unittest.TestCase):
                 'Properties': {
                     'Bucket': 'MyBucket',
                     'Name': ['MyAccessPoint'],
-                    'Policy': build_s3_access_point_policy_with_no_reference('MyAccessPoint')
+                    'Policy': build_s3_access_point_policy_with_no_reference('MyAccessPoint'),
+                    'VpcConfiguration': {}
                 }
             }
         })
@@ -101,7 +102,8 @@ class WhenParsingAnS3AccessPointPolicyAndValidatingSchema(unittest.TestCase):
                 'Properties': {
                     'Bucket': 'MyBucket',
                     'Name': 'MyAccessPoint',
-                    'Policy': ['Invalid']
+                    'Policy': ['Invalid'],
+                    'VpcConfiguration': {}
                 }
             }
         })
@@ -110,6 +112,26 @@ class WhenParsingAnS3AccessPointPolicyAndValidatingSchema(unittest.TestCase):
             ResourceParser.parse(template, account_config)
 
         self.assertEqual(expected_type_error('ResourceA.Properties.Policy', 'object', "['Invalid']"),
+                         str(cm.exception))
+
+    @mock_node_evaluator_setup()
+    def test_with_invalid_vpc_configuration_type(self):
+        template = load_resources({
+            'ResourceA': {
+                'Type': 'AWS::S3::AccessPoint',
+                'Properties': {
+                    'Bucket': 'MyBucket',
+                    'Name': 'MyAccessPoint',
+                    'Policy': build_s3_access_point_policy_with_no_reference('MyAccessPoint'),
+                    'VpcConfiguration': ['Invalid']
+                }
+            }
+        })
+
+        with self.assertRaises(ApplicationError) as cm:
+            ResourceParser.parse(template, account_config)
+
+        self.assertEqual(expected_type_error('ResourceA.Properties.VpcConfiguration', 'object', "['Invalid']"),
                          str(cm.exception))
 
     @mock_node_evaluator_setup()
@@ -159,7 +181,10 @@ class WhenParsingAnS3AccessPointPolicy(unittest.TestCase):
                     'Properties': {
                         'Name': 'MyAccessPoint',
                         'Policy': build_s3_access_point_policy_with_no_reference('MyAccessPoint'),
-                        'Bucket': 'MyBucket'
+                        'Bucket': 'MyBucket',
+                        'VpcConfiguration': {
+                            'VpcId': 'vpc-0a53287fa4EXAMPLE'
+                        }
                     }
                 }
             }
@@ -176,6 +201,9 @@ class WhenParsingAnS3AccessPointPolicy(unittest.TestCase):
         self.assertEqual(build_s3_access_point_policy_with_no_reference('MyAccessPoint'), resource.Policy.Policy)
         self.assertEqual('/', resource.Policy.Path)
 
+        self.assertIsNotNone(resource.Configuration)
+        self.assertEqual('vpc-0a53287fa4EXAMPLE', resource.Configuration['VpcId'])
+
 
 class WhenParsingAnS3AccessPointPolicyWithReferencesInEachField(unittest.TestCase):
     # this is a test to ensure that each field is being evaluated for references in an access point
@@ -184,7 +212,8 @@ class WhenParsingAnS3AccessPointPolicyWithReferencesInEachField(unittest.TestCas
         template = load({
             'Parameters': {
                 'AccessPointName': {},
-                'MyTestRoleName': {}
+                'MyTestRoleName': {},
+                'MyVpc': {}
             },
             'Resources': {
                 'MyBucket': {
@@ -198,13 +227,19 @@ class WhenParsingAnS3AccessPointPolicyWithReferencesInEachField(unittest.TestCas
                     'Properties': {
                         'Name': {'Ref': 'AccessPointName'},
                         'Policy': build_s3_access_point_policy_with_reference('MyAccessPoint'),
-                        'Bucket': {'Ref': 'MyBucket'}
+                        'Bucket': {'Ref': 'MyBucket'},
+                        'VpcConfiguration': {
+                            'VpcId': {
+                                'Ref': 'MyVpc'
+                            }
+                        }
                     }
                 }
             }
         }, parameters={
             'AccessPointName': 'MyAccessPoint',
-            'MyTestRoleName': 'MyTestRole'
+            'MyTestRoleName': 'MyTestRole',
+            'MyVpc': 'vpc-0a53287fa4EXAMPLE'
         })
 
         resources = ResourceParser.parse(template, account_config)
@@ -221,6 +256,9 @@ class WhenParsingAnS3AccessPointPolicyWithReferencesInEachField(unittest.TestCas
         self.assertEqual('AccessPointPolicy', resource.Policy.Name)
         self.assertEqual(expected_policy, resource.Policy.Policy)
         self.assertEqual('/', resource.Policy.Path)
+
+        self.assertIsNotNone(resource.Configuration)
+        self.assertEqual('vpc-0a53287fa4EXAMPLE', resource.Configuration['VpcId'])
 
 
 class WhenParsingAnS3AccessPointPolicyWithAnImplicitAccessPointName(unittest.TestCase):
@@ -263,3 +301,33 @@ class WhenParsingAnS3AccessPointAndThereIsNoPolicy(unittest.TestCase):
 
         resources = ResourceParser.parse(template, account_config)
         self.assertEqual(len(resources), 0)
+
+
+class WhenParsingAnS3AccessPointAndThereIsNoVpcConfiguration(unittest.TestCase):
+    @mock_node_evaluator_setup()
+    def test_returns_resource_without_metadata(self):
+        template = load({
+            'Resources': {
+                'ResourceA': {
+                    'Type': 'AWS::S3::AccessPoint',
+                    'Properties': {
+                        'Name': 'MyAccessPoint',
+                        'Policy': build_s3_access_point_policy_with_no_reference('MyAccessPoint'),
+                        'Bucket': 'MyBucket'
+                    }
+                }
+            }
+        })
+
+        resources = ResourceParser.parse(template, account_config)
+        self.assertEqual(len(resources), 1)
+
+        resource = resources[0]
+        self.assertEqual("MyAccessPoint", resource.ResourceName)
+        self.assertEqual('AWS::S3::AccessPoint', resource.ResourceType)
+
+        self.assertEqual('AccessPointPolicy', resource.Policy.Name)
+        self.assertEqual(build_s3_access_point_policy_with_no_reference('MyAccessPoint'), resource.Policy.Policy)
+        self.assertEqual('/', resource.Policy.Path)
+
+        self.assertIsNone(resource.Configuration)

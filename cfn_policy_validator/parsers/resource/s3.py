@@ -59,14 +59,22 @@ class S3AccessPointPolicyParser:
         evaluated_resource = resource.eval(access_point_policy_schema)
         properties = evaluated_resource['Properties']
 
-        access_point_name = properties.get('Name', resource_name)
         policy_document = properties.get('Policy')
         if policy_document is None:
             # we don't need to parse access points that don't have policies and policy is optional
             return
 
+        access_point_name = properties.get('Name', resource_name)
+        vpc_id = properties.get('VpcConfiguration', {}).get('VpcId')
+
+        configuration = None
+        if vpc_id is not None:
+            configuration = {
+                'VpcId': vpc_id
+            }
+
         policy = Policy('AccessPointPolicy', policy_document)
-        resource = Resource(access_point_name, 'AWS::S3::AccessPoint', policy)
+        resource = Resource(access_point_name, 'AWS::S3::AccessPoint', policy, configuration)
 
         self.access_point_policies.append(resource)
 
@@ -84,6 +92,9 @@ access_point_policy_schema = {
                     'type': 'string'
                 },
                 'Policy': {
+                    'type': 'object'
+                },
+                'VpcConfiguration': {
                     'type': 'object'
                 }
             }

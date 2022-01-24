@@ -113,6 +113,9 @@
                     "Ref": "ArtifactBucket"
                 },
                 "Name": "MyAccessPoint",
+                "VpcConfiguration": {
+                    "VpcId": "vpc-6741a603"
+                },
                 "Policy": {
                     "Version": "2012-10-17",
                     "Statement": [
