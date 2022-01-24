@@ -94,23 +94,6 @@ class WhenParsingAnS3AccessPointPolicyAndValidatingSchema(unittest.TestCase):
         self.assertEqual(expected_type_error('ResourceA.Properties.Name', 'string', "['MyAccessPoint']"),  str(cm.exception))
 
     @mock_node_evaluator_setup()
-    def test_with_no_policy(self):
-        template = load_resources({
-            'ResourceA': {
-                'Type': 'AWS::S3::AccessPoint',
-                'Properties': {
-                    'Bucket': 'MyBucket',
-                    'Name': 'MyAccessPoint'
-                }
-            }
-        })
-
-        with self.assertRaises(ApplicationError) as cm:
-            ResourceParser.parse(template, account_config)
-
-        self.assertEqual(required_property_error('Policy', 'ResourceA.Properties'), str(cm.exception))
-
-    @mock_node_evaluator_setup()
     def test_with_invalid_policy_type(self):
         template = load_resources({
             'ResourceA': {
@@ -241,7 +224,6 @@ class WhenParsingAnS3AccessPointPolicyWithReferencesInEachField(unittest.TestCas
 
 
 class WhenParsingAnS3AccessPointPolicyWithAnImplicitAccessPointName(unittest.TestCase):
-    # this is a test to ensure that each field is being evaluated for references in an access point
     @mock_node_evaluator_setup()
     def test_returns_a_resource_with_references_resolved(self):
         template = load_resources({
@@ -265,3 +247,19 @@ class WhenParsingAnS3AccessPointPolicyWithAnImplicitAccessPointName(unittest.Tes
         self.assertEqual('AccessPointPolicy', resource.Policy.Name)
         self.assertEqual(expected_policy, resource.Policy.Policy)
         self.assertEqual('/', resource.Policy.Path)
+
+
+class WhenParsingAnS3AccessPointAndThereIsNoPolicy(unittest.TestCase):
+    @mock_node_evaluator_setup()
+    def test_returns_no_resources(self):
+        template = load_resources({
+            'ResourceA': {
+                'Type': 'AWS::S3::AccessPoint',
+                'Properties': {
+                    'Bucket': 'MyBucket'
+                }
+            }
+        })
+
+        resources = ResourceParser.parse(template, account_config)
+        self.assertEqual(len(resources), 0)
