@@ -96,9 +96,10 @@ class WhenParsingATemplateAsCLI(ParsingTest):
         self.assert_permission_set(permission_set_name='MyPermissionSet', number_of_policies=3)
 
         resources = self.output['Resources']
-        self.assertEqual(5, len(resources))
+        self.assertEqual(6, len(resources))
         self.assert_resource(resource_name='MyQueue', resource_type='AWS::SQS::Queue')
-        self.assert_resource(resource_name='prod-app-artifacts', resource_type='AWS::S3::Bucket')
+        self.assert_resource(resource_name='prod-app-artifacts', resource_type='AWS::S3::Bucket', configuration={'AccessControl': 'BucketOwnerFullControl'})
+        self.assert_resource(resource_name='OtherS3Bucket', resource_type='AWS::S3::Bucket', configuration={'AccessControl': 'PublicRead'})
         self.assert_resource(resource_name='MySecret', resource_type='AWS::SecretsManager::Secret')
         self.assert_resource(resource_name='MyAccessPoint', resource_type='AWS::S3::AccessPoint', configuration={'VpcId': 'vpc-6741a603'})
         self.assert_resource(resource_name='MyMultiRegionAccessPoint', resource_type='AWS::S3::MultiRegionAccessPoint')

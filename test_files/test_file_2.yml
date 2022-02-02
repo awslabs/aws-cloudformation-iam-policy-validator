@@ -19,6 +19,12 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub ${EnvironmentName}-app-artifacts
+      AccessControl: BucketOwnerFullControl
+
+  OtherS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
 
   MyTopic:
     Type: AWS::SNS::Topic

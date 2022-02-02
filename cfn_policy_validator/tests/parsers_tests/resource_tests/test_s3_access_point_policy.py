@@ -263,7 +263,7 @@ class WhenParsingAnS3AccessPointPolicyWithReferencesInEachField(unittest.TestCas
 
 class WhenParsingAnS3AccessPointPolicyWithAnImplicitAccessPointName(unittest.TestCase):
     @mock_node_evaluator_setup()
-    def test_returns_a_resource_with_references_resolved(self):
+    def test_returns_a_resource(self):
         template = load_resources({
             'ResourceA': {
                 'Type': 'AWS::S3::AccessPoint',
@@ -330,4 +330,4 @@ class WhenParsingAnS3AccessPointAndThereIsNoVpcConfiguration(unittest.TestCase):
         self.assertEqual(build_s3_access_point_policy_with_no_reference('MyAccessPoint'), resource.Policy.Policy)
         self.assertEqual('/', resource.Policy.Path)
 
-        self.assertIsNone(resource.Configuration)
+        self.assertEqual(0, len(resource.Configuration))

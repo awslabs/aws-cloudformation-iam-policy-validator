@@ -2,7 +2,7 @@
 Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: MIT-0
 """
-from cfn_policy_validator import client
+from cfn_policy_validator.canonical_user_id import get_canonical_user
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.cfn_tools.schema_validator import validate_schema
 from cfn_policy_validator.parsers.utils.cycle_detection import validate_no_cycle
@@ -77,22 +77,6 @@ class GetAttEvaluator:
 
 		# there are many return types for GetAtt, so it's the caller's responsibility to validate expected type
 		return self.node_evaluator.eval(property_value, visited_values=visited_values)
-
-
-# only look up the user id if it's requested
-canonical_user_id = None
-
-
-# Custom resolution of the canonical user which is a possible principal value for a policy
-def get_canonical_user(region):
-	global canonical_user_id
-	if canonical_user_id is not None:
-		return canonical_user_id
-
-	s3_client = client.build('s3', region)
-	response = s3_client.list_buckets()
-	canonical_user_id = response['Owner']['ID']
-	return canonical_user_id
 
 
 get_att_schema = {

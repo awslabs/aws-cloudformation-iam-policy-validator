@@ -2,14 +2,13 @@
 Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: MIT-0
 """
-import copy
 import json
 import logging
 import re
 import time
 import uuid
 
-from cfn_policy_validator import client
+from cfn_policy_validator.canonical_user_id import client, get_canonical_user
 from cfn_policy_validator.validation.findings import Findings
 from cfn_policy_validator.validation import default_to_json, InvalidPolicyException
 from cfn_policy_validator.validation.reporter import Reporter
@@ -61,7 +60,7 @@ class Validator:
 			'AWS::KMS::Key': KmsKeyPreviewBuilder(account_id, region, partition),
 			'AWS::S3::AccessPoint': S3SingleRegionAccessPointPreviewBuilder(account_id, region, partition),
 			'AWS::S3::MultiRegionAccessPoint': S3MultiRegionAccessPointPreviewBuilder(account_id, partition),
-			'AWS::S3::Bucket': S3BucketPreviewBuilder(partition),
+			'AWS::S3::Bucket': S3BucketPreviewBuilder(region, partition),
 			'AWS::IAM::Role::TrustPolicy': RoleTrustPolicyPreviewBuilder(account_id, partition),
 			'AWS::SecretsManager::Secret': SecretsManagerSecretPreviewBuilder(account_id, region, partition)
 		}
@@ -186,27 +185,31 @@ class Validator:
 		"""
 		previews_to_await = []
 		for resource in resources:
-			# we want to run validate_policy on all resource policies regardless of if they are supported policies
-			# for access previews
-			LOGGER.info(f'Validating resource policy for resource {resource.ResourceName} of type {resource.ResourceType}')
-
-			validate_policy_resource_type = self.service_specific_policy_validation.get(resource.ResourceType)
-			if validate_policy_resource_type is None:
-				response = self.client.validate_policy(
-					policyType='RESOURCE_POLICY',
-					policyDocument=json.dumps(resource.Policy.Policy)
-				)
+			validation_findings = []
+			if resource.Policy.Policy is None:
+				LOGGER.info(f'Resource {resource.ResourceName} has no resource-based policy.  Skipping call to ValidatePolicy.')
 			else:
-				LOGGER.info(f'Running service specific policy validation for {validate_policy_resource_type}')
-				response = self.client.validate_policy(
-					policyType='RESOURCE_POLICY',
-					policyDocument=json.dumps(resource.Policy.Policy),
-					validatePolicyResourceType=validate_policy_resource_type
-				)
+				# we want to run validate_policy on all resource policies regardless of if they are supported policies
+				# for access previews
+				LOGGER.info(f'Validating resource policy for resource {resource.ResourceName} of type {resource.ResourceType}')
 
-			LOGGER.info(f'ValidatePolicy response {response}')
-			validation_findings = response['findings']
-			self.findings.add_validation_finding(validation_findings, resource.ResourceName, resource.Policy.Name)
+				validate_policy_resource_type = self.service_specific_policy_validation.get(resource.ResourceType)
+				if validate_policy_resource_type is None:
+					response = self.client.validate_policy(
+						policyType='RESOURCE_POLICY',
+						policyDocument=json.dumps(resource.Policy.Policy)
+					)
+				else:
+					LOGGER.info(f'Running service specific policy validation for {validate_policy_resource_type}')
+					response = self.client.validate_policy(
+						policyType='RESOURCE_POLICY',
+						policyDocument=json.dumps(resource.Policy.Policy),
+						validatePolicyResourceType=validate_policy_resource_type
+					)
+
+				LOGGER.info(f'ValidatePolicy response {response}')
+				validation_findings = response['findings']
+				self.findings.add_validation_finding(validation_findings, resource.ResourceName, resource.Policy.Name)
 
 			# only supported policies for access previews will have config builders
 			preview_builder = self.preview_builders.get(resource.ResourceType)
@@ -378,19 +381,92 @@ class KmsKeyPreviewBuilder:
 
 
 class S3BucketPreviewBuilder:
-	def __init__(self, partition):
+	def __init__(self, region, partition):
 		self.partition = partition
+		self.region = region
 
 	def build_configuration(self, resource):
-		policy = json.dumps(resource.Policy.Policy)
+		s3_bucket_json = {}
+
+		# either policy or access control must be present, there exists no resource where they are both null
+		if resource.Policy.Policy is not None:
+			policy = json.dumps(resource.Policy.Policy)
+			s3_bucket_json['bucketPolicy'] = policy
+
+		access_control = resource.Configuration.get('AccessControl')
+		if access_control is not None:
+			bucket_acl_grants = self.__build_bucket_acl_grants(resource.ResourceName, access_control)
+			s3_bucket_json['bucketAclGrants'] = bucket_acl_grants
 
 		return {
 			f'arn:{self.partition}:s3:::{resource.ResourceName}': {
-				's3Bucket': {
-					'bucketPolicy': policy
-				}
+				's3Bucket': s3_bucket_json
 			}
 		}
+
+	def __build_bucket_acl_grants(self, bucket_name, access_control_value):
+		if access_control_value == 'Private':
+			return [self.__build_owner_full_control_grant()]
+		elif access_control_value == 'PublicRead':
+			return [
+				self.__build_owner_full_control_grant(),
+				self.__build_grant_uri(self.all_users_group_uri, 'READ')
+			]
+		elif access_control_value == 'PublicReadWrite':
+			return [
+				self.__build_owner_full_control_grant(),
+				self.__build_grant_uri(self.all_users_group_uri, 'READ'),
+				self.__build_grant_uri(self.all_users_group_uri, 'WRITE')
+			]
+		elif access_control_value == 'AuthenticatedRead':
+			return [
+				self.__build_owner_full_control_grant(),
+				self.__build_grant_uri(self.authenticated_users_group_uri, 'READ')
+			]
+		elif access_control_value == 'LogDeliveryWrite':
+			return [
+				self.__build_grant_uri(self.log_delivery_group_uri, 'WRITE'),
+				self.__build_grant_uri(self.log_delivery_group_uri, 'READ_ACP')
+			]
+		elif access_control_value == 'BucketOwnerRead':
+			return [self.__build_owner_full_control_grant()]
+		elif access_control_value == 'BucketOwnerFullControl':
+			return [self.__build_owner_full_control_grant()]
+		elif access_control_value == 'AwsExecRead':
+			return [
+				self.__build_owner_full_control_grant(),
+				self.__build_grant_id(self.ec2_canonical_id, 'READ')
+			]
+		else:
+			raise ApplicationError(f'Invalid AccessControl value "{access_control_value}" for {bucket_name}.\n'
+								f'See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-s3-bucket.html#cfn-s3-bucket-accesscontrol '
+								f'for valid AccessControl values.')
+
+	all_users_group_uri = 'http://acs.amazonaws.com/groups/global/AllUsers'
+	authenticated_users_group_uri = 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers'
+	log_delivery_group_uri = 'http://acs.amazonaws.com/groups/s3/LogDelivery'
+	ec2_canonical_id = '6aa5a366c34c1cbe25dc49211496e913e0351eb0e8c37aa3477e40942ec6b97c'
+
+	@staticmethod
+	def __build_grant_uri(uri, permission):
+		return {
+			'grantee': {
+				'uri': uri
+			},
+			'permission': permission
+		}
+
+	@staticmethod
+	def __build_grant_id(grant_id, permission):
+		return {
+			'grantee': {
+				'id': grant_id
+			},
+			'permission': permission
+		}
+
+	def __build_owner_full_control_grant(self):
+		return self.__build_grant_id(get_canonical_user(self.region), 'FULL_CONTROL')
 
 
 class S3AccessPointPreviewBuilder:
@@ -523,6 +599,7 @@ class S3SingleRegionAccessPointPreviewBuilder(S3AccessPointPreviewBuilder):
 				}
 			}
 		}
+
 
 class RoleTrustPolicyPreviewBuilder:
 	def __init__(self, account_id, partition):

@@ -170,6 +170,19 @@ class MockAccessPreviewFinding(MockValidationResult):
 		return response
 
 
+class MockAccessPreviewFindingOnly(MockAccessPreviewFinding):
+	# mocks an access preview finding, but skips validate policy
+	def __init__(self, source_type=None):
+		self.source_type = source_type
+		super(MockAccessPreviewFindingOnly, self).__init__()
+
+	def get_validate_resource_policy_response(self):
+		return None
+
+	def get_validate_identity_policy_response(self):
+		return None
+
+
 class MockValidateResourcePolicyFinding(MockValidationResult):
 	def __init__(self, code, finding_type='ERROR', custom_resource_type=None):
 		super(MockValidateResourcePolicyFinding, self).__init__()
@@ -247,6 +260,17 @@ class MockNoFindings(MockValidationResult):
 			expected_params_validate_policy = None
 
 		super(MockNoFindings, self).__init__(expected_params_create_access_preview, expected_params_validate_policy)
+
+
+class MockNoFindingsAccessPreviewOnly(MockNoFindings):
+	def __init__(self):
+		super(MockNoFindingsAccessPreviewOnly, self).__init__()
+
+	def get_validate_identity_policy_response(self):
+		return None
+
+	def get_validate_resource_policy_response(self):
+		return None
 
 
 class MockUnknownError(MockValidationResult):

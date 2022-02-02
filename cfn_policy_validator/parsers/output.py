@@ -186,6 +186,9 @@ class Policy:
 
 class Resource:
     def __init__(self, resource_name, resource_type, policy, configuration=None):
+        if configuration is None:
+            configuration = {}
+
         self.ResourceName = resource_name
         self.ResourceType = resource_type
         self.Policy = policy
@@ -204,7 +207,7 @@ class Resource:
 
     def custom_to_json(self):
         self_as_dict = self.__dict__
-        if self_as_dict['Configuration'] is None:
+        if len(self_as_dict['Configuration']) == 0:
             self_as_dict.pop('Configuration')
 
         return self_as_dict
