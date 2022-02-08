@@ -292,12 +292,12 @@
         },
         "Service": {
             "Ref": {
-                "Value": "arn:${Partition}:ecs:${Region}:${Account}:service/${ServiceName}",
+                "Value": "arn:${Partition}:ecs:${Region}:${Account}:service/${ClusterName}/${ServiceName}",
                 "ServicePrefix": "ecs",
                 "ResourceType": "service"
             },
             "ServiceArn": {
-                "Value": "arn:${Partition}:ecs:${Region}:${Account}:service/${ServiceName}",
+                "Value": "arn:${Partition}:ecs:${Region}:${Account}:service/${ClusterName}/${ServiceName}",
                 "ServicePrefix": "ecs",
                 "ResourceType": "service"
             }
@@ -2850,14 +2850,14 @@
     "AppFlow": {
         "Flow": {
             "FlowArn": {
-                "Value": "arn:${Partition}:appflow:${Region}:${Account}:flow/${flowName}",
+                "Value": "arn:${Partition}:appflow:${Region}:${Account}:flow/${FlowName}",
                 "ServicePrefix": "appflow",
                 "ResourceType": "flow"
             }
         },
         "ConnectorProfile": {
             "ConnectorProfileArn": {
-                "Value": "arn:${Partition}:appflow:${Region}:${Account}:connectorprofile/${profileName}",
+                "Value": "arn:${Partition}:appflow:${Region}:${Account}:connectorprofile/${ProfileName}",
                 "ServicePrefix": "appflow",
                 "ResourceType": "connectorprofile"
             },
@@ -2920,7 +2920,7 @@
     "IoTFleetHub": {
         "Application": {
             "ApplicationArn": {
-                "Value": "arn:${Partition}:iotfleethub::${Account}:application/${ApplicationId}",
+                "Value": "arn:${Partition}:iotfleethub:${Region}:${Account}:application/${ApplicationId}",
                 "ServicePrefix": "iotfleethub",
                 "ResourceType": "application"
             }
@@ -3076,7 +3076,7 @@
     "FinSpace": {
         "Environment": {
             "EnvironmentArn": {
-                "Value": "arn:${Partition}:finspace:${Region}:${Account}:environment/${environmentId}",
+                "Value": "arn:${Partition}:finspace:${Region}:${Account}:environment/${EnvironmentId}",
                 "ServicePrefix": "finspace",
                 "ResourceType": "environment"
             }
@@ -3275,6 +3275,20 @@
                 "ServicePrefix": "lightsail",
                 "ResourceType": "load-balancer-tls-certificate"
             }
+        },
+        "Certificate": {
+            "CertificateArn": {
+                "Value": "arn:${Partition}:lightsail:${Region}:${Account}:Certificate/${Id}",
+                "ServicePrefix": "lightsail",
+                "ResourceType": "certificate"
+            }
+        },
+        "Container": {
+            "ContainerArn": {
+                "Value": "arn:${Partition}:lightsail:${Region}:${Account}:ContainerService/${Id}",
+                "ServicePrefix": "lightsail",
+                "ResourceType": "container-service"
+            }
         }
     },
     "HealthLake": {
@@ -3464,6 +3478,13 @@
                 "ServicePrefix": "rekognition",
                 "ResourceType": "project"
             }
+        },
+        "Collection": {
+            "Arn": {
+                "Value": "arn:${Partition}:rekognition:${Region}:${Account}:collection/${CollectionId}",
+                "ServicePrefix": "rekognition",
+                "ResourceType": "collection"
+            }
         }
     },
     "ResilienceHub": {
@@ -3535,6 +3556,15 @@
                 "Value": "arn:${Partition}:inspector2:${Region}:${Account}:owner/${OwnerId}/filter/${FilterId}",
                 "ServicePrefix": "inspector2",
                 "ResourceType": "filter"
+            }
+        }
+    },
+    "KafkaConnect": {
+        "Connector": {
+            "ConnectorArn": {
+                "Value": "arn:${Partition}:kafkaconnect:${Region}:${Account}:connector/${ConnectorName}/${UUID}",
+                "ServicePrefix": "kafkaconnect",
+                "ResourceType": "connector"
             }
         }
     }
