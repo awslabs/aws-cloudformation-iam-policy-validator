@@ -809,6 +809,13 @@
                 "ServicePrefix": "eks",
                 "ResourceType": "fargateprofile"
             }
+        },
+        "IdentityProviderConfig": {
+            "IdentityProviderConfigArn": {
+                "Value": "arn:${Partition}:eks:${Region}:${Account}:identityproviderconfig/${ClusterName}/${IdentityProviderType}/${IdentityProviderConfigName}/${UUID}",
+                "ServicePrefix": "eks",
+                "ResourceType": "identityproviderconfig"
+            }
         }
     },
     "AppMesh": {
@@ -996,10 +1003,20 @@
                 "Value": "arn:${Partition}:batch:${Region}:${Account}:job-queue/${JobQueueName}",
                 "ServicePrefix": "batch",
                 "ResourceType": "job-queue"
+            },
+            "JobQueueArn": {
+                "Value": "arn:${Partition}:batch:${Region}:${Account}:job-queue/${JobQueueName}",
+                "ServicePrefix": "batch",
+                "ResourceType": "job-queue"
             }
         },
         "ComputeEnvironment": {
             "Ref": {
+                "Value": "arn:${Partition}:batch:${Region}:${Account}:compute-environment/${ComputeEnvironmentName}",
+                "ServicePrefix": "batch",
+                "ResourceType": "compute-environment"
+            },
+            "ComputeEnvironmentArn": {
                 "Value": "arn:${Partition}:batch:${Region}:${Account}:compute-environment/${ComputeEnvironmentName}",
                 "ServicePrefix": "batch",
                 "ResourceType": "compute-environment"
@@ -2045,6 +2062,18 @@
                 "Value": "arn:${Partition}:kafka:${Region}:${Account}:cluster/${ClusterName}/${UUID}",
                 "ServicePrefix": "kafka",
                 "ResourceType": "cluster"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:kafka:${Region}:${Account}:cluster/${ClusterName}/${ClusterUuid}",
+                "ServicePrefix": "kafka-cluster",
+                "ResourceType": "cluster"
+            }
+        },
+        "BatchScramSecret": {
+            "Ref": {
+                "Value": "arn:${Partition}:kafka:${Region}:${Account}:cluster/${ClusterName}/${ClusterUuid}",
+                "ServicePrefix": "kafka-cluster",
+                "ResourceType": "cluster"
             }
         }
     },
@@ -2237,6 +2266,18 @@
             }
         },
         "LocationHDFS": {
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            },
+            "LocationArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            }
+        },
+        "LocationFSxLustre": {
             "Ref": {
                 "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
                 "ServicePrefix": "datasync",
@@ -2696,6 +2737,35 @@
                 "ResourceType": "type"
             },
             "PublicTypeArn": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            }
+        },
+        "HookVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            },
+            "TypeArn": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            }
+        },
+        "HookDefaultVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
+                "ServicePrefix": "cloudformation",
+                "ResourceType": "type"
+            },
+            "Arn": {
                 "Value": "arn:${Partition}:cloudformation:${Region}:${Account}:type/resource/${Type}",
                 "ServicePrefix": "cloudformation",
                 "ResourceType": "type"
@@ -3192,6 +3262,13 @@
                 "ServicePrefix": "apprunner",
                 "ResourceType": "service"
             }
+        },
+        "VpcConnector": {
+            "VpcConnectorArn": {
+                "Value": "arn:${Partition}:apprunner:${Region}:${Account}:vpcconnector/${VpcConnectorName}/${VpcConnectorVersion}/${VpcConnectorId}",
+                "ServicePrefix": "apprunner",
+                "ResourceType": "vpcconnector"
+            }
         }
     },
     "DAX": {
@@ -3306,6 +3383,20 @@
                 "Value": "arn:${Partition}:kendra:${Region}:${Account}:index/${IndexId}/data-source/${DataSourceId}",
                 "ServicePrefix": "kendra",
                 "ResourceType": "data-source"
+            }
+        },
+        "Index": {
+            "Arn": {
+                "Value": "arn:${Partition}:kendra:${Region}:${Account}:index/${IndexId}",
+                "ServicePrefix": "kendra",
+                "ResourceType": "index"
+            }
+        },
+        "Faq": {
+            "Arn": {
+                "Value": "arn:${Partition}:kendra:${Region}:${Account}:index/${IndexId}/faq/${FaqId}",
+                "ServicePrefix": "kendra",
+                "ResourceType": "faq"
             }
         }
     },
@@ -3565,6 +3656,36 @@
                 "Value": "arn:${Partition}:kafkaconnect:${Region}:${Account}:connector/${ConnectorName}/${UUID}",
                 "ServicePrefix": "kafkaconnect",
                 "ResourceType": "connector"
+            }
+        }
+    },
+    "Personalize": {
+        "Solution": {
+            "SolutionArn": {
+                "Value": "arn:${Partition}:personalize:${Region}:${Account}:solution/${ResourceId}",
+                "ServicePrefix": "personalize",
+                "ResourceType": "solution"
+            }
+        },
+        "Schema": {
+            "SchemaArn": {
+                "Value": "arn:${Partition}:personalize:${Region}:${Account}:schema/${ResourceId}",
+                "ServicePrefix": "personalize",
+                "ResourceType": "schema"
+            }
+        },
+        "DatasetGroup": {
+            "DatasetGroupArn": {
+                "Value": "arn:${Partition}:personalize:${Region}:${Account}:dataset-group/${ResourceId}",
+                "ServicePrefix": "personalize",
+                "ResourceType": "dataset-group"
+            }
+        },
+        "Dataset": {
+            "DatasetArn": {
+                "Value": "arn:${Partition}:personalize:${Region}:${Account}:dataset/${ResourceId}",
+                "ServicePrefix": "personalize",
+                "ResourceType": "dataset"
             }
         }
     }
