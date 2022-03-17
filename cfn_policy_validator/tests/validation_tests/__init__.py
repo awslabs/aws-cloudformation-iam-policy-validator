@@ -1,8 +1,11 @@
+import boto3
 import uuid
 from datetime import datetime
 from unittest.mock import ANY
 
-from cfn_policy_validator.tests.boto_mocks import mock_test_setup, BotoResponse, BotoClientError
+from cfn_policy_validator.tests import account_config
+from cfn_policy_validator.tests.boto_mocks import mock_test_setup, BotoResponse, BotoClientError, get_test_mode, \
+	TEST_MODE
 
 analyzer_arn = 'arn:aws:access-analyzer:us-east-1:111222333444:analyzer/MyAnalyzer'
 
@@ -131,8 +134,9 @@ class MockValidationResult:
 
 
 class MockAccessPreviewFinding(MockValidationResult):
-	def __init__(self, source_type=None, custom_validate_policy_type=None):
+	def __init__(self, source_type=None, custom_validate_policy_type=None, finding_status='ACTIVE'):
 		self.source_type = source_type
+		self.finding_status = finding_status
 
 		if custom_validate_policy_type is not None:
 			expected_params_validate_policy = {
@@ -154,7 +158,7 @@ class MockAccessPreviewFinding(MockValidationResult):
 					'id': str(uuid.uuid4()),
 					'resourceOwnerAccount': '1111222233334444',
 					'resourceType': 'AWS::IAM::Role',  # type is ignored, but is required
-					'status': 'ACTIVE',
+					'status': self.finding_status,
 					'changeType': 'NEW'
 				}]
 			},

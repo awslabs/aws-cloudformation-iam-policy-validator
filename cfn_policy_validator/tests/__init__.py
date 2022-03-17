@@ -32,6 +32,18 @@ def end_to_end(func):
     return decorator
 
 
+def only_run_for_end_to_end(func):
+    """
+    Similar to the above end_to_end method but does not raise a unittest.SkipTest
+    """
+    def decorator(*args, **kwargs):
+        if get_test_mode() == TEST_MODE.AWS:
+            # only run when the integration environment variable is set
+            func(*args, **kwargs)
+
+    return decorator
+
+
 def offline_only(func):
     def decorator(*args):
         self = args[0]

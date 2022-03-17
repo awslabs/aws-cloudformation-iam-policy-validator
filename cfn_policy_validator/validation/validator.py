@@ -275,7 +275,14 @@ class Validator:
 
 			paginator = self.client.get_paginator('list_access_preview_findings')
 			for page in paginator.paginate(accessPreviewId=preview.id, analyzerArn=self.analyzer_arn):
-				findings.append(AccessPreviewFindings(preview.resource, page['findings']))
+				active_findings = []
+				for finding in page['findings']:
+					LOGGER.info(f'Access preview finding: {finding}')
+					if finding['status'] == 'ACTIVE':
+						active_findings.append(finding)
+
+				if len(active_findings) > 0:
+					findings.append(AccessPreviewFindings(preview.resource, active_findings))
 
 		return findings
 

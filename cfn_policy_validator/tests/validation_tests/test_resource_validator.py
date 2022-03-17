@@ -2,13 +2,14 @@
 Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: MIT-0
 """
+import boto3
 import copy
 import unittest
 
-from botocore.stub import Stubber, ANY
+from botocore.stub import ANY
 
-from cfn_policy_validator.tests import account_config, offline_only
-from cfn_policy_validator.tests.boto_mocks import mock_test_setup, BotoResponse
+from cfn_policy_validator.tests import account_config, offline_only, only_run_for_end_to_end
+from cfn_policy_validator.tests.boto_mocks import mock_test_setup, BotoResponse, get_test_mode, TEST_MODE
 from cfn_policy_validator.tests.validation_tests import FINDING_TYPE, mock_access_analyzer_resource_setup, \
 	MockAccessPreviewFinding, MockNoFindings, MockInvalidConfiguration, MockUnknownError, \
 	MockTimeout, MockValidateResourcePolicyFinding
@@ -60,6 +61,27 @@ class BaseResourcePolicyTest(unittest.TestCase):
 			resource1,
 			resource2
 		]
+
+	@only_run_for_end_to_end
+	def create_archive_rule(self, resource_type_to_archive):
+		session = boto3.Session(region_name=account_config.region)
+		self.client = session.client('accessanalyzer')
+		response = self.client.list_analyzers(type='ACCOUNT')
+		self.actual_analyzer_name = next((analyzer['name'] for analyzer in response['analyzers'] if analyzer['status'] == 'ACTIVE'))
+		self.archive_rule_name = 'IgnoreRoleFindings'
+		self.client.create_archive_rule(
+			analyzerName=self.actual_analyzer_name,
+			ruleName='IgnoreRoleFindings',
+			filter={
+				'resourceType': {
+					'eq': [resource_type_to_archive]
+				}
+			}
+		)
+
+	@only_run_for_end_to_end
+	def delete_archive_rule(self):
+		self.client.delete_archive_rule(analyzerName=self.actual_analyzer_name, ruleName=self.archive_rule_name)
 
 	def assert_finding_is_equal(self, actual_finding, expected_policy_name, expected_resource_name, expected_code):
 		self.assertEqual(expected_policy_name, actual_finding.policyName)
@@ -149,6 +171,48 @@ class WhenValidatingResources(BaseResourcePolicyTest):
 			expected_resource_name='resource1',
 			expected_code='EMPTY_OBJECT_PRINCIPAL'
 		)
+
+
+class WhenValidatingResourcesWithNonActiveFindings(BaseResourcePolicyTest):
+	def setUp(self):
+		self.output = Output(account_config)
+		self.create_archive_rule(resource_type_to_archive='AWS::KMS::Key')
+
+	def tearDown(self):
+		self.delete_archive_rule()
+
+	@mock_access_analyzer_resource_setup(
+		MockAccessPreviewFinding(),
+		MockAccessPreviewFinding(finding_status='ARCHIVED')
+	)
+	def test_output_only_includes_active_findings(self):
+		self.add_resources_to_output('AWS::SQS::Queue', sqs_queue_policy_that_allows_external_access)
+		policy1 = Policy('policy1', copy.deepcopy(sqs_queue_policy_that_allows_external_access))
+		resource1 = Resource('resource1', 'AWS::SQS::Queue', policy1)
+
+		policy2 = Policy('policy2', copy.deepcopy(kms_key_policy_that_allows_external_access))
+		resource2 = Resource('resource2', 'AWS::KMS::Key', policy2)
+
+		self.output.Resources = [resource1, resource2]
+
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, security_warnings=1)
+		self.assert_finding_is_equal(
+			actual_finding=findings.security_warnings[0],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='EXTERNAL_PRINCIPAL'
+		)
+
+	@mock_access_analyzer_resource_setup(
+		MockAccessPreviewFinding(finding_status='ARCHIVED'),
+		MockAccessPreviewFinding(finding_status='ARCHIVED')
+	)
+	def test_output_does_not_include_any_findings_when_all_are_archived(self):
+		self.add_resources_to_output('AWS::KMS::Key', kms_key_policy_that_allows_external_access)
+
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, security_warnings=0)
 
 
 sqs_queue_policy_that_allows_external_access = {
