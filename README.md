@@ -16,6 +16,9 @@ Basic usage:
 cfn-policy-validator validate --template-path ./my-template.json --region us-east-1
 ```
 
+Interactive workshop that walks through use of the cfn-policy-validator tool in a CI/CD pipeline: 
+https://workshops.aws/card/Integrating%20IAM%20Access%20Analyzer
+
 ### Why do I need the IAM Policy Validator for AWS CloudFormation?
 
 The cfn-policy-validator is designed to prevent the deployment of unwanted IAM identity-based and resource-based policies to your AWS environment.
