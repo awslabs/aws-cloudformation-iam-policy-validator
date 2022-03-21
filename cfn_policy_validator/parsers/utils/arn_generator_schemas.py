@@ -37,6 +37,25 @@ iam_user_schema = {
 	}
 }
 
+iam_managed_policy_schema = {
+	'type': 'object',
+	'properties': {
+		'Properties': {
+			'type': 'object',
+			'properties': {
+				'Path': {
+					'type': 'string'
+				},
+				'ManagedPolicyName': {
+					'type': 'string'
+				}
+			}
+		}
+	},
+	'required': ['Properties']
+}
+
+
 elbv2_load_balancer_schema = {
 	'type': 'object',
 	'properties': {

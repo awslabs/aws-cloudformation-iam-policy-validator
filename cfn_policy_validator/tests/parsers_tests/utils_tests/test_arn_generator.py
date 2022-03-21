@@ -25,10 +25,10 @@ class WhenGeneratingAnArnForAKnownResource(unittest.TestCase):
         self.arn_generator = ArnGenerator(account_config)
 
     @mock_node_evaluator_setup()
-    def test_generates_global_arn_from_ref(self):
-        resource = build_resource({'Type': 'AWS::IAM::ManagedPolicy'})
-        arn = self.arn_generator.try_generate_arn("MyTestPolicy", resource, "Ref")
-        self.assertEqual(f"arn:aws:iam::{account_config.account_id}:policy/MyTestPolicy", arn)
+    def test_generates_arn_from_ref(self):
+        resource = build_resource({'Type': 'AWS::AccessAnalyzer::Analyzer'})
+        arn = self.arn_generator.try_generate_arn("MyAnalyzer", resource, "Ref")
+        self.assertEqual(f"arn:aws:access-analyzer:{account_config.region}:{account_config.account_id}:analyzer/MyAnalyzer", arn)
 
     @mock_node_evaluator_setup()
     def test_generates_arn_from_attribute(self):
@@ -292,6 +292,116 @@ class WhenGeneratingAnArnForAnIAMUser(unittest.TestCase):
         })
         arn = self.arn_generator.try_generate_arn("MyUser", resource, "Arn")
         self.assertEqual(f"arn:aws:iam::{account_config.account_id}:user/MyUser", arn)
+
+
+class WhenGeneratingAnArnForAnIAMManagedPolicyAndValidatingSchema(unittest.TestCase):
+    @mock_node_evaluator_setup()
+    def test_with_no_properties(self):
+        template = load_resources({
+            'ResourceA': {
+                'Type': 'AWS::IAM::ManagedPolicy'
+            }
+        })
+
+        arn_generator = ArnGenerator(account_config)
+
+        with self.assertRaises(ApplicationError) as cm:
+            arn_generator.try_generate_arn('MyPolicy', template['Resources']['ResourceA'], 'Ref')
+
+        self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
+
+    @mock_node_evaluator_setup()
+    def test_with_invalid_path_type(self):
+        template = load_resources({
+            'ResourceA': {
+                'Type': 'AWS::IAM::ManagedPolicy',
+                'Properties': {
+                    'Path': []
+                }
+            }
+        })
+
+        arn_generator = ArnGenerator(account_config)
+
+        with self.assertRaises(ApplicationError) as cm:
+            arn_generator.try_generate_arn('ResourceA', template['Resources']['ResourceA'], 'Ref')
+
+        self.assertEqual(expected_type_error('ResourceA.Properties.Path', 'string', '[]'), str(cm.exception))
+
+    @mock_node_evaluator_setup()
+    def test_with_invalid_managed_policy_name_type(self):
+        template = load_resources({
+            'ResourceA': {
+                'Type': 'AWS::IAM::ManagedPolicy',
+                'Properties': {
+                    'ManagedPolicyName': []
+                }
+            }
+        })
+
+        arn_generator = ArnGenerator(account_config)
+
+        with self.assertRaises(ApplicationError) as cm:
+            arn_generator.try_generate_arn('ResourceA', template['Resources']['ResourceA'], 'Ref')
+
+        self.assertEqual(expected_type_error('ResourceA.Properties.ManagedPolicyName', 'string', '[]'), str(cm.exception))
+
+
+class WhenGeneratingAnArnForAnIAMUser(unittest.TestCase):
+    @staticmethod
+    def add_resource_to_template(resource):
+        template = load({
+            'Parameters': {
+                'MyManagedPolicyParameter': {'Type': 'string'},
+                'MyPathParameter': {'Type': 'string'}
+            },
+            'Resources': {
+                'ResourceA': resource
+            }
+        },
+        {
+            'MyManagedPolicyParameter': 'MyCustomManagedPolicyName',
+            'MyPathParameter': '/my/custom/policy/path/'
+        })
+
+        return template['Resources']['ResourceA']
+
+    def setUp(self):
+        self.arn_generator = ArnGenerator(account_config)
+
+    @mock_node_evaluator_setup()
+    def test_generates_arn_with_path_and_name(self):
+        resource = self.add_resource_to_template({
+            'Type': 'AWS::IAM::ManagedPolicy',
+            'Properties': {
+                'Path': {'Ref': 'MyPathParameter'},
+                'ManagedPolicyName': {'Ref': 'MyManagedPolicyParameter'}
+            }
+        })
+        arn = self.arn_generator.try_generate_arn("MyPolicy", resource, "Ref")
+        self.assertEqual(f"arn:aws:iam::{account_config.account_id}:policy/my/custom/policy/path/MyCustomManagedPolicyName", arn)
+
+    @mock_node_evaluator_setup()
+    def test_generates_arn_with_path_and_resource_name_if_no_name(self):
+        resource = self.add_resource_to_template({
+            'Type': 'AWS::IAM::ManagedPolicy',
+            'Properties': {
+                'Path': {'Ref': 'MyPathParameter'}
+            }
+        })
+        arn = self.arn_generator.try_generate_arn("ResourceA", resource, "Ref")
+        self.assertEqual(f"arn:aws:iam::{account_config.account_id}:policy/my/custom/policy/path/ResourceA", arn)
+
+    @mock_node_evaluator_setup()
+    def test_generates_arn_with_default_path_and_name_if_no_path(self):
+        resource = self.add_resource_to_template({
+            'Type': 'AWS::IAM::ManagedPolicy',
+            'Properties': {
+                'ManagedPolicyName': {'Ref': 'MyManagedPolicyParameter'}
+            }
+        })
+        arn = self.arn_generator.try_generate_arn("ResourceA", resource, "Ref")
+        self.assertEqual(f"arn:aws:iam::{account_config.account_id}:policy/MyCustomManagedPolicyName", arn)
 
 
 class WhenGeneratingAnArnForELBv2ResourcesAndValidatingSchema(unittest.TestCase):

@@ -505,6 +505,7 @@ class WhenParsingManagedPoliciesAttachedToARoleFromTheRole(IdentityParserTest):
 				'ManagedPolicyB': {
 					'Type': 'AWS::IAM::ManagedPolicy',
 					'Properties': {
+						'ManagedPolicyName': 'MyManagedPolicy',
 						'PolicyDocument': copy.deepcopy(sample_policy_b)
 					}
 				},
@@ -527,7 +528,7 @@ class WhenParsingManagedPoliciesAttachedToARoleFromTheRole(IdentityParserTest):
 		role = self.roles[0]
 		self.assertEqual(2, len(role.Policies))
 		self.assertTrue(has_policy(role, "ManagedPolicyA", sample_policy_a))
-		self.assertTrue(has_policy(role, "ManagedPolicyB", sample_policy_b))
+		self.assertTrue(has_policy(role, "MyManagedPolicy", sample_policy_b))
 
 
 # note that the DependsOn is required here, otherwise the managed policy would not exist when the role attempts to find it
@@ -631,3 +632,5 @@ class WhenParsingManagedPolicyAttachedToARoleAndThePolicyDoesNotExistInTemplateO
 
 		self.assertEqual('Could not find managed policy with arn:aws:iam::aws:policy/DoesNotExist in template '
 						 'or in environment.', str(cm.exception))
+
+

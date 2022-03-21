@@ -8,7 +8,8 @@ import re
 
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.arn_generator_schemas import iam_role_schema, iam_user_schema, \
-    elbv2_load_balancer_schema, elbv2_listener_schema, elbv2_target_group_schema, network_firewall_rulegroup_schema
+    elbv2_load_balancer_schema, elbv2_listener_schema, elbv2_target_group_schema, network_firewall_rulegroup_schema, \
+    iam_managed_policy_schema
 
 
 class ArnGenerator:
@@ -35,6 +36,7 @@ class ArnGenerator:
             'AWS::ElasticLoadBalancingV2::TargetGroup': generate_elbv2_target_group_arn,
             'AWS::IAM::Role': generate_role_arn,
             'AWS::IAM::User': generate_user_arn,
+            'AWS::IAM::ManagedPolicy': generate_managed_policy_arn,
             'AWS::NetworkFirewall::RuleGroup': generate_network_firewall_rule_group
         }
 
@@ -117,6 +119,18 @@ def generate_user_arn(arn_pattern, resource_name, resource, visited_values):
 
     name = properties.get('UserName', resource_name)
     return arn_pattern.replace("${UserNameWithPath}", path + name)
+
+
+def generate_managed_policy_arn(arn_pattern, resource_name, resource, visited_values):
+    evaluated_resource = resource.eval(iam_managed_policy_schema, visited_values)
+
+    properties = evaluated_resource['Properties']
+
+    path = properties.get('Path', '/')
+    path = path[1:]
+
+    name = properties.get('ManagedPolicyName', resource_name)
+    return arn_pattern.replace("${PolicyNameWithPath}", path + name)
 
 
 # Multiple load balancers share the same CFN resources, but have different ARNs depending on load balancer type
