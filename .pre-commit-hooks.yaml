@@ -1,0 +1,5 @@
+-   id: cfn-policy-validator
+    name: IAM Policy Validator for AWS CloudFormation
+    entry: cfn-policy-validator
+    language: python
+    files: \.(json|yaml|yml)$
