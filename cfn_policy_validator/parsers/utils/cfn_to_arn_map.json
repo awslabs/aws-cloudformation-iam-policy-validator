@@ -402,36 +402,36 @@
     "GroundStation": {
         "Config": {
             "Ref": {
-                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:config/${configType}/${configId}",
+                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:config/${ConfigType}/${ConfigId}",
                 "ServicePrefix": "groundstation",
                 "ResourceType": "config"
             },
             "Arn": {
-                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:config/${configType}/${configId}",
+                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:config/${ConfigType}/${ConfigId}",
                 "ServicePrefix": "groundstation",
                 "ResourceType": "config"
             }
         },
         "DataflowEndpointGroup": {
             "Ref": {
-                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:dataflow-endpoint-group/${dataflowEndpointGroupId}",
+                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:dataflow-endpoint-group/${DataflowEndpointGroupId}",
                 "ServicePrefix": "groundstation",
                 "ResourceType": "dataflow-endpoint-group"
             },
             "Arn": {
-                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:dataflow-endpoint-group/${dataflowEndpointGroupId}",
+                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:dataflow-endpoint-group/${DataflowEndpointGroupId}",
                 "ServicePrefix": "groundstation",
                 "ResourceType": "dataflow-endpoint-group"
             }
         },
         "MissionProfile": {
             "Ref": {
-                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:mission-profile/${missionProfileId}",
+                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:mission-profile/${MissionProfileId}",
                 "ServicePrefix": "groundstation",
                 "ResourceType": "mission-profile"
             },
             "Arn": {
-                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:mission-profile/${missionProfileId}",
+                "Value": "arn:${Partition}:groundstation:${Region}:${Account}:mission-profile/${MissionProfileId}",
                 "ServicePrefix": "groundstation",
                 "ResourceType": "mission-profile"
             }
@@ -1073,6 +1073,13 @@
                 "ServicePrefix": "lambda",
                 "ResourceType": "codesigningconfig"
             }
+        },
+        "Url": {
+            "FunctionArn": {
+                "Value": "arn:${Partition}:lambda:${Region}:${Account}:function:${FunctionName}",
+                "ServicePrefix": "lambda",
+                "ResourceType": "function"
+            }
         }
     },
     "SecretsManager": {
@@ -1327,6 +1334,13 @@
                 "Value": "arn:${Partition}:iot:${Region}:${Account}:fleetmetric/${FleetMetricName}",
                 "ServicePrefix": "iot",
                 "ResourceType": "fleetmetric"
+            }
+        },
+        "RoleAlias": {
+            "RoleAliasArn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:rolealias/${RoleAlias}",
+                "ServicePrefix": "iot",
+                "ResourceType": "rolealias"
             }
         }
     },
@@ -1706,26 +1720,26 @@
     "Transfer": {
         "Server": {
             "Ref": {
-                "Value": "arn:${Partition}:transfer:${region}:${account}:server/${serverId}",
+                "Value": "arn:${Partition}:transfer:${Region}:${Account}:server/${ServerId}",
                 "ServicePrefix": "transfer",
                 "ResourceType": "server"
             },
             "Arn": {
-                "Value": "arn:${Partition}:transfer:${region}:${account}:server/${serverId}",
+                "Value": "arn:${Partition}:transfer:${Region}:${Account}:server/${ServerId}",
                 "ServicePrefix": "transfer",
                 "ResourceType": "server"
             }
         },
         "User": {
             "Arn": {
-                "Value": "arn:${Partition}:transfer:${region}:${account}:user/${serverId}/${username}",
+                "Value": "arn:${Partition}:transfer:${Region}:${Account}:user/${ServerId}/${UserName}",
                 "ServicePrefix": "transfer",
                 "ResourceType": "user"
             }
         },
         "Workflow": {
             "Arn": {
-                "Value": "arn:${Partition}:transfer:${region}:${account}:workflow/${workflowId}",
+                "Value": "arn:${Partition}:transfer:${Region}:${Account}:workflow/${WorkflowId}",
                 "ServicePrefix": "transfer",
                 "ResourceType": "workflow"
             }
@@ -1770,6 +1784,13 @@
                 "Value": "arn:${Partition}:events:${Region}:${Account}:archive/${ArchiveName}",
                 "ServicePrefix": "events",
                 "ResourceType": "archive"
+            }
+        },
+        "Endpoint": {
+            "Arn": {
+                "Value": "arn:${Partition}:events:${Region}:${Account}:endpoint/${EndpointName}",
+                "ServicePrefix": "events",
+                "ResourceType": "endpoint"
             }
         }
     },
@@ -2075,6 +2096,10 @@
                 "ServicePrefix": "kafka-cluster",
                 "ResourceType": "cluster"
             }
+        },
+        "Configuration": {
+            "Ref": null,
+            "Arn": null
         }
     },
     "DynamoDB": {
@@ -2278,6 +2303,18 @@
             }
         },
         "LocationFSxLustre": {
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            },
+            "LocationArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            }
+        },
+        "LocationFSxOpenZFS": {
             "Ref": {
                 "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
                 "ServicePrefix": "datasync",
@@ -2770,6 +2807,10 @@
                 "ServicePrefix": "cloudformation",
                 "ResourceType": "type"
             }
+        },
+        "HookTypeConfig": {
+            "Ref": null,
+            "ConfigurationArn": null
         }
     },
     "S3Outposts": {
@@ -2937,7 +2978,7 @@
     "Signer": {
         "SigningProfile": {
             "Arn": {
-                "Value": "arn:${Partition}:signer:${Region}:${Account}:/signing-profiles/${profileName}",
+                "Value": "arn:${Partition}:signer:${Region}:${Account}:/signing-profiles/${ProfileName}",
                 "ServicePrefix": "signer",
                 "ResourceType": "signing-profile"
             },
@@ -3097,8 +3138,16 @@
     },
     "CE": {
         "CostCategory": {
-            "Ref": null,
-            "Arn": null
+            "Ref": {
+                "Value": "arn:${Partition}:ce::${Account}:costcategory/${Identifier}",
+                "ServicePrefix": "ce",
+                "ResourceType": "costcategory"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:ce::${Account}:costcategory/${Identifier}",
+                "ServicePrefix": "ce",
+                "ResourceType": "costcategory"
+            }
         }
     },
     "SSMContacts": {
@@ -3269,6 +3318,13 @@
                 "ServicePrefix": "apprunner",
                 "ResourceType": "vpcconnector"
             }
+        },
+        "ObservabilityConfiguration": {
+            "ObservabilityConfigurationArn": {
+                "Value": "arn:${Partition}:apprunner:${Region}:${Account}:observabilityconfiguration/${ObservabilityConfigurationName}/${ObservabilityConfigurationVersion}/${ObservabilityConfigurationId}",
+                "ServicePrefix": "apprunner",
+                "ResourceType": "observabilityconfiguration"
+            }
         }
     },
     "DAX": {
@@ -3283,14 +3339,14 @@
     "MediaLive": {
         "Channel": {
             "Arn": {
-                "Value": "arn:${Partition}:medialive:${Region}:${Account}:channel:*",
+                "Value": "arn:${Partition}:medialive:${Region}:${Account}:channel:${ChannelId}",
                 "ServicePrefix": "medialive",
                 "ResourceType": "channel"
             }
         },
         "InputSecurityGroup": {
             "Arn": {
-                "Value": "arn:${Partition}:medialive:${Region}:${Account}:inputSecurityGroup:*",
+                "Value": "arn:${Partition}:medialive:${Region}:${Account}:inputSecurityGroup:${InputSecurityGroupId}",
                 "ServicePrefix": "medialive",
                 "ResourceType": "input-security-group"
             }
@@ -3576,6 +3632,13 @@
                 "ServicePrefix": "rekognition",
                 "ResourceType": "collection"
             }
+        },
+        "StreamProcessor": {
+            "Arn": {
+                "Value": "arn:${Partition}:rekognition:${Region}:${Account}:streamprocessor/${StreamprocessorId}",
+                "ServicePrefix": "rekognition",
+                "ResourceType": "streamprocessor"
+            }
         }
     },
     "ResilienceHub": {
@@ -3686,6 +3749,29 @@
                 "Value": "arn:${Partition}:personalize:${Region}:${Account}:dataset/${ResourceId}",
                 "ServicePrefix": "personalize",
                 "ResourceType": "dataset"
+            }
+        }
+    },
+    "FSx": {
+        "Volume": {
+            "ResourceARN": {
+                "Value": "arn:${Partition}:fsx:${Region}:${Account}:volume/${FileSystemId}/${VolumeId}",
+                "ServicePrefix": "fsx",
+                "ResourceType": "volume"
+            }
+        },
+        "StorageVirtualMachine": {
+            "ResourceARN": {
+                "Value": "arn:${Partition}:fsx:${Region}:${Account}:storage-virtual-machine/${FileSystemId}/${StorageVirtualMachineId}",
+                "ServicePrefix": "fsx",
+                "ResourceType": "storage-virtual-machine"
+            }
+        },
+        "Snapshot": {
+            "ResourceARN": {
+                "Value": "arn:${Partition}:fsx:${Region}:${Account}:snapshot/${VolumeId}/${SnapshotId}",
+                "ServicePrefix": "fsx",
+                "ResourceType": "snapshot"
             }
         }
     }
