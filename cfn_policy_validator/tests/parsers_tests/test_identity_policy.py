@@ -240,7 +240,7 @@ class WhenParsingAnInlinePolicyAndValidatingSchema(unittest.TestCase):
 
 
 class WhenParsingAnInlinePolicyWithReferencesInEachField(IdentityParserTest):
-	# this is a test to ensure that each field is being evaluated for references in a managed policy
+	# this is a test to ensure that each field is being evaluated for references in an inline policy
 	@mock_identity_parser_setup()
 	def test_returns_a_role_user_and_group_with_references_resolved(self):
 		inline_policy = {
@@ -431,3 +431,108 @@ class WhenParsingAnInlinePolicyAttachedToAGroup(IdentityParserTest):
 
 		# ensure they are not the same group
 		self.assertNotEqual(group_a.GroupName, group_b.GroupName)
+
+
+class WhenParsingAPolicyThatIsAttachedToAnExternalRole(IdentityParserTest):
+	@mock_identity_parser_setup()
+	def test_returns_an_orphaned_policy(self):
+		template = load({
+			'Parameters': {
+				'RoleA': {},
+				'RoleB': {}
+			},
+			'Resources': {
+				'Policy': {
+					'Type': 'AWS::IAM::Policy',
+					'Properties': {
+						'PolicyName': 'MyPolicy',
+						'PolicyDocument': copy.deepcopy(sample_policy_a),
+						'Roles': [
+							{'Ref': 'RoleA'},
+							{'Ref': 'RoleB'}
+						]
+					}
+				}
+			}
+		}, {
+			'RoleA': 'MyRoleA',
+			'RoleB': 'MyRoleB'
+		})
+
+		self.parse(template, account_config)
+		self.assertResults(number_of_orphaned_policies=1)
+
+		policy = self.orphaned_policies[0]
+		self.assertEqual("MyPolicy", policy.Name)
+		self.assertEqual("/", policy.Path)
+		self.assertEqual(sample_policy_a, policy.Policy)
+
+
+class WhenParsingAPolicyThatIsAttachedToAnExternalUser(IdentityParserTest):
+	@mock_identity_parser_setup()
+	def test_returns_an_orphaned_policy(self):
+		template = load({
+			'Parameters': {
+				'UserA': {},
+				'UserB': {}
+			},
+			'Resources': {
+				'ManagedPolicy': {
+					'Type': 'AWS::IAM::Policy',
+					'Properties': {
+						'PolicyName': 'MyPolicy',
+						'PolicyDocument': copy.deepcopy(sample_policy_a),
+						'Users': [
+							{'Ref': 'UserA'},
+							{'Ref': 'UserB'}
+						]
+					}
+				}
+			}
+		}, {
+			'UserA': 'MyUserA',
+			'UserB': 'MyUserB'
+		})
+
+		self.parse(template, account_config)
+		self.assertResults(number_of_orphaned_policies=1)
+
+		policy = self.orphaned_policies[0]
+		self.assertEqual("MyPolicy", policy.Name)
+		self.assertEqual("/", policy.Path)
+		self.assertEqual(sample_policy_a, policy.Policy)
+
+
+class WhenParsingAPolicyThatIsAttachedToAnExternalGroup(IdentityParserTest):
+	@mock_identity_parser_setup()
+	def test_returns_an_orphaned_policy(self):
+		template = load({
+			'Parameters': {
+				'GroupA': {},
+				'GroupB': {}
+			},
+			'Resources': {
+				'ManagedPolicy': {
+					'Type': 'AWS::IAM::Policy',
+					'Properties': {
+						'PolicyName': 'MyPolicy',
+						'PolicyDocument': copy.deepcopy(sample_policy_a),
+						'Groups': [
+							{'Ref': 'GroupA'},
+							{'Ref': 'GroupB'}
+						]
+					}
+				}
+			}
+		}, {
+			'GroupA': 'MyGroupA',
+			'GroupB': 'MyGroupB'
+		})
+
+		self.parse(template, account_config)
+		self.assertResults(number_of_orphaned_policies=1)
+
+		policy = self.orphaned_policies[0]
+		self.assertEqual("MyPolicy", policy.Name)
+		self.assertEqual("/", policy.Path)
+		self.assertEqual(sample_policy_a, policy.Policy)

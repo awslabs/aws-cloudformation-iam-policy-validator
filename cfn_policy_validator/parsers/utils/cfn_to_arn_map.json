@@ -758,6 +758,13 @@
                 "ServicePrefix": "sagemaker",
                 "ResourceType": "image"
             }
+        },
+        "ModelPackage": {
+            "ModelPackageArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-package/${ModelPackageName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "model-package"
+            }
         }
     },
     "KMS": {
@@ -1342,6 +1349,9 @@
                 "ServicePrefix": "iot",
                 "ResourceType": "rolealias"
             }
+        },
+        "CACertificate": {
+            "Arn": null
         }
     },
     "RoboMaker": {
@@ -3772,6 +3782,130 @@
                 "Value": "arn:${Partition}:fsx:${Region}:${Account}:snapshot/${VolumeId}/${SnapshotId}",
                 "ServicePrefix": "fsx",
                 "ResourceType": "snapshot"
+            }
+        }
+    },
+    "IoTSiteWise": {
+        "AssetModel": {
+            "AssetModelArn": {
+                "Value": "arn:${Partition}:iotsitewise:${Region}:${Account}:asset-model/${AssetModelId}",
+                "ServicePrefix": "iotsitewise",
+                "ResourceType": "asset-model"
+            }
+        },
+        "Asset": {
+            "Ref": {
+                "Value": "arn:${Partition}:iotsitewise:${Region}:${Account}:asset/${AssetId}",
+                "ServicePrefix": "iotsitewise",
+                "ResourceType": "asset"
+            },
+            "AssetArn": {
+                "Value": "arn:${Partition}:iotsitewise:${Region}:${Account}:asset/${AssetId}",
+                "ServicePrefix": "iotsitewise",
+                "ResourceType": "asset"
+            }
+        },
+        "Dashboard": {
+            "DashboardArn": {
+                "Value": "arn:${Partition}:iotsitewise:${Region}:${Account}:dashboard/${DashboardId}",
+                "ServicePrefix": "iotsitewise",
+                "ResourceType": "dashboard"
+            }
+        },
+        "Portal": {
+            "PortalArn": {
+                "Value": "arn:${Partition}:iotsitewise:${Region}:${Account}:portal/${PortalId}",
+                "ServicePrefix": "iotsitewise",
+                "ResourceType": "portal"
+            }
+        },
+        "AccessPolicy": {
+            "AccessPolicyArn": {
+                "Value": "arn:${Partition}:iotsitewise:${Region}:${Account}:access-policy/${AccessPolicyId}",
+                "ServicePrefix": "iotsitewise",
+                "ResourceType": "access-policy"
+            }
+        },
+        "Project": {
+            "ProjectArn": {
+                "Value": "arn:${Partition}:iotsitewise:${Region}:${Account}:project/${ProjectId}",
+                "ServicePrefix": "iotsitewise",
+                "ResourceType": "project"
+            }
+        }
+    },
+    "MediaPackage": {
+        "Channel": {
+            "Arn": {
+                "Value": "arn:${Partition}:mediapackage:${Region}:${Account}:channels/${ChannelIdentifier}",
+                "ServicePrefix": "mediapackage",
+                "ResourceType": "channels"
+            }
+        },
+        "PackagingConfiguration": {
+            "Arn": {
+                "Value": "arn:${Partition}:mediapackage-vod:${Region}:${Account}:packaging-configurations/${PackagingConfigurationIdentifier}",
+                "ServicePrefix": "mediapackage-vod",
+                "ResourceType": "packaging-configurations"
+            }
+        },
+        "Asset": {
+            "Arn": {
+                "Value": "arn:${Partition}:mediapackage-vod:${Region}:${Account}:assets/${AssetIdentifier}",
+                "ServicePrefix": "mediapackage-vod",
+                "ResourceType": "assets"
+            }
+        },
+        "PackagingGroup": {
+            "Arn": {
+                "Value": "arn:${Partition}:mediapackage-vod:${Region}:${Account}:packaging-groups/${PackagingGroupIdentifier}",
+                "ServicePrefix": "mediapackage-vod",
+                "ResourceType": "packaging-groups"
+            }
+        },
+        "OriginEndpoint": {
+            "Arn": {
+                "Value": "arn:${Partition}:mediapackage:${Region}:${Account}:origin_endpoints/${OriginEndpointIdentifier}",
+                "ServicePrefix": "mediapackage",
+                "ResourceType": "origin_endpoints"
+            }
+        }
+    },
+    "AppStream": {
+        "AppBlock": {
+            "Ref": {
+                "Value": "arn:${Partition}:appstream:${Region}:${Account}:app-block/${AppBlockName}",
+                "ServicePrefix": "appstream",
+                "ResourceType": "app-block"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:appstream:${Region}:${Account}:app-block/${AppBlockName}",
+                "ServicePrefix": "appstream",
+                "ResourceType": "app-block"
+            }
+        },
+        "ApplicationFleetAssociation": {
+            "Ref": null
+        },
+        "Application": {
+            "Ref": {
+                "Value": "arn:${Partition}:appstream:${Region}:${Account}:application/${ApplicationName}",
+                "ServicePrefix": "appstream",
+                "ResourceType": "application"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:appstream:${Region}:${Account}:application/${ApplicationName}",
+                "ServicePrefix": "appstream",
+                "ResourceType": "application"
+            }
+        }
+    },
+    "Route53": {
+        "CidrCollection": {
+            "Arn": {
+                "Value": "arn:${Partition}:route53:::cidrcollection/${Id}",
+                "ServicePrefix": "route53",
+                "ResourceType": "cidrcollection"
             }
         }
     }
