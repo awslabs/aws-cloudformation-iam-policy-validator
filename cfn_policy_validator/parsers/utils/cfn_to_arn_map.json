@@ -357,6 +357,49 @@
                 "ServicePrefix": "networkmanager",
                 "ResourceType": "site"
             }
+        },
+        "ConnectAttachment": {
+            "CoreNetworkArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:core-network/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "core-network"
+            },
+            "ResourceArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:attachment/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "attachment"
+            }
+        },
+        "SiteToSiteVpnAttachment": {
+            "CoreNetworkArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:core-network/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "core-network"
+            },
+            "ResourceArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:attachment/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "attachment"
+            }
+        },
+        "VpcAttachment": {
+            "CoreNetworkArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:core-network/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "core-network"
+            },
+            "ResourceArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:attachment/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "attachment"
+            }
+        },
+        "CoreNetwork": {
+            "CoreNetworkArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:core-network/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "core-network"
+            }
         }
     },
     "StepFunctions": {
@@ -1250,6 +1293,13 @@
                 "ServicePrefix": "sns",
                 "ResourceType": "topic"
             }
+        },
+        "EventDataStore": {
+            "EventDataStoreArn": {
+                "Value": "arn:${Partition}:cloudtrail:${Region}:${Account}:eventdatastore/${EventDataStoreId}",
+                "ServicePrefix": "cloudtrail",
+                "ResourceType": "eventdatastore"
+            }
         }
     },
     "IoT": {
@@ -1600,7 +1650,8 @@
     },
     "AutoScaling": {
         "ScalingPolicy": {
-            "Ref": null
+            "Ref": null,
+            "Arn": null
         }
     },
     "Detective": {
@@ -2110,6 +2161,18 @@
         "Configuration": {
             "Ref": null,
             "Arn": null
+        },
+        "ServerlessCluster": {
+            "Ref": {
+                "Value": "arn:${Partition}:kafka:${Region}:${Account}:cluster/${ClusterName}/${ClusterUuid}",
+                "ServicePrefix": "kafka-cluster",
+                "ResourceType": "cluster"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:kafka:${Region}:${Account}:cluster/${ClusterName}/${ClusterUuid}",
+                "ServicePrefix": "kafka-cluster",
+                "ResourceType": "cluster"
+            }
         }
     },
     "DynamoDB": {
@@ -2326,6 +2389,23 @@
         },
         "LocationFSxOpenZFS": {
             "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            },
+            "LocationArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            }
+        },
+        "LocationFSxONTAP": {
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            },
+            "FsxFilesystemArn": {
                 "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
                 "ServicePrefix": "datasync",
                 "ResourceType": "location"
@@ -3626,6 +3706,10 @@
                 "ServicePrefix": "evidently",
                 "ResourceType": "feature"
             }
+        },
+        "Segment": {
+            "Ref": null,
+            "Arn": null
         }
     },
     "Rekognition": {
@@ -3666,7 +3750,7 @@
         },
         "ResiliencyPolicy": {
             "Ref": {
-                "Value": "arn:${Partition}:resiliencehub:${Region}:${Account}:resiliency-policy/${ResiliencyPolicyID}",
+                "Value": "arn:${Partition}:resiliencehub:${Region}:${Account}:resiliency-policy/${ResiliencyPolicyId}",
                 "ServicePrefix": "resiliencehub",
                 "ResourceType": "resiliency-policy"
             },
@@ -3906,6 +3990,22 @@
                 "Value": "arn:${Partition}:route53:::cidrcollection/${Id}",
                 "ServicePrefix": "route53",
                 "ResourceType": "cidrcollection"
+            }
+        }
+    },
+    "RolesAnywhere": {
+        "Profile": {
+            "ProfileArn": {
+                "Value": "arn:${Partition}:rolesanywhere::${Account}:profile/${ProfileId}",
+                "ServicePrefix": "rolesanywhere",
+                "ResourceType": "profile"
+            }
+        },
+        "TrustAnchor": {
+            "TrustAnchorArn": {
+                "Value": "arn:${Partition}:rolesanywhere::${Account}:trust-anchor/${TrustAnchorId}",
+                "ServicePrefix": "rolesanywhere",
+                "ResourceType": "trust-anchor"
             }
         }
     }
