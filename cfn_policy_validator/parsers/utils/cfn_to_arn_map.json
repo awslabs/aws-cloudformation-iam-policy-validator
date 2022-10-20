@@ -645,6 +645,11 @@
                 "Value": "arn:${Partition}:sns:${Region}:${Account}:${TopicName}",
                 "ServicePrefix": "sns",
                 "ResourceType": "topic"
+            },
+            "TopicArn": {
+                "Value": "arn:${Partition}:sns:${Region}:${Account}:${TopicName}",
+                "ServicePrefix": "sns",
+                "ResourceType": "topic"
             }
         }
     },
@@ -1959,6 +1964,13 @@
                 "Value": "arn:${Partition}:macie2:${Region}:${Account}:custom-data-identifier/${ResourceId}",
                 "ServicePrefix": "macie2",
                 "ResourceType": "custom-data-identifier"
+            }
+        },
+        "AllowList": {
+            "Arn": {
+                "Value": "arn:${Partition}:macie2:${Region}:${Account}:allow-list/${ResourceId}",
+                "ServicePrefix": "macie2",
+                "ResourceType": "allow-list"
             }
         }
     },
@@ -3661,55 +3673,63 @@
     "Evidently": {
         "Launch": {
             "Ref": {
-                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}/launch/${LaunchName}",
+                "Value": "arn:${Partition}:evidently:${Region}:${Account}:project/${ProjectName}/launch/${LaunchName}",
                 "ServicePrefix": "evidently",
                 "ResourceType": "launch"
             },
             "Arn": {
-                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}/launch/${LaunchName}",
+                "Value": "arn:${Partition}:evidently:${Region}:${Account}:project/${ProjectName}/launch/${LaunchName}",
                 "ServicePrefix": "evidently",
                 "ResourceType": "launch"
             }
         },
         "Experiment": {
             "Ref": {
-                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}/experiment/${ExperimentName}",
+                "Value": "arn:${Partition}:evidently:${Region}:${Account}:project/${ProjectName}/experiment/${ExperimentName}",
                 "ServicePrefix": "evidently",
                 "ResourceType": "experiment"
             },
             "Arn": {
-                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}/experiment/${ExperimentName}",
+                "Value": "arn:${Partition}:evidently:${Region}:${Account}:project/${ProjectName}/experiment/${ExperimentName}",
                 "ServicePrefix": "evidently",
                 "ResourceType": "experiment"
             }
         },
         "Project": {
             "Ref": {
-                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}",
+                "Value": "arn:${Partition}:evidently:${Region}:${Account}:project/${ProjectName}",
                 "ServicePrefix": "evidently",
                 "ResourceType": "project"
             },
             "Arn": {
-                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}",
+                "Value": "arn:${Partition}:evidently:${Region}:${Account}:project/${ProjectName}",
                 "ServicePrefix": "evidently",
                 "ResourceType": "project"
             }
         },
         "Feature": {
             "Ref": {
-                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}/feature/${FeatureName}",
+                "Value": "arn:${Partition}:evidently:${Region}:${Account}:project/${ProjectName}/feature/${FeatureName}",
                 "ServicePrefix": "evidently",
                 "ResourceType": "feature"
             },
             "Arn": {
-                "Value": "arn:${Partition}:evidently:${Region}:${OwnerAccountId}:project/${ProjectName}/feature/${FeatureName}",
+                "Value": "arn:${Partition}:evidently:${Region}:${Account}:project/${ProjectName}/feature/${FeatureName}",
                 "ServicePrefix": "evidently",
                 "ResourceType": "feature"
             }
         },
         "Segment": {
-            "Ref": null,
-            "Arn": null
+            "Ref": {
+                "Value": "arn:${Partition}:evidently:${Region}:${Account}:segment/${SegmentName}",
+                "ServicePrefix": "evidently",
+                "ResourceType": "segment"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:evidently:${Region}:${Account}:segment/${SegmentName}",
+                "ServicePrefix": "evidently",
+                "ResourceType": "segment"
+            }
         }
     },
     "Rekognition": {
@@ -4006,6 +4026,15 @@
                 "Value": "arn:${Partition}:rolesanywhere::${Account}:trust-anchor/${TrustAnchorId}",
                 "ServicePrefix": "rolesanywhere",
                 "ResourceType": "trust-anchor"
+            }
+        }
+    },
+    "Pinpoint": {
+        "InAppTemplate": {
+            "Arn": {
+                "Value": "arn:${Partition}:mobiletargeting:${Region}:${Account}:templates/${TemplateName}/${ChannelType}",
+                "ServicePrefix": "mobiletargeting",
+                "ResourceType": "templates"
             }
         }
     }
