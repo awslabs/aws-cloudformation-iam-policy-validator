@@ -10,7 +10,7 @@ from unittest.mock import patch, ANY
 
 import cfn_policy_validator
 from cfn_policy_validator import parse, validate
-from cfn_policy_validator.tests import ParsingTest, account_config, ValidationTest, end_to_end, mock_validation_setup
+from cfn_policy_validator.tests import ParsingTest, account_config, ValidationTest, end_to_end
 from cfn_policy_validator.tests.utils import ignore_warnings
 from cfn_policy_validator.validation.reporter import ResourceAndCodeFindingToIgnore, AllowedExternalPrincipal, \
     ResourceOrCodeFindingToIgnore, AllowedExternalArn, default_finding_types_that_are_blocking
@@ -103,12 +103,13 @@ class WhenValidatingATemplateAsLibrary(ValidationTest):
         self.assert_warning('WARNING', 'MISSING_VERSION', 'prod-app-artifacts', 'BucketPolicy')
         self.assert_warning('WARNING', 'MISSING_VERSION', 'MyQueue', 'QueuePolicy')
 
-        self.assertEqual(8, len(self.output['BlockingFindings']))
+        self.assertEqual(9, len(self.output['BlockingFindings']))
         self.assert_error('ERROR', 'MISSING_ARN_FIELD', 'CodePipelineServiceRole', 'root')
         self.assert_error('ERROR', 'MISSING_PRINCIPAL', 'MyQueue', 'QueuePolicy')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'CodePipelineServiceRole', 'root')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'MyIAMGroup', 'root')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'MyPermissionSet', 'InlinePolicy')
+        self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'OtherS3Bucket', 'BucketAcl')
         self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'prod-app-artifacts', 'BucketPolicy')
         self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'MyAccessPoint', 'AccessPointPolicy')
         self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'MyMultiRegionAccessPoint', 'MultiRegionAccessPointPolicy')

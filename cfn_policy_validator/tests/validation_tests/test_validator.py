@@ -3,6 +3,8 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: MIT-0
 """
 import copy
+import json
+import os
 import unittest
 
 from cfn_policy_validator.tests.validation_tests import MockNoFindings, \
@@ -46,6 +48,8 @@ invalid_policy_document = {
 		}
 	]
 }
+
+this_files_directory = os.path.dirname(os.path.realpath(__file__))
 
 
 class WhenValidatingPolicies(unittest.TestCase):
@@ -351,3 +355,63 @@ class WhenValidatingPermissionSets(unittest.TestCase):
 		self.assertEqual('Policy2', second_finding.policyName)
 		self.assertEqual('permission_set2', second_finding.resourceName)
 		self.assertEqual('DATA_TYPE_MISMATCH', second_finding.code)
+
+
+def load_file_with_max_size_policy(file_name):
+	with open(os.path.join(this_files_directory, f'test_files/{file_name}'), 'r') as input_file, \
+			open(os.path.join(this_files_directory, 'test_files/policy_that_exceeds_max_size.json'), 'r') as max_size_policy:
+		input_file = input_file.read()
+		max_size_policy = max_size_policy.read()
+		input_file = input_file.replace("{{max_size_policy}}", max_size_policy)
+		return json.loads(input_file)
+
+
+class WhenValidatingPoliciesAndPolicyExceedsMaximumValidatePolicySize(unittest.TestCase):
+	def setUp(self):
+		account_config = AccountConfig('aws', 'us-east-1', '123456789123')
+		self.output = Output(account_config)
+
+	def add_policies_to_output(self, policy_document):
+		policy1 = Policy('Policy1', copy.deepcopy(policy_document))
+
+		self.output.OrphanedPolicies = [
+			policy1
+		]
+
+	def test_returns_error_finding(self):
+		input_file = load_file_with_max_size_policy('input_with_max_size_policy.json')
+		self.add_policies_to_output(input_file)
+
+		findings = validate_parser_output(self.output)
+		self.assertEqual(1, len(findings.errors))
+		self.assertEqual(0, len(findings.security_warnings))
+		self.assertEqual(0, len(findings.warnings))
+		self.assertEqual(0, len(findings.suggestions))
+
+		first_finding = findings.errors[0]
+		self.assertEqual('Policy1', first_finding.policyName)
+		self.assertEqual('No resource attached', first_finding.resourceName)
+		self.assertEqual('POLICY_SIZE_EXCEEDS_VALIDATE_POLICY_MAXIMUM', first_finding.code)
+
+
+class WhenValidatingPoliciesAndPolicyExceedsMaximumValidatePolicySizeAndIsAWSManagedPolicy(unittest.TestCase):
+	def setUp(self):
+		account_config = AccountConfig('aws', 'us-east-1', '123456789123')
+		self.output = Output(account_config)
+
+	def add_policies_to_output(self, policy_document):
+		policy1 = Policy('Policy1', copy.deepcopy(policy_document), is_aws_managed_policy=True)
+
+		self.output.OrphanedPolicies = [
+			policy1
+		]
+
+	def test_ignores_max_size(self):
+		input_file = load_file_with_max_size_policy('input_with_max_size_policy.json')
+		self.add_policies_to_output(input_file)
+
+		findings = validate_parser_output(self.output)
+		self.assertEqual(0, len(findings.errors))
+		self.assertEqual(0, len(findings.security_warnings))
+		self.assertEqual(0, len(findings.warnings))
+		self.assertEqual(0, len(findings.suggestions))

@@ -1,0 +1,65 @@
+{
+    "Account": "123456789",
+    "Groups": [
+        {
+            "GroupName": "MyIAMGroup",
+            "GroupPath": "/my-test-group-path/",
+            "Policies": [
+                {
+                    "Name": "root",
+                    "Path": "/",
+                    "IsAWSManagedPolicy": false,
+                    "Policy": {{max_size_policy}}
+                }
+            ]
+        }
+    ],
+    "OrphanedPolicies": [
+        {
+            "Name": "MyManagedUserPolicy",
+            "Path": "/",
+            "IsAWSManagedPolicy": false,
+            "Policy": {{max_size_policy}}
+        }
+    ],
+    "Region": "us-east-1",
+    "Roles": [
+        {
+            "Policies": [
+                {
+                    "Name": "root",
+                    "Path": "/",
+                    "IsAWSManagedPolicy": false,
+                    "Policy": {{max_size_policy}}
+                }
+            ],
+            "RoleName": "CodePipelineServiceRole",
+            "RolePath": "/",
+            "TrustPolicy": {
+                "Statement": [
+                    {
+                        "Action": "sts:AssumeRole",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": "*"
+                        }
+                    }
+                ],
+                "Version": "2012-10-17"
+            }
+        }
+    ],
+    "Users": [
+        {
+            "Policies": [{
+                    "Name": "MyIAMPolicy",
+                    "Path": "/",
+                    "IsAWSManagedPolicy": false,
+                    "Policy": {{max_size_policy}}
+                }
+            ],
+            "UserName": "MyIAMUser",
+            "UserPath": "/my-test-path/"
+        }
+    ]
+}

@@ -8,6 +8,7 @@
                 {
                     "Name": "root",
                     "Path": "/",
+                    "IsAWSManagedPolicy": false,
                     "Policy": {
                         "Statement": [
                             {
@@ -50,6 +51,7 @@
                 {
                     "Name": "MyManagedPolicy",
                     "Path": "/",
+                    "IsAWSManagedPolicy": false,
                     "Policy": {
                         "Statement": [
                             {
@@ -77,6 +79,7 @@
         {
             "Name": "MyManagedUserPolicy",
             "Path": "/",
+            "IsAWSManagedPolicy": false,
             "Policy": {
                 "Statement": [
                     {
@@ -105,6 +108,7 @@
                 {
                     "Name": "ArtifactBucketPolicy",
                     "Path": "/",
+                    "IsAWSManagedPolicy": false,
                     "Policy": {
                         "Version": "2012-10-17",
                         "Statement": [
@@ -131,6 +135,7 @@
                 {
                     "Name": "MyQueuePolicy",
                     "Path": "/",
+                    "IsAWSManagedPolicy": false,
                     "Policy": {
                         "Statement": [
                             {
@@ -158,6 +163,7 @@
                 {
                     "Name": "MySecretResourcePolicy",
                     "Path": "/",
+                    "IsAWSManagedPolicy": false,
                     "Policy": {
                         "Statement": [
                             {
@@ -183,6 +189,7 @@
                 {
                     "Name": "root",
                     "Path": "/",
+                    "IsAWSManagedPolicy": false,
                     "Policy": {
                         "Statement": [
                             {
@@ -244,6 +251,7 @@
                 {
                     "Name": "root",
                     "Path": "/",
+                    "IsAWSManagedPolicy": false,
                     "Policy": {
                         "Statement": [
                             {
@@ -288,6 +296,7 @@
                 {
                     "Name": "AWSLambdaBasicExecutionRole",
                     "Path": "/service-role/",
+                    "IsAWSManagedPolicy": true,
                     "Policy": {
                         "Statement": [
                             {
@@ -326,6 +335,7 @@
                 {
                     "Name": "root",
                     "Path": "/",
+                    "IsAWSManagedPolicy": false,
                     "Policy": {
                         "Statement": [
                             {
@@ -368,6 +378,7 @@
                 {
                     "Name": "MyIAMRole",
                     "Path": "/",
+                    "IsAWSManagedPolicy": false,
                     "Policy": {
                         "Statement": [
                             {

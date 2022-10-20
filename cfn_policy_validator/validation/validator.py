@@ -46,6 +46,9 @@ def validate_parser_output(parser_output):
 
 
 class Validator:
+	RESOURCE_POLICY_TYPE = 'RESOURCE_POLICY'
+	IDENTITY_POLICY_TYPE = 'IDENTITY_POLICY'
+
 	def __init__(self, account_id, region, partition):
 		self.findings = Findings()
 		self.access_analyzer_name = 'AnalyzerCreatedByCfnIAMPolicyValidator'
@@ -84,10 +87,7 @@ class Validator:
 		previews_to_await = []
 		for role in roles:
 			LOGGER.info(f'Validating trust policy for role {role.RoleName}..')
-			response = self.client.validate_policy(
-				policyType='RESOURCE_POLICY',
-				policyDocument=json.dumps(role.TrustPolicy)
-			)
+			response = self._validate_policy(role.TrustPolicy, self.RESOURCE_POLICY_TYPE, False)
 			LOGGER.info(f'ValidatePolicy response: {response}')
 
 			validation_findings = response['findings']
@@ -100,10 +100,7 @@ class Validator:
 			# validate identity policies attached to the role
 			for policy in role.Policies:
 				LOGGER.info(f'Validating identity policy for {role.RoleName} with name {policy.Name}')
-				response = self.client.validate_policy(
-					policyType='IDENTITY_POLICY',
-					policyDocument=json.dumps(policy.Policy)
-				)
+				response = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
 				LOGGER.info(f'ValidatePolicy response: {response}')
 				self.findings.add_validation_finding(response['findings'], role.RoleName, policy.Name)
 
@@ -130,10 +127,7 @@ class Validator:
 		resource_name = 'No resource attached'
 		for policy in policies:
 			LOGGER.info(f'Validating identity policy for {policy.Name}')
-			response = self.client.validate_policy(
-				policyType='IDENTITY_POLICY',
-				policyDocument=json.dumps(policy.Policy)
-			)
+			response = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
 			LOGGER.info(f'ValidatePolicy response: {response}')
 			self.findings.add_validation_finding(response['findings'], resource_name, policy.Name)
 
@@ -144,10 +138,7 @@ class Validator:
 		for user in users:
 			for policy in user.Policies:
 				LOGGER.info(f'Validating identity policy for user {user.UserName} with policy name {policy.Name}')
-				response = self.client.validate_policy(
-					policyType='IDENTITY_POLICY',
-					policyDocument=json.dumps(policy.Policy)
-				)
+				response = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
 				LOGGER.info(f'ValidatePolicy response {response}')
 				self.findings.add_validation_finding(response['findings'], user.UserName, policy.Name)
 
@@ -158,10 +149,7 @@ class Validator:
 		for group in groups:
 			for policy in group.Policies:
 				LOGGER.info(f'Validating identity policy for group {group.GroupName} with policy name {policy.Name}')
-				response = self.client.validate_policy(
-					policyType='IDENTITY_POLICY',
-					policyDocument=json.dumps(policy.Policy)
-				)
+				response = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
 				LOGGER.info(f'ValidatePolicy response {response}')
 				self.findings.add_validation_finding(response['findings'], group.GroupName, policy.Name)
 
@@ -172,10 +160,7 @@ class Validator:
 		for permission_set in permission_sets:
 			for policy in permission_set.Policies:
 				LOGGER.info(f'Validating identity policy for permission set {permission_set.Name} with policy name {policy.Name}')
-				response = self.client.validate_policy(
-					policyType='IDENTITY_POLICY',
-					policyDocument=json.dumps(policy.Policy)
-				)
+				response = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
 				LOGGER.info(f'ValidatePolicy response {response}')
 				self.findings.add_validation_finding(response['findings'], permission_set.Name, policy.Name)
 
@@ -194,19 +179,7 @@ class Validator:
 				LOGGER.info(f'Validating resource policy for resource {resource.ResourceName} of type {resource.ResourceType}')
 
 				validate_policy_resource_type = self.service_specific_policy_validation.get(resource.ResourceType)
-				if validate_policy_resource_type is None:
-					response = self.client.validate_policy(
-						policyType='RESOURCE_POLICY',
-						policyDocument=json.dumps(resource.Policy.Policy)
-					)
-				else:
-					LOGGER.info(f'Running service specific policy validation for {validate_policy_resource_type}')
-					response = self.client.validate_policy(
-						policyType='RESOURCE_POLICY',
-						policyDocument=json.dumps(resource.Policy.Policy),
-						validatePolicyResourceType=validate_policy_resource_type
-					)
-
+				response = self._validate_policy(resource.Policy.Policy, self.RESOURCE_POLICY_TYPE, False, validate_policy_resource_type)
 				LOGGER.info(f'ValidatePolicy response {response}')
 				validation_findings = response['findings']
 				self.findings.add_validation_finding(validation_findings, resource.ResourceName, resource.Policy.Name)
@@ -241,6 +214,43 @@ class Validator:
 			self.findings.add_external_principal_finding(access_preview_finding.findings,
 														 access_preview_finding.resource.ResourceName,
 														 access_preview_finding.resource.Policy.Name)
+
+	def _validate_policy(self, policy_as_json, policy_type, is_aws_managed_policy, resource_type=None):
+		policy_as_string = json.dumps(policy_as_json)
+		policy_without_whitespace = policy_as_string.replace(" ", "")
+		length_of_policy_without_whitespace = len(policy_without_whitespace)
+		if length_of_policy_without_whitespace >= 32768:
+			if is_aws_managed_policy:
+				LOGGER.info(f'AWS managed policy has length {length_of_policy_without_whitespace} which exceeds the max size (32768 bytes) for ValidatePolicy call.  Ignoring..')
+				return {'findings': []}
+			else:
+				# if this is a customer policy, we return an error finding
+				return {
+					'findings': [self._build_policy_size_finding(length_of_policy_without_whitespace)]
+				}
+
+		if resource_type is None:
+			response = self.client.validate_policy(
+				policyType=policy_type,
+				policyDocument=policy_as_string
+			)
+		else:
+			LOGGER.info(f'Running service specific policy validation for {resource_type}')
+			response = self.client.validate_policy(
+				policyType=self.RESOURCE_POLICY_TYPE,
+				policyDocument=policy_as_string,
+				validatePolicyResourceType=resource_type
+			)
+
+		return response
+
+	@staticmethod
+	def _build_policy_size_finding(policy_size):
+		return {
+			'findingType': 'ERROR',
+			'findingDetails': f'The {policy_size} characters in the policy, excluding whitespace, exceed the character maximum for the ValidatePolicy API. We recommend that you use multiple granular policies.',
+			'issueCode': 'POLICY_SIZE_EXCEEDS_VALIDATE_POLICY_MAXIMUM'
+		}
 
 	def _wait_for_findings(self, previews_to_await):
 		findings = []

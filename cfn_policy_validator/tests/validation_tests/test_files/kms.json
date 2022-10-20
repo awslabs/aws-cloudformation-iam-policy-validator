@@ -8,6 +8,7 @@
                 {
                     "Name": "MyKey",
                     "Path": "/",
+                    "IsAWSManagedPolicy": false,
                     "Policy": {
                         "Id": "key-default-1",
                         "Statement": [

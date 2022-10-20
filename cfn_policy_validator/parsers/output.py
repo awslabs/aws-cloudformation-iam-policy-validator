@@ -162,10 +162,11 @@ class PermissionSet(IdentityWithPolicies):
 
 
 class Policy:
-    def __init__(self, name, document, path="/"):
+    def __init__(self, name, document, path="/", is_aws_managed_policy=False):
         self.Name = name
         self.Policy = document
         self.Path = path
+        self.IsAWSManagedPolicy = is_aws_managed_policy
 
     def __eq__(self, other):
         if not isinstance(other, Policy):
@@ -174,8 +175,9 @@ class Policy:
         names_are_equal = self.Name == other.Name
         paths_are_equal = self.Path == other.Path
         policies_are_equal = self.Policy == other.Policy
+        is_managed_policy_is_equal = self.IsAWSManagedPolicy == other.IsAWSManagedPolicy
 
-        return names_are_equal and paths_are_equal and policies_are_equal
+        return names_are_equal and paths_are_equal and policies_are_equal and is_managed_policy_is_equal
 
     def __lt__(self, other):
         return self.Name < other.Name
@@ -185,7 +187,7 @@ class Policy:
 
 
 class Resource:
-    def __init__(self, resource_name, resource_type, policy, configuration=None):
+    def __init__(self, resource_name, resource_type, policy: Policy, configuration=None):
         if configuration is None:
             configuration = {}
 

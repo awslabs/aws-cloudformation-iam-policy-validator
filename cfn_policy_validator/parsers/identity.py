@@ -118,7 +118,13 @@ class AttachedPolicyParser:
 			response = self.client.get_policy_version(PolicyArn=arn, VersionId=default_version_id)
 			policy_document = response['PolicyVersion']['Document']
 
-			policy = Policy(policy_name, policy_document, policy_path)
+			# it must be a valid ARN if we made it this far
+			arn_parts = arn.split(':')
+			account_id = arn_parts[4]
+			# record whether this is an AWS managed policy because we may treat them slightly different for validation
+			is_aws_managed_policy = account_id.lower() == 'aws'
+
+			policy = Policy(policy_name, policy_document, policy_path, is_aws_managed_policy)
 			principal.add_policy(policy)
 
 
