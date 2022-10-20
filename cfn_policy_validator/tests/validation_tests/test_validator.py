@@ -378,6 +378,7 @@ class WhenValidatingPoliciesAndPolicyExceedsMaximumValidatePolicySize(unittest.T
 			policy1
 		]
 
+	@mock_access_analyzer_identity_setup()
 	def test_returns_error_finding(self):
 		input_file = load_file_with_max_size_policy('input_with_max_size_policy.json')
 		self.add_policies_to_output(input_file)
@@ -406,6 +407,7 @@ class WhenValidatingPoliciesAndPolicyExceedsMaximumValidatePolicySizeAndIsAWSMan
 			policy1
 		]
 
+	@mock_access_analyzer_identity_setup()
 	def test_ignores_max_size(self):
 		input_file = load_file_with_max_size_policy('input_with_max_size_policy.json')
 		self.add_policies_to_output(input_file)
