@@ -6,5 +6,6 @@ name_hints = {
 	'AWS::IAM::Role': 'RoleName',
 	'AWS::IAM::User': 'UserName',
 	'AWS::IAM::Group': 'GroupName',
-	'AWS::SQS::Queue': 'QueueName'
+	'AWS::SQS::Queue': 'QueueName',
+	'AWS::SSM::Parameter': 'Name',
 }
