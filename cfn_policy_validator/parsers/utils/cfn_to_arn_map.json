@@ -1215,6 +1215,11 @@
                 "ServicePrefix": "elasticloadbalancing",
                 "ResourceType": "loadbalancer/app/",
                 "DoNotUpdate": "ELBv2 ARNs are dynamic based on the type of load balancer. This should default to loadbalancer/app/."
+            },
+            "TargetGroupArn": {
+                "Value": "arn:${Partition}:elasticloadbalancing:${Region}:${Account}:targetgroup/${TargetGroupName}/${TargetGroupId}",
+                "ServicePrefix": "elasticloadbalancing",
+                "ResourceType": "targetgroup"
             }
         }
     },
@@ -1262,6 +1267,13 @@
                 "Value": "arn:${Partition}:gamelift:${Region}:${Account}:gameservergroup/${GameServerGroupName}",
                 "ServicePrefix": "gamelift",
                 "ResourceType": "game-server-group"
+            }
+        },
+        "Location": {
+            "LocationArn": {
+                "Value": "arn:${Partition}:gamelift:${Region}::location/${LocationId}",
+                "ServicePrefix": "gamelift",
+                "ResourceType": "location"
             }
         }
     },
@@ -1407,6 +1419,13 @@
         },
         "CACertificate": {
             "Arn": null
+        },
+        "Thing": {
+            "Arn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:thing/${ThingName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "thing"
+            }
         }
     },
     "RoboMaker": {
@@ -1809,6 +1828,34 @@
                 "ServicePrefix": "transfer",
                 "ResourceType": "workflow"
             }
+        },
+        "Profile": {
+            "Arn": {
+                "Value": "arn:${Partition}:transfer:${Region}:${Account}:profile/${ProfileId}",
+                "ServicePrefix": "transfer",
+                "ResourceType": "profile"
+            }
+        },
+        "Connector": {
+            "Arn": {
+                "Value": "arn:${Partition}:transfer:${Region}:${Account}:connector/${ConnectorId}",
+                "ServicePrefix": "transfer",
+                "ResourceType": "connector"
+            }
+        },
+        "Certificate": {
+            "Arn": {
+                "Value": "arn:${Partition}:transfer:${Region}:${Account}:certificate/${CertificateId}",
+                "ServicePrefix": "transfer",
+                "ResourceType": "certificate"
+            }
+        },
+        "Agreement": {
+            "Arn": {
+                "Value": "arn:${Partition}:transfer:${Region}:${Account}:agreement/${AgreementId}",
+                "ServicePrefix": "transfer",
+                "ResourceType": "agreement"
+            }
         }
     },
     "Events": {
@@ -2069,6 +2116,11 @@
                 "Value": "arn:${Partition}:route53resolver:${Region}:${Account}:resolver-endpoint/${ResourceId}",
                 "ServicePrefix": "route53resolver",
                 "ResourceType": "resolver-endpoint"
+            },
+            "OutpostArn": {
+                "Value": "arn:${Partition}:outposts:${Region}:${Account}:outpost:${OutpostId}",
+                "ServicePrefix": "outposts",
+                "ResourceType": "outpost"
             }
         },
         "ResolverQueryLoggingConfig": {
@@ -2257,6 +2309,20 @@
                 "Value": "arn:${Partition}:rds:${Region}:${Account}:db-proxy-endpoint:${DbProxyEndpointId}",
                 "ServicePrefix": "rds",
                 "ResourceType": "proxy-endpoint"
+            }
+        },
+        "DBCluster": {
+            "DBClusterArn": {
+                "Value": "arn:${Partition}:rds:${Region}:${Account}:cluster:${DbClusterInstanceName}",
+                "ServicePrefix": "rds",
+                "ResourceType": "cluster"
+            }
+        },
+        "DBInstance": {
+            "DBInstanceArn": {
+                "Value": "arn:${Partition}:rds:${Region}:${Account}:db:${DbInstanceName}",
+                "ServicePrefix": "rds",
+                "ResourceType": "db"
             }
         }
     },
@@ -2720,7 +2786,9 @@
                 "Value": "arn:${Partition}:ec2:${Region}:${Account}:network-insights-path/${NetworkInsightsPathId}",
                 "ServicePrefix": "ec2",
                 "ResourceType": "network-insights-path"
-            }
+            },
+            "SourceArn": null,
+            "DestinationArn": null
         },
         "PrefixList": {
             "Arn": {
@@ -3075,6 +3143,13 @@
                 "ResourceType": "connectorprofile"
             },
             "CredentialsArn": null
+        },
+        "Connector": {
+            "ConnectorArn": {
+                "Value": "arn:${Partition}:appflow:${Region}:${Account}:connector/${ConnectorLabel}",
+                "ServicePrefix": "appflow",
+                "ResourceType": "connector"
+            }
         }
     },
     "Signer": {
@@ -3142,7 +3217,7 @@
     "EMRContainers": {
         "VirtualCluster": {
             "Arn": {
-                "Value": "arn:${Partition}:emr-containers:${Region}:${Account}:/virtualclusters/${virtualClusterId}",
+                "Value": "arn:${Partition}:emr-containers:${Region}:${Account}:/virtualclusters/${VirtualClusterId}",
                 "ServicePrefix": "emr-containers",
                 "ResourceType": "virtual-cluster"
             }
@@ -3412,6 +3487,11 @@
                 "Value": "arn:${Partition}:apprunner:${Region}:${Account}:service/${ServiceName}/${ServiceId}",
                 "ServicePrefix": "apprunner",
                 "ResourceType": "service"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:apprunner:${Region}:${Account}:service/${ServiceName}/${ServiceId}",
+                "ServicePrefix": "apprunner",
+                "ResourceType": "service"
             }
         },
         "VpcConnector": {
@@ -3426,6 +3506,13 @@
                 "Value": "arn:${Partition}:apprunner:${Region}:${Account}:observabilityconfiguration/${ObservabilityConfigurationName}/${ObservabilityConfigurationVersion}/${ObservabilityConfigurationId}",
                 "ServicePrefix": "apprunner",
                 "ResourceType": "observabilityconfiguration"
+            }
+        },
+        "VpcIngressConnection": {
+            "VpcIngressConnectionArn": {
+                "Value": "arn:${Partition}:apprunner:${Region}:${Account}:vpcingressconnection/${VpcIngressConnectionName}/${VpcIngressConnectionId}",
+                "ServicePrefix": "apprunner",
+                "ResourceType": "vpcingressconnection"
             }
         }
     },
@@ -3887,6 +3974,20 @@
                 "ServicePrefix": "fsx",
                 "ResourceType": "snapshot"
             }
+        },
+        "DataRepositoryAssociation": {
+            "ResourceARN": {
+                "Value": "arn:${Partition}:fsx:${Region}:${Account}:association/${FileSystemIdOrFileCacheId}/${DataRepositoryAssociationId}",
+                "ServicePrefix": "fsx",
+                "ResourceType": "association"
+            }
+        },
+        "FileSystem": {
+            "ResourceARN": {
+                "Value": "arn:${Partition}:fsx:${Region}:${Account}:file-system/${FileSystemId}",
+                "ServicePrefix": "fsx",
+                "ResourceType": "file-system"
+            }
         }
     },
     "IoTSiteWise": {
@@ -4016,14 +4117,14 @@
     "RolesAnywhere": {
         "Profile": {
             "ProfileArn": {
-                "Value": "arn:${Partition}:rolesanywhere::${Account}:profile/${ProfileId}",
+                "Value": "arn:${Partition}:rolesanywhere:${Region}:${Account}:profile/${ProfileId}",
                 "ServicePrefix": "rolesanywhere",
                 "ResourceType": "profile"
             }
         },
         "TrustAnchor": {
             "TrustAnchorArn": {
-                "Value": "arn:${Partition}:rolesanywhere::${Account}:trust-anchor/${TrustAnchorId}",
+                "Value": "arn:${Partition}:rolesanywhere:${Region}:${Account}:trust-anchor/${TrustAnchorId}",
                 "ServicePrefix": "rolesanywhere",
                 "ResourceType": "trust-anchor"
             }
@@ -4035,6 +4136,123 @@
                 "Value": "arn:${Partition}:mobiletargeting:${Region}:${Account}:templates/${TemplateName}/${ChannelType}",
                 "ServicePrefix": "mobiletargeting",
                 "ResourceType": "templates"
+            }
+        }
+    },
+    "Oam": {
+        "Sink": {
+            "Arn": {
+                "Value": "arn:${Partition}:oam:${Region}:${Account}:sink/${ResourceId}",
+                "ServicePrefix": "oam",
+                "ResourceType": "sink"
+            }
+        },
+        "Link": {
+            "Arn": {
+                "Value": "arn:${Partition}:oam:${Region}:${Account}:link/${ResourceId}",
+                "ServicePrefix": "oam",
+                "ResourceType": "link"
+            }
+        }
+    },
+    "Scheduler": {
+        "ScheduleGroup": {
+            "Arn": {
+                "Value": "arn:${Partition}:scheduler:${Region}:${Account}:schedule-group/${GroupName}",
+                "ServicePrefix": "scheduler",
+                "ResourceType": "schedule-group"
+            }
+        },
+        "Schedule": {
+            "Arn": {
+                "Value": "arn:${Partition}:scheduler:${Region}:${Account}:schedule/${GroupName}/${ScheduleName}",
+                "ServicePrefix": "scheduler",
+                "ResourceType": "schedule"
+            }
+        }
+    },
+    "ResourceExplorer2": {
+        "View": {
+            "Ref": {
+                "Value": "arn:${Partition}:resource-explorer-2:${Region}:${Account}:view/${ViewName}/${ViewUuid}",
+                "ServicePrefix": "resource-explorer-2",
+                "ResourceType": "view"
+            },
+            "ViewArn": {
+                "Value": "arn:${Partition}:resource-explorer-2:${Region}:${Account}:view/${ViewName}/${ViewUuid}",
+                "ServicePrefix": "resource-explorer-2",
+                "ResourceType": "view"
+            }
+        },
+        "Index": {
+            "Ref": {
+                "Value": "arn:${Partition}:resource-explorer-2:${Region}:${Account}:index/${IndexUuid}",
+                "ServicePrefix": "resource-explorer-2",
+                "ResourceType": "index"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:resource-explorer-2:${Region}:${Account}:index/${IndexUuid}",
+                "ServicePrefix": "resource-explorer-2",
+                "ResourceType": "index"
+            }
+        }
+    },
+    "DocDBElastic": {
+        "Cluster": {
+            "ClusterArn": {
+                "Value": "arn:${Partition}:docdb-elastic:${Region}:${Account}:cluster/${ResourceId}",
+                "ServicePrefix": "docdb-elastic",
+                "ResourceType": "cluster"
+            }
+        }
+    },
+    "Pipes": {
+        "Pipe": {
+            "Arn": {
+                "Value": "arn:${Partition}:pipes:${Region}:${Account}:pipe/${Name}",
+                "ServicePrefix": "pipes",
+                "ResourceType": "pipe"
+            }
+        }
+    },
+    "Organizations": {
+        "OrganizationalUnit": {
+            "Arn": {
+                "Value": "arn:${Partition}:organizations::${Account}:ou/o-${OrganizationId}/ou-${OrganizationalUnitId}",
+                "ServicePrefix": "organizations",
+                "ResourceType": "organizationalunit"
+            }
+        },
+        "Policy": {
+            "Arn": {
+                "Value": "arn:${Partition}:organizations::${Account}:policy/o-${OrganizationId}/${PolicyType}/p-${PolicyId}",
+                "ServicePrefix": "organizations",
+                "ResourceType": "policy"
+            }
+        },
+        "Account": {
+            "Arn": {
+                "Value": "arn:${Partition}:organizations::${Account}:account/o-${OrganizationId}/${AccountId}",
+                "ServicePrefix": "organizations",
+                "ResourceType": "account"
+            }
+        }
+    },
+    "EMRServerless": {
+        "Application": {
+            "Arn": {
+                "Value": "arn:${Partition}:emr-serverless:${Region}:${Account}:/applications/${ApplicationId}",
+                "ServicePrefix": "emr-serverless",
+                "ResourceType": "application"
+            }
+        }
+    },
+    "OpenSearchServerless": {
+        "Collection": {
+            "Arn": {
+                "Value": "arn:${Partition}:aoss:${Region}:${Account}:collection/${CollectionId}",
+                "ServicePrefix": "aoss",
+                "ResourceType": "collection"
             }
         }
     }
