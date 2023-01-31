@@ -7,7 +7,7 @@ import unittest
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
-from cfn_policy_validator.tests.utils import load, account_config, load_resources
+from cfn_policy_validator.tests.utils import load, account_config, load_resources, default_get_latest_ssm_parameter_version
 
 
 class WhenEvaluatingAPropertyWithAnUnsupportedFunction(unittest.TestCase):
@@ -24,7 +24,7 @@ class WhenEvaluatingAPropertyWithAnUnsupportedFunction(unittest.TestCase):
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
@@ -58,7 +58,7 @@ class WhenEvaluatingInvalidTemplateWithRefCycle(unittest.TestCase):
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
@@ -94,7 +94,7 @@ class WhenEvaluatingInvalidTemplateWithGetAttCycle(unittest.TestCase):
             'Param1': 'Param1Value'
         }
 
-        node_evaluator = NodeEvaluator(template, account_config, parameters)
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, parameters)
 
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -138,7 +138,7 @@ class WhenEvaluatingInvalidTemplateWithMultipleGetAttCycles(unittest.TestCase):
             'Param1': 'Param1Value'
         }
 
-        node_evaluator = NodeEvaluator(template, account_config, parameters)
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, parameters)
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
@@ -181,7 +181,7 @@ class WhenEvaluatingInvalidTemplateWithSubCycle(unittest.TestCase):
             'Param1': 'Param1Value'
         }
 
-        node_evaluator = NodeEvaluator(template, account_config, parameters)
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, parameters)
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
@@ -215,7 +215,7 @@ class WhenEvaluatingInvalidTemplateWithCycleDuringArnGeneration(unittest.TestCas
             'Param1': 'Param1Value'
         }
 
-        node_evaluator = NodeEvaluator(template, account_config, parameters)
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, parameters)
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
@@ -266,7 +266,7 @@ class WhenEvaluatingInvalidTemplateWithCycleDuringSqsCustomRefEval(unittest.Test
             'Param1': 'Param1Value'
         }
 
-        node_evaluator = NodeEvaluator(template, account_config, parameters)
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, parameters)
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Resources']['ResourceB']['Properties']['Queues'])
 
@@ -296,7 +296,7 @@ class WhenEvaluatingValidTemplateAndObjectHasTheSameChildReference(unittest.Test
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
         node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
         self.assertTrue(True, 'No exception raised.')
 
@@ -326,7 +326,7 @@ class WhenEvaluatingValidTemplateAndListHasTheSameChildReference(unittest.TestCa
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
         node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
         self.assertTrue(True, 'No exception raised.')
 
@@ -357,7 +357,7 @@ class WhenEvaluatingValidTemplateAndPropertyHasTheSameChildReference(unittest.Te
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
         node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
         self.assertTrue(True, 'No exception raised.')

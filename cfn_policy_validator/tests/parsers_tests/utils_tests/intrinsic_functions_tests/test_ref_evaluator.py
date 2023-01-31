@@ -7,7 +7,7 @@ import unittest
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
-from cfn_policy_validator.tests.utils import load, account_config, expected_type_error, load_resources
+from cfn_policy_validator.tests.utils import load, account_config, expected_type_error, load_resources, default_get_latest_ssm_parameter_version
 
 
 class WhenEvaluatingAPolicyWithARefToAccountId(unittest.TestCase):
@@ -24,7 +24,7 @@ class WhenEvaluatingAPolicyWithARefToAccountId(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(account_config.account_id, result)
@@ -44,7 +44,7 @@ class WhenEvaluatingAPolicyWithARefToPartition(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(result, 'aws')
@@ -64,7 +64,7 @@ class WhenEvaluatingAPolicyWithARefToRegion(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(account_config.region, result)
@@ -84,7 +84,7 @@ class WhenEvaluatingAPolicyWithARefToStackName(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(result, 'StackName')
@@ -107,7 +107,7 @@ class WhenEvaluatingAPolicyWithARefToAnArn(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(f'arn:aws:sns:{account_config.region}:{account_config.account_id}:SNSTopic', result)
@@ -133,7 +133,7 @@ class WhenEvaluatingAPolicyWithARefToAResource(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(result, 'IAMRole')
@@ -164,7 +164,7 @@ class WhenEvaluatingAPolicyWithARefToAParameter(unittest.TestCase):
 			'Param1': 'Param1Value'
 		}
 
-		node_evaluator = NodeEvaluator(template, account_config, parameters)
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, parameters)
 
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(result, 'Param1Value')
@@ -203,7 +203,7 @@ class WhenEvaluatingTemplateWithANestedRef(unittest.TestCase):
 			'Param1': 'Param1Value'
 		}
 
-		node_evaluator = NodeEvaluator(template, account_config, parameters)
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, parameters)
 
 		result = node_evaluator.eval(template['Resources']['ResourceB']['Properties']['PropertyA'])
 		self.assertEqual(result, 'Param1Value')
@@ -226,7 +226,7 @@ class WhenEvaluatingTemplateWithSqsRefEval(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		result = node_evaluator.eval(template['Resources']['ResourceB']['Properties']['Queues'])
 
@@ -253,7 +253,7 @@ class WhenEvaluatingTemplateWithSqsRefEvalWithInvalidQueueNameType(unittest.Test
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as cm:
 			node_evaluator.eval(template['Resources']['ResourceB']['Properties']['Queues'])
@@ -275,7 +275,7 @@ class WhenEvaluatingTemplateWithAnInvalidRef(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -304,7 +304,7 @@ class WhenEvaluatingTemplateWithARefToAParameterThatIsNotPassedIn(unittest.TestC
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -334,7 +334,7 @@ class WhenEvaluatingATemplateWithAnInvalidRef(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])

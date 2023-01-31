@@ -9,7 +9,7 @@ from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
 from cfn_policy_validator.tests import offline_only
 from cfn_policy_validator.tests.boto_mocks import BotoResponse
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
-from cfn_policy_validator.tests.utils import load, account_config
+from cfn_policy_validator.tests.utils import load, account_config, default_get_latest_ssm_parameter_version
 
 
 class WhenEvaluatingTemplateWithImportValueFunction(unittest.TestCase):
@@ -65,7 +65,7 @@ class WhenEvaluatingTemplateWithImportValueFunction(unittest.TestCase):
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {
             'DomainParam': 'MyValue'
         })
 
@@ -101,7 +101,7 @@ class WhenImportingAValueThatDoesNotExist(unittest.TestCase):
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {
             'DomainParam': 'MyValue'
         })
 

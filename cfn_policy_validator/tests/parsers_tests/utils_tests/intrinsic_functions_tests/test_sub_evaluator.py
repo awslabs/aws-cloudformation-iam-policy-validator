@@ -7,7 +7,7 @@ import unittest
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
-from cfn_policy_validator.tests.utils import load, account_config, load_resources, expected_type_error
+from cfn_policy_validator.tests.utils import load, account_config, load_resources, expected_type_error, default_get_latest_ssm_parameter_version
 
 
 class WhenEvaluatingAPropertyWithASubThatResolvesToGetAtt(unittest.TestCase):
@@ -32,7 +32,7 @@ class WhenEvaluatingAPropertyWithASubThatResolvesToGetAtt(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(result, 'This is a line of text with value ExpectedValue')
@@ -52,7 +52,7 @@ class WhenEvaluatingAPropertyWithASubThatResolvesToRawDollarSignText(unittest.Te
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(result, 'This is a line of text with value ${!ResourceB.Name}')
@@ -77,7 +77,7 @@ class WhenEvaluatingAPropertyWithASubThatResolvesToRef(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(result, f'arn:aws:kafka:{account_config.region}:{account_config.account_id}:cluster/ResourceB/ResourceB')
@@ -104,7 +104,7 @@ class WhenEvaluatingAPropertyWithASubThatDoesNotResolveToAString(unittest.TestCa
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {
 			'ParameterA': ['Invalid']
 		})
 
@@ -141,7 +141,7 @@ class WhenEvaluatingAPropertyWithALongFormSub(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {
 			'DomainParam': 'MyValue',
 			'DomainParam2': 'com'
 		})
@@ -195,7 +195,7 @@ class WhenEvaluatingAPropertyWithALongTermSubAndSomeVariablesNotInMap(unittest.T
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {
 			'DomainParam': 'MyValue',
 			'DomainParam2': 'com',
 			'OtherValue': 'other'
@@ -231,7 +231,7 @@ class WhenEvaluatingLongFormSubAndVariableAppearsMoreThanOnce(unittest.TestCase)
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {
 			'DomainParam': 'MyValue'
 		})
 
@@ -258,7 +258,7 @@ class WhenEvaluatingLongFormSubAndGetAttIsNotFound(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as cm:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyB'])
@@ -286,7 +286,7 @@ class WhenEvaluatingLongFormSubAndRefIsNotFound(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as cm:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyB'])
@@ -314,7 +314,7 @@ class WhenEvaluatingAPropertyWithInvalidSubValue(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -341,7 +341,7 @@ class WhenEvaluatingAPropertyWithLongFormSubOfInvalidLength(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -365,7 +365,7 @@ class WhenEvaluatingAPropertyWithLongFormSubWithInvalidTextToEvaluate(unittest.T
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -392,7 +392,7 @@ class WhenEvaluatingAPropertyWithLongFormSubWithInvalidMapping(unittest.TestCase
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -419,7 +419,7 @@ class WhenEvaluatingAPropertyWithLongFormSubAndNoMatchingMapping(unittest.TestCa
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])

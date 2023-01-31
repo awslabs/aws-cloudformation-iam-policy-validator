@@ -10,8 +10,9 @@ from cfn_policy_validator.cfn_tools.regex_patterns import dynamic_ssm_reference_
 
 
 class DynamicReferenceEvaluator:
-	def __init__(self, region):
+	def __init__(self, region, get_latest_ssm_parameter_version):
 		self.ssm_client = client.build('ssm', region)
+		self.get_latest_ssm_parameter_version = get_latest_ssm_parameter_version
 
 	def evaluate(self, value):
 		dynamic_ssm_references = dynamic_ssm_reference_regex.findall(value)
@@ -21,15 +22,19 @@ class DynamicReferenceEvaluator:
 			parameter_version = dynamic_ssm_reference[2]
 
 			if parameter_version == '':
-				raise ApplicationError('Dynamic references to SSM parameters must include a version number to ensure the'
-									   ' value does not change between validation and deployment.  Invalid dynamic '
-									   f'reference: {dynamic_reference_text}')
-
-			parameter_with_version = f'{parameter_name}:{parameter_version}'
+				if self.get_latest_ssm_parameter_version:
+					parameter = parameter_name
+				else:
+					raise ApplicationError('Dynamic references to SSM parameters must include a version number to ensure the'
+										   ' value does not change between validation and deployment. Invalid dynamic '
+										   f'reference: {dynamic_reference_text}. This can be disabled using the'
+										   '--retrieve-latest-ssm-parameter-versions flag')
+			else:
+				parameter = f'{parameter_name}:{parameter_version}'
 
 			try:
 				response = self.ssm_client.get_parameter(
-					Name=parameter_with_version
+					Name=parameter
 				)
 			except ClientError as e:
 				if e.response['Error']['Code'] == 'ParameterNotFound':

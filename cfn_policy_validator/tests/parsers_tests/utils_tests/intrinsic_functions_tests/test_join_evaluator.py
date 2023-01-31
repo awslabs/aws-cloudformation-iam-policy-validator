@@ -7,7 +7,7 @@ import unittest
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
-from cfn_policy_validator.tests.utils import load, account_config, expected_type_error, load_resources
+from cfn_policy_validator.tests.utils import load, account_config, expected_type_error, load_resources, default_get_latest_ssm_parameter_version
 
 
 class WhenEvaluatingAPolicyWithAJoinFunction(unittest.TestCase):
@@ -37,7 +37,7 @@ class WhenEvaluatingAPolicyWithAJoinFunction(unittest.TestCase):
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
         self.assertEqual(result, f'arn:aws:s3:::elasticbeanstalk-*-{account_config.account_id}')
@@ -68,7 +68,7 @@ class WhenEvaluatingAPolicyWithAJoinFunctionThatIsNotAList(unittest.TestCase):
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -103,7 +103,7 @@ class WhenEvaluatingAPolicyWithAJoinFunctionThatIsAListThatDoesNotHaveTwoValues(
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         with self.assertRaises(ApplicationError) as context:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -136,7 +136,7 @@ class WhenEvaluatingAPolicyWithAJoinFunctionWithNonStringDelimiter(unittest.Test
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         with self.assertRaises(ApplicationError) as context:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -162,7 +162,7 @@ class WhenEvaluatingAPolicyWithAJoinFunctionWithNonListValue(unittest.TestCase):
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         with self.assertRaises(ApplicationError) as context:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -195,7 +195,7 @@ class WhenEvaluatingTemplateWithAJoinFunctionWithValuesThatAreNotStrings(unittes
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])

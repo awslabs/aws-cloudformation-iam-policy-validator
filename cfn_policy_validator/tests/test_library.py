@@ -10,7 +10,7 @@ from unittest.mock import patch, ANY
 
 import cfn_policy_validator
 from cfn_policy_validator import parse, validate
-from cfn_policy_validator.tests import ParsingTest, account_config, ValidationTest, end_to_end
+from cfn_policy_validator.tests import ParsingTest, account_config, ValidationTest, end_to_end, default_get_latest_ssm_parameter_version
 from cfn_policy_validator.tests.utils import ignore_warnings
 from cfn_policy_validator.validation.reporter import ResourceAndCodeFindingToIgnore, AllowedExternalPrincipal, \
     ResourceOrCodeFindingToIgnore, AllowedExternalArn, default_finding_types_that_are_blocking
@@ -124,17 +124,18 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         region = account_config.region
         account_id = account_config.account_id
         partition = account_config.partition
+        get_latest_ssm_parameter_version = default_get_latest_ssm_parameter_version
 
-        self.mock.assert_called_with(template_body, region, account_id, partition, parameters,
+        self.mock.assert_called_with(template_body, region, account_id, partition, get_latest_ssm_parameter_version, parameters,
                                      ignore_finding, treat_as_blocking, allowed_external_principals)
 
     def validate(self, **kwargs):
         with patch.object(cfn_policy_validator, '_inner_validate') as self.mock:
-            validate({}, account_config.region, account_config.account_id, account_config.partition, **kwargs)
+            validate({}, account_config.region, account_config.account_id, account_config.partition, default_get_latest_ssm_parameter_version, **kwargs)
 
     def validate_with_expected_error(self, error_message, **kwargs):
         with self.assertRaises(ArgumentTypeError) as error:
-            validate({}, account_config.region, account_config.account_id, account_config.partition, **kwargs)
+            validate({}, account_config.region, account_config.account_id, account_config.partition, default_get_latest_ssm_parameter_version, **kwargs)
 
         self.assertIn(error_message, str(error.exception))
 
@@ -244,12 +245,13 @@ class WhenParsingArgumentsForParse(unittest.TestCase):
         region = account_config.region
         account_id = account_config.account_id
         partition = account_config.partition
+        get_latest_ssm_parameter_version = default_get_latest_ssm_parameter_version
 
-        self.mock.assert_called_with(template_body, region, account_id, partition, parameters)
+        self.mock.assert_called_with(template_body, region, account_id, partition, get_latest_ssm_parameter_version, parameters)
 
     def parse(self, **kwargs):
         with patch.object(cfn_policy_validator, '_inner_parse') as self.mock:
-            parse({}, account_config.region, account_config.account_id, account_config.partition, **kwargs)
+            parse({}, account_config.region, account_config.account_id, account_config.partition, default_get_latest_ssm_parameter_version, **kwargs)
 
     def parse_with_expected_error(self, error_message, **kwargs):
         with self.assertRaises(ArgumentTypeError) as error:

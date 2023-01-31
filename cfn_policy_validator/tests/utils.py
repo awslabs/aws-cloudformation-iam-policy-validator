@@ -11,12 +11,12 @@ from contextlib import contextmanager
 from io import StringIO
 
 from cfn_policy_validator.cfn_tools import cfn_loader
-from cfn_policy_validator.tests import account_config
+from cfn_policy_validator.tests import account_config, default_get_latest_ssm_parameter_version
 
 
 def load(template, parameters={}):
     stream = io.StringIO(json.dumps(template))
-    return cfn_loader.load(stream, account_config, parameters)
+    return cfn_loader.load(stream, account_config, default_get_latest_ssm_parameter_version, parameters)
 
 
 def load_resources(resources):

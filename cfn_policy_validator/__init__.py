@@ -24,6 +24,7 @@ def validate(template_body,
              region,
              account_id,
              partition,
+             get_latest_ssm_parameter_version,
              template_parameters=None,
              ignore_finding=None,
              treat_as_blocking=default_finding_types_that_are_blocking,
@@ -34,6 +35,7 @@ def validate(template_body,
     @param region: The region that the CloudFormation template will be deployed to.
     @param account_id: The AWS account ID that the CloudFormation template will be deployed to.
     @param partition: The AWS partition that the CloudFormation template will be deployed to.
+    @param get_latest_ssm_parameter_version: A boolean, to override default SSM parameter retrieval
     @param template_parameters:  A key: value dictionary of parameters that will be passed to the CloudFormation
         template when deployed.  e.g. { 'Parameter1Name': 'Parameter1Value', 'Parameter2Name': 'Parameter2Value' }
     @param ignore_finding: Allow validation failures to be ignored. Specify as a list of findings to be ignored.
@@ -64,13 +66,13 @@ def validate(template_body,
     treat_as_blocking = validate_finding_types(treat_as_blocking)
 
     return _inner_validate(template_body, region, account_id, partition,
-                           template_parameters, ignore_finding, treat_as_blocking, allowed_external_principals)
+                           get_latest_ssm_parameter_version, template_parameters, ignore_finding, treat_as_blocking, allowed_external_principals)
 
 
 def _inner_validate(template_body, region, account_id, partition,
-                    template_parameters, ignore_finding, treat_as_blocking, allowed_external_principals):
+                    get_latest_ssm_parameter_version, template_parameters, ignore_finding, treat_as_blocking, allowed_external_principals):
     account_config = AccountConfig(partition, region, account_id)
-    template = _parse_template(template_body, account_config, template_parameters)
+    template = _parse_template(template_body, account_config, get_latest_ssm_parameter_version, template_parameters)
     parser_output = _parse_template_output(template, account_config)
     report = validator.validate(parser_output, ignore_finding, treat_as_blocking, allowed_external_principals)
 
@@ -81,6 +83,7 @@ def parse(template_body,
           region,
           account_id,
           partition,
+          get_latest_ssm_parameter_version,
           template_parameters=None):
     """
         Parses a CloudFormation template.
@@ -88,6 +91,7 @@ def parse(template_body,
         @param region: The region that the CloudFormation template will be deployed to.
         @param account_id: The AWS account ID that the CloudFormation template will be deployed to.
         @param partition: The AWS partition that the CloudFormation template will be deployed to.
+        @param get_latest_ssm_parameter_version: A boolean, to override default SSM parameter retrieval        
         @param template_parameters:  A key: value dictionary of parameters that will be passed to the CloudFormation
             template when deployed.  e.g. { 'Parameter1Name': 'Parameter1Value', 'Parameter2Name': 'Parameter2Value' }
         @return: A JSON formatted object containing findings classified as either blocking or non-blocking from IAM Access
@@ -96,22 +100,22 @@ def parse(template_body,
     template_parameters = {} if template_parameters is None else template_parameters
 
     # TODO: deal with logging
-    return _inner_parse(template_body, region, account_id, partition, template_parameters)
+    return _inner_parse(template_body, region, account_id, partition, get_latest_ssm_parameter_version, template_parameters)
 
 
-def _inner_parse(template_body, region, account_id, partition, template_parameters):
+def _inner_parse(template_body, region, account_id, partition, get_latest_ssm_parameter_version, template_parameters):
     account_config = AccountConfig(partition, region, account_id)
-    template = _parse_template(template_body, account_config, template_parameters)
+    template = _parse_template(template_body, account_config, get_latest_ssm_parameter_version, template_parameters)
     parser_output = _parse_template_output(template, account_config)
 
     return parser_output.to_json()
 
 
-def _parse_template(template_body, account_config, template_parameters):
+def _parse_template(template_body, account_config, get_latest_ssm_parameter_version, template_parameters):
     stream = io.StringIO(template_body)
 
     try:
-        template = cfn_loader.load(stream, account_config, template_parameters)
+        template = cfn_loader.load(stream, account_config, get_latest_ssm_parameter_version, template_parameters)
     except SchemaValidationError:
         logging.exception('Unable to parse CloudFormation template.  Invalid CloudFormation schema detected.')
         raise ApplicationError('Unable to parse CloudFormation template.  Invalid CloudFormation schema detected.')
@@ -122,11 +126,11 @@ def _parse_template(template_body, account_config, template_parameters):
     return template
 
 
-def _parse_template_file(file_path, account_config, template_parameters):
+def _parse_template_file(file_path, account_config, get_latest_ssm_parameter_version, template_parameters):
     try:
         with open(file_path, 'r') as stream:
             try:
-                template = cfn_loader.load(stream, account_config, template_parameters)
+                template = cfn_loader.load(stream, account_config, get_latest_ssm_parameter_version, template_parameters)
             except SchemaValidationError:
                 logging.exception('Unable to parse CloudFormation template.  Invalid CloudFormation schema detected.')
                 raise ApplicationError('Unable to parse CloudFormation template.  Invalid CloudFormation schema detected.')

@@ -27,7 +27,7 @@ def validate_from_cli(arguments):
     account_id, partition = client.get_account_and_partition(arguments.region)
     account_config = AccountConfig(partition, arguments.region, account_id)
 
-    template = _parse_template_file(arguments.template_path, account_config, arguments.parameters)
+    template = _parse_template_file(arguments.template_path, account_config, arguments.get_latest_parameter_version, arguments.parameters)
     parser_output = _parse_template_output(template, account_config)
     report = validator.validate(parser_output, arguments.ignore_finding, arguments.treat_as_blocking, arguments.allowed_external_principals)
 
@@ -44,7 +44,7 @@ def parse_from_cli(arguments):
     account_id, partition = client.get_account_and_partition(arguments.region)
     account_config = AccountConfig(partition, arguments.region, account_id)
 
-    template = _parse_template_file(arguments.template_path, account_config, arguments.parameters)
+    template = _parse_template_file(arguments.template_path, account_config, arguments.get_latest_parameter_version, arguments.parameters)
     parser_output = _parse_template_output(template, account_config)
 
     parser_output.print()
@@ -77,6 +77,9 @@ def main(args=None):
 
     parent_parser.add_argument('--enable-logging', help='Enable detailed logging.', default=False,
                                action='store_true')
+                               
+    parent_parser.add_argument('--retrieve-latest-ssm-parameter-versions', dest='get_latest_parameter_version', help='Enable retrieval of latest SSM parameter versions',
+                               default=False, action='store_true')
 
     parser = argparse.ArgumentParser(description='Parses IAM identity-based and resource-based policies from AWS CloudFormation templates.')
     parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)

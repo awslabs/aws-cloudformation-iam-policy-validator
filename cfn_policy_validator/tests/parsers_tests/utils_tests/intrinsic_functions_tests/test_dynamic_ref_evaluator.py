@@ -10,7 +10,7 @@ from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
 from cfn_policy_validator.tests import offline_only
 from cfn_policy_validator.tests.boto_mocks import BotoResponse, BotoClientError
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
-from cfn_policy_validator.tests.utils import load_resources, account_config, load
+from cfn_policy_validator.tests.utils import load_resources, account_config, load, default_get_latest_ssm_parameter_version
 
 
 class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
@@ -41,7 +41,7 @@ class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(result, 'Version1')
 
@@ -84,7 +84,7 @@ class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(result, 'Parameter2Version1-Parameter1Version1')
 
@@ -99,13 +99,15 @@ class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as cm:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
-		self.assertEqual('Dynamic references to SSM parameters must include a version number to ensure the value does not change '
-						 'between validation and deployment.  Invalid dynamic reference: {{resolve:ssm:MyParameter}}',
+		self.assertEqual('Dynamic references to SSM parameters must include a version number to ensure the'
+						 ' value does not change between validation and deployment. Invalid dynamic '
+						 'reference: {{resolve:ssm:MyParameter}}. This can be disabled using the'
+						 '--retrieve-latest-ssm-parameter-versions flag',
 						 str(cm.exception))
 
 	@mock_node_evaluator_setup(
@@ -153,7 +155,7 @@ class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {
 			'MyParameter': '/my/param1:1'
 		})
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -181,7 +183,7 @@ class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as cm:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -211,7 +213,7 @@ class WhenEvaluatingPolicyWithDynamicReference(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		with self.assertRaises(ApplicationError) as cm:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -285,7 +287,7 @@ class WhenEvaluatingPolicyWithSsmSecureDynamicReference(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(result, '{{resolve:ssm-secure:/my/parameter1:1}}')
@@ -303,7 +305,7 @@ class WhenEvaluatingPolicyWithSecretDynamicReference(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(result, '{{resolve:secretsmanager:/my/parameter1:1}}')

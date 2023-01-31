@@ -9,7 +9,7 @@ from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
 from cfn_policy_validator.tests import my_canonical_user_id
 from cfn_policy_validator.tests.boto_mocks import BotoResponse
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
-from cfn_policy_validator.tests.utils import load, account_config, expected_type_error, load_resources
+from cfn_policy_validator.tests.utils import load, account_config, expected_type_error, load_resources, default_get_latest_ssm_parameter_version
 
 
 class WhenEvaluatingAPolicyWithAGetAttToAResourceThatDoesNotExist(unittest.TestCase):
@@ -26,7 +26,7 @@ class WhenEvaluatingAPolicyWithAGetAttToAResourceThatDoesNotExist(unittest.TestC
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         with self.assertRaises(ApplicationError) as context:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -67,7 +67,7 @@ class WhenEvaluatingAPolicyWithANestedGetAtt(unittest.TestCase):
             'Param1': 'Param1Value'
         }
 
-        node_evaluator = NodeEvaluator(template, account_config, parameters)
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, parameters)
 
         result = node_evaluator.eval(template['Resources']['ResourceB']['Properties']['PropertyA'])
         self.assertEqual(result, 'Param1Value')
@@ -90,7 +90,7 @@ class WhenEvaluatingAPolicyWithAGetAttForAnArn(unittest.TestCase):
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
         self.assertEqual(f'arn:aws:lambda:{account_config.region}:{account_config.account_id}:function:ResourceB', result)
@@ -116,7 +116,7 @@ class WhenEvaluatingAPolicyWithAGetAttForAResourceProperty(unittest.TestCase):
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
         self.assertEqual(result, 'ExpectedResult')
@@ -153,7 +153,7 @@ class WhenEvaluatingAPolicyWithAGetAttForCloudFrontOriginAccessIdentityS3Canonic
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
         self.assertEqual(my_canonical_user_id, result)
@@ -178,7 +178,7 @@ class WhenEvaluatingAPolicyWithAGetAttForAnInvalidResourceProperty(unittest.Test
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         with self.assertRaises(ApplicationError) as context:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -204,7 +204,7 @@ class WhenEvaluatingTemplateWithStringGetAttValue(unittest.TestCase):
             'Param1': 'Param1Value'
         }
 
-        node_evaluator = NodeEvaluator(template, account_config, parameters)
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, parameters)
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['RoleName'])
 
@@ -228,7 +228,7 @@ class WhenEvaluatingTemplateWithArrayGetAttValueOfInvalidLength(unittest.TestCas
             'Param1': 'Param1Value'
         }
 
-        node_evaluator = NodeEvaluator(template, account_config, parameters)
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, parameters)
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['RoleName'])
 

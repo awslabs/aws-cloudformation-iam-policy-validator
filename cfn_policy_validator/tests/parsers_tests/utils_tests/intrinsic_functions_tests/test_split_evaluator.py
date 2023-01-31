@@ -7,7 +7,7 @@ import unittest
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
-from cfn_policy_validator.tests.utils import load, account_config, load_resources, expected_type_error
+from cfn_policy_validator.tests.utils import load, account_config, load_resources, expected_type_error, default_get_latest_ssm_parameter_version
 
 
 class WhenEvaluatingATemplateWithASplitFunctionThatHasAReference(unittest.TestCase):
@@ -31,7 +31,7 @@ class WhenEvaluatingATemplateWithASplitFunctionThatHasAReference(unittest.TestCa
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {
             'DomainParam': 'a.b.c'
         })
 
@@ -53,7 +53,7 @@ class WhenEvaluatingATemplateWithASplitFunction(unittest.TestCase):
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
         self.assertEqual(['a', 'b', 'c'], result)
@@ -73,7 +73,7 @@ class WhenEvaluatingTemplateWithASplitFunctionWithNoList(unittest.TestCase):
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -95,7 +95,7 @@ class WhenEvaluatingTemplateWithASplitFunctionWithInvalidLength(unittest.TestCas
             }
         })
 
-        node_evaluator = NodeEvaluator(template, account_config, {})
+        node_evaluator = NodeEvaluator(template, account_config, default_get_latest_ssm_parameter_version, {})
 
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])

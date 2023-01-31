@@ -30,6 +30,7 @@ def build_default_arguments(template_path=""):
         template_path=template_path,
         region=account_config.region,
         parameters={},
+        get_latest_parameter_version=False,
         ignore_finding=None,
         treat_as_blocking=default_finding_types_that_are_blocking,
         allowed_external_principals=None,
@@ -44,6 +45,7 @@ def build_default_parse_args(template_path=''):
         template_path=template_path,
         region=account_config.region,
         parameters={},
+        get_latest_parameter_version=False,
         profile=None,
         func=ANY
     )
@@ -533,7 +535,8 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
             },
             profile=ANY,
             func=ANY,
-            enable_logging=ANY
+            enable_logging=ANY,
+            get_latest_parameter_version=ANY
         )
         setattr(expected_args, '{parse,validate}', ANY)
 
@@ -552,6 +555,7 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
             template_path=ANY,
             region=account_config.region,
             template_configuration_file=ANY,
+            get_latest_parameter_version=ANY,
             parameters={
                 'CodestarConnectionArn': 'fakearn',
                 'EnvironmentName': 'prod',

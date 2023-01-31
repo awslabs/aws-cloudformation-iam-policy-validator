@@ -18,7 +18,7 @@ else:
     my_canonical_user_id = 'ABC12345'
 
 account_config = AccountConfig('aws', 'us-east-2', my_account_id)
-
+default_get_latest_ssm_parameter_version = False
 
 def end_to_end(func):
     def decorator(*args):
