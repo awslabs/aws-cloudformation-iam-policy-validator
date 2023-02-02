@@ -46,7 +46,7 @@ class WhenParsingATemplateAsLibrary(ParsingTest):
 
         roles = self.output['Roles']
         self.assertEqual(2, len(roles))
-        self.assert_role(role_name='CodeBuildServiceRole', role_path='/', number_of_policies=2)
+        self.assert_role(role_name='CodeBuildServiceRole', role_path='/', number_of_policies=3)
         self.assert_role(role_name='CodePipelineServiceRole', role_path='/', number_of_policies=1)
 
         users = self.output['Users']
@@ -62,10 +62,9 @@ class WhenParsingATemplateAsLibrary(ParsingTest):
         self.assert_permission_set(permission_set_name='MyPermissionSet', number_of_policies=3)
 
         resources = self.output['Resources']
-        self.assertEqual(6, len(resources))
+        self.assertEqual(5, len(resources))
         self.assert_resource(resource_name='MyQueue', resource_type='AWS::SQS::Queue')
         self.assert_resource(resource_name='prod-app-artifacts', resource_type='AWS::S3::Bucket', configuration={'AccessControl': 'BucketOwnerFullControl'})
-        self.assert_resource(resource_name='OtherS3Bucket', resource_type='AWS::S3::Bucket', configuration={'AccessControl': 'PublicRead'})
         self.assert_resource(resource_name='MySecret', resource_type='AWS::SecretsManager::Secret')
         self.assert_resource(resource_name='MyAccessPoint', resource_type='AWS::S3::AccessPoint', configuration={'VpcId': 'vpc-6741a603'})
         self.assert_resource(resource_name='MyMultiRegionAccessPoint', resource_type='AWS::S3::MultiRegionAccessPoint')
@@ -103,13 +102,12 @@ class WhenValidatingATemplateAsLibrary(ValidationTest):
         self.assert_warning('WARNING', 'MISSING_VERSION', 'prod-app-artifacts', 'BucketPolicy')
         self.assert_warning('WARNING', 'MISSING_VERSION', 'MyQueue', 'QueuePolicy')
 
-        self.assertEqual(9, len(self.output['BlockingFindings']))
+        self.assertEqual(8, len(self.output['BlockingFindings']))
         self.assert_error('ERROR', 'MISSING_ARN_FIELD', 'CodePipelineServiceRole', 'root')
         self.assert_error('ERROR', 'MISSING_PRINCIPAL', 'MyQueue', 'QueuePolicy')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'CodePipelineServiceRole', 'root')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'MyIAMGroup', 'root')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'MyPermissionSet', 'InlinePolicy')
-        self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'OtherS3Bucket', 'BucketAcl')
         self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'prod-app-artifacts', 'BucketPolicy')
         self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'MyAccessPoint', 'AccessPointPolicy')
         self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'MyMultiRegionAccessPoint', 'MultiRegionAccessPointPolicy')
@@ -119,16 +117,20 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
     def setUp(self):
         ignore_warnings()
 
-    def assert_called_with(self, parameters=ANY, ignore_finding=ANY, treat_as_blocking=default_finding_types_that_are_blocking, allowed_external_principals=ANY):
+    def assert_called_with(self, parameters=ANY, ignore_finding=ANY, treat_as_blocking=default_finding_types_that_are_blocking,
+            allowed_external_principals=ANY, allow_dynamic_ref_without_version=False):
         template_body = {}
         region = account_config.region
         account_id = account_config.account_id
         partition = account_config.partition
 
         self.mock.assert_called_with(template_body, region, account_id, partition, parameters,
-                                     ignore_finding, treat_as_blocking, allowed_external_principals)
+                                     ignore_finding, treat_as_blocking, allowed_external_principals, allow_dynamic_ref_without_version)
 
     def validate(self, **kwargs):
+        if 'allow_dynamic_ref_without_version' not in kwargs:
+            kwargs['allow_dynamic_ref_without_version'] = False
+
         with patch.object(cfn_policy_validator, '_inner_validate') as self.mock:
             validate({}, account_config.region, account_config.account_id, account_config.partition, **kwargs)
 
@@ -234,18 +236,26 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         expected = AllowedExternalPrincipal('warning')
         self.assert_called_with(allowed_external_principals=[expected])
 
+    def test_allow_dynamic_ref_without_version_default(self):
+        self.validate()
+        self.assert_called_with(allow_dynamic_ref_without_version=False)
+
+    def test_allow_dynamic_ref_without_version(self):
+        self.validate(allow_dynamic_ref_without_version=True)
+        self.assert_called_with(allow_dynamic_ref_without_version=True)
+
 
 class WhenParsingArgumentsForParse(unittest.TestCase):
     def setUp(self):
         ignore_warnings()
 
-    def assert_called_with(self, parameters=ANY):
+    def assert_called_with(self, parameters=ANY, allow_dynamic_ref_without_version=False):
         template_body = {}
         region = account_config.region
         account_id = account_config.account_id
         partition = account_config.partition
 
-        self.mock.assert_called_with(template_body, region, account_id, partition, parameters)
+        self.mock.assert_called_with(template_body, region, account_id, partition, parameters, allow_dynamic_ref_without_version)
 
     def parse(self, **kwargs):
         with patch.object(cfn_policy_validator, '_inner_parse') as self.mock:
@@ -265,5 +275,5 @@ class WhenParsingArgumentsForParse(unittest.TestCase):
         self.parse(template_parameters={
             'Key1': 'Value1',
             'Key2': 'Value2'
-        })
-        self.assert_called_with(parameters={'Key1': 'Value1', 'Key2': 'Value2'})
+        }, allow_dynamic_ref_without_version=True)
+        self.assert_called_with(parameters={'Key1': 'Value1', 'Key2': 'Value2'}, allow_dynamic_ref_without_version=True)

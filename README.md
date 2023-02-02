@@ -83,6 +83,7 @@ Exits with a non-zero error code if any findings categorized as blocking are fou
 | --ignore-finding | | FINDING_CODE,RESOURCE_NAME,RESOURCE_NAME.FINDING_CODE | Allow validation failures to be ignored. Specify as a comma separated list of findings to be ignored. Can be individual finding codes (e.g. "PASS_ROLE_WITH_STAR_IN_RESOURCE"), a specific resource name (e.g. "MyResource"), or a combination of both separated by a period.(e.g. "MyResource.PASS_ROLE_WITH_STAR_IN_RESOURCE").  Names of finding codes may change in IAM Access Analyzer over time.
 | --treat-finding-type-as-blocking | | ERROR,SECURITY_WARNING,WARNING,SUGGESTION,NONE | Specify which finding types should be treated as blocking. Other finding types are treated as nonblocking.  If the tool detects any blocking finding types, it will exit with a non-zero exit code.  If all findings are nonblocking or there are no findings, the tool exits with an exit code of 0.  Defaults to "ERROR" and "SECURITY_WARNING". Specify as a comma separated list of finding types that should be blocking. Pass "NONE" to ignore all findings. |
 | --allow-external-principals | | ACCOUNT,ARN | A comma separated list of external principals that should be ignored.  Specify as a comma separated list of a 12 digit AWS account ID, a federated web identity user, a federated SAML user, or an ARN. Specify "*" to allow anonymous access. (e.g. 123456789123,arn:aws:iam::111111111111:role/MyOtherRole,graph.facebook.com) |
+| --allow-dynamic-ref-without-version | | | Override the default behavior and allow dynamic SSM references without version numbers.  The version number ensures that the SSM parameter value that was validated is the one that is deployed. |
 
 **parse**  
 
@@ -100,7 +101,7 @@ Parses IAM identity-based and resource-based policies from AWS CloudFormation te
 | --template-configuration-file | | FILE_PATH.json | A JSON formatted file that specifies template parameter values, a stack policy, and tags. Everything except for parameters are ignored from this file. Identical values passed in the --parameters flag override parameters in this file. See CloudFormation documentation for file format: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html#w2ab1c21c15c15
 | --profile | | PROFILE | The named profile to use for AWS API calls. |
 | --enable-logging | | | Enables log output to stdout |
-
+| --allow-dynamic-ref-without-version | | | Override the default behavior and allow dynamic SSM references without version numbers.  The version number ensures that the SSM parameter value that was validated is the one that is deployed. |
 
 ### Supported resource-based policies
 
@@ -138,7 +139,7 @@ Supported pseudo parameters:
 - AWS::StackName (returns the literal string "StackName")
 - AWS::NoValue
 
-[Dynamic SSM references](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html) are supported, but must have a version number.  This is to help ensure the same parameter that is validated is the one that is deployed.
+[Dynamic SSM references](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html) are supported, but must have a version number.  This is to help ensure the same parameter that is validated is the one that is deployed.  This restriction can be overridden with the --allow-dynamic-ref-without-version argument.
 
 SSM-Secure and SecretsManager dynamic references are not yet supported.
 

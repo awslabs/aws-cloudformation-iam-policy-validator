@@ -5,9 +5,8 @@ SPDX-License-Identifier: MIT-0
 import unittest
 
 from cfn_policy_validator.application_error import ApplicationError
-from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
-from cfn_policy_validator.tests.utils import load, account_config, expected_type_error
+from cfn_policy_validator.tests.utils import load, expected_type_error, build_node_evaluator
 
 
 class WhenEvaluatingAPolicyWithAFindInMapFunction(unittest.TestCase):
@@ -56,7 +55,7 @@ class WhenEvaluatingAPolicyWithAFindInMapFunction(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {
+		node_evaluator = build_node_evaluator(template, {
 			'MappingName': 'MappingB', 'TopLevelMappingKey': 'TopLevelMappingKey', 'SecondLevelMappingKey': 'SecondLevelMappingKey'
 		})
 
@@ -93,7 +92,7 @@ class WhenEvaluatingAPolicyWithAFindInMapFunctionThatIsNotAList(unittest.TestCas
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = build_node_evaluator(template)
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -124,7 +123,7 @@ class WhenEvaluatingAPolicyWithAFindInMapFunctionThatIsNotOfLength3(unittest.Tes
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = build_node_evaluator(template)
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -157,7 +156,7 @@ class WhenEvaluatingAPolicyWithAFindInMapFunctionWithMapNameThatIsNotString(unit
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = build_node_evaluator(template)
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -188,7 +187,7 @@ class WhenEvaluatingAPolicyWithAFindInMapFunctionWithTopLevelKeyThatIsNotString(
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = build_node_evaluator(template)
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -219,7 +218,7 @@ class WhenEvaluatingAPolicyWithAFindInMapFunctionWithSecondLevelKeyThatIsNotStri
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = build_node_evaluator(template)
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
@@ -243,7 +242,7 @@ class WhenEvaluatingAPolicyWithAFindInMapFunctionAndMappingCannotBeFound(unittes
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = build_node_evaluator(template)
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])

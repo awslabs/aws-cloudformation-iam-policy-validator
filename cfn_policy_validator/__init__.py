@@ -27,7 +27,8 @@ def validate(template_body,
              template_parameters=None,
              ignore_finding=None,
              treat_as_blocking=default_finding_types_that_are_blocking,
-             allowed_external_principals=None):
+             allowed_external_principals=None,
+             allow_dynamic_ref_without_version=False):
     """
     Parses a CloudFormation template and runs it through IAM Access Analyzer for validation.
     @param template_body: String containing the body of the CloudFormation template.
@@ -50,6 +51,9 @@ def validate(template_body,
         a 12 digit AWS account ID, a federated web identity user, a federated SAML user, or an ARN. Specify "*"
         to allow anonymous access.
         Example: ["123456789123","arn:aws:iam::111111111111:role/MyOtherRole","graph.facebook.com"]
+    @param allow_dynamic_ref_without_version: A boolean to allow the retrieval of dynamic references without specifying a version number. Specifying a version number
+        helps ensure that the reference does not change between validation and deployment. Allowing dynamic references without versions would make it
+        possible for the template you deploy to be different from the one that was validated.
     @return: A JSON formatted object containing findings classified as either blocking or non-blocking from IAM Access
         Analyzer
     """
@@ -64,13 +68,14 @@ def validate(template_body,
     treat_as_blocking = validate_finding_types(treat_as_blocking)
 
     return _inner_validate(template_body, region, account_id, partition,
-                           template_parameters, ignore_finding, treat_as_blocking, allowed_external_principals)
+                           template_parameters, ignore_finding, treat_as_blocking, allowed_external_principals, allow_dynamic_ref_without_version)
 
 
 def _inner_validate(template_body, region, account_id, partition,
-                    template_parameters, ignore_finding, treat_as_blocking, allowed_external_principals):
+                    template_parameters, ignore_finding, treat_as_blocking, allowed_external_principals,
+                    allow_dynamic_ref_without_version: bool):
     account_config = AccountConfig(partition, region, account_id)
-    template = _parse_template(template_body, account_config, template_parameters)
+    template = _parse_template(template_body, account_config, template_parameters, allow_dynamic_ref_without_version)
     parser_output = _parse_template_output(template, account_config)
     report = validator.validate(parser_output, ignore_finding, treat_as_blocking, allowed_external_principals)
 
@@ -81,7 +86,8 @@ def parse(template_body,
           region,
           account_id,
           partition,
-          template_parameters=None):
+          template_parameters=None,
+          allow_dynamic_ref_without_version=False):
     """
         Parses a CloudFormation template.
         @param template_body: String containing the body of the CloudFormation template.
@@ -90,28 +96,31 @@ def parse(template_body,
         @param partition: The AWS partition that the CloudFormation template will be deployed to.
         @param template_parameters:  A key: value dictionary of parameters that will be passed to the CloudFormation
             template when deployed.  e.g. { 'Parameter1Name': 'Parameter1Value', 'Parameter2Name': 'Parameter2Value' }
+        @param allow_dynamic_ref_without_version: A boolean to allow the retrieval of dynamic references without specifying a version number. Specifying a version number
+            helps ensure that the reference does not change between validation and deployment. Allowing dynamic references without versions would make it
+            possible for the template you deploy to be different from the one that was validated.
         @return: A JSON formatted object containing findings classified as either blocking or non-blocking from IAM Access
             Analyzer
         """
     template_parameters = {} if template_parameters is None else template_parameters
 
     # TODO: deal with logging
-    return _inner_parse(template_body, region, account_id, partition, template_parameters)
+    return _inner_parse(template_body, region, account_id, partition, template_parameters, allow_dynamic_ref_without_version)
 
 
-def _inner_parse(template_body, region, account_id, partition, template_parameters):
+def _inner_parse(template_body, region, account_id, partition, template_parameters, allow_dynamic_ref_without_version: bool):
     account_config = AccountConfig(partition, region, account_id)
-    template = _parse_template(template_body, account_config, template_parameters)
+    template = _parse_template(template_body, account_config, template_parameters, allow_dynamic_ref_without_version)
     parser_output = _parse_template_output(template, account_config)
 
     return parser_output.to_json()
 
 
-def _parse_template(template_body, account_config, template_parameters):
+def _parse_template(template_body, account_config, template_parameters, allow_dynamic_ref_without_version: bool):
     stream = io.StringIO(template_body)
 
     try:
-        template = cfn_loader.load(stream, account_config, template_parameters)
+        template = cfn_loader.load(stream, account_config, template_parameters, allow_dynamic_ref_without_version)
     except SchemaValidationError:
         logging.exception('Unable to parse CloudFormation template.  Invalid CloudFormation schema detected.')
         raise ApplicationError('Unable to parse CloudFormation template.  Invalid CloudFormation schema detected.')
@@ -122,11 +131,11 @@ def _parse_template(template_body, account_config, template_parameters):
     return template
 
 
-def _parse_template_file(file_path, account_config, template_parameters):
+def _parse_template_file(file_path, account_config, template_parameters, allow_dynamic_ref_without_version: bool):
     try:
         with open(file_path, 'r') as stream:
             try:
-                template = cfn_loader.load(stream, account_config, template_parameters)
+                template = cfn_loader.load(stream, account_config, template_parameters, allow_dynamic_ref_without_version)
             except SchemaValidationError:
                 logging.exception('Unable to parse CloudFormation template.  Invalid CloudFormation schema detected.')
                 raise ApplicationError('Unable to parse CloudFormation template.  Invalid CloudFormation schema detected.')

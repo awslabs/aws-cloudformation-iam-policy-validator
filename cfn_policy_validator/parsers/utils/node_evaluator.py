@@ -46,14 +46,14 @@ def prune_references_to_no_value(func):
 
 
 class NodeEvaluator:
-    def __init__(self, template, account_config, parameter_values):
+    def __init__(self, template, account_config, parameter_values, allow_dynamic_ref_without_version: bool):
         resources = template['Resources']
         parameters = template.get('Parameters', {})
         mappings = template.get('Mappings', {})
 
         arn_generator = ArnGenerator(account_config)
 
-        self.dynamic_reference_evaluator = DynamicReferenceEvaluator(account_config.region)
+        self.dynamic_reference_evaluator = DynamicReferenceEvaluator(account_config.region, allow_dynamic_ref_without_version)
         self.no_value_evaluator = AwsNoValueEvaluator()
 
         ref_evaluator = RefEvaluator(resources, arn_generator, parameters, parameter_values, account_config, self)

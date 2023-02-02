@@ -11,12 +11,20 @@ from contextlib import contextmanager
 from io import StringIO
 
 from cfn_policy_validator.cfn_tools import cfn_loader
+from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
 from cfn_policy_validator.tests import account_config
 
 
-def load(template, parameters={}):
+def build_node_evaluator(template, parameters=None, allow_dynamic_ref_without_version=False, custom_account_config=None):
+    parameters = {} if parameters is None else parameters
+    custom_account_config = account_config if custom_account_config is None else custom_account_config
+    return NodeEvaluator(template, custom_account_config, parameters, allow_dynamic_ref_without_version)
+
+
+def load(template, parameters=None, allow_dynamic_ref_without_version=False):
+    parameters = {} if parameters is None else parameters
     stream = io.StringIO(json.dumps(template))
-    return cfn_loader.load(stream, account_config, parameters)
+    return cfn_loader.load(stream, account_config, parameters, allow_dynamic_ref_without_version)
 
 
 def load_resources(resources):

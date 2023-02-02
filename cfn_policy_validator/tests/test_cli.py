@@ -12,9 +12,7 @@ from unittest.mock import patch, ANY, DEFAULT
 import boto3
 
 from cfn_policy_validator import main, client
-from cfn_policy_validator.tests import ParsingTest, account_config, ValidationTest, mock_validation_setup, end_to_end, \
-    BotoResponse, mock_test_setup
-from cfn_policy_validator.tests.parsers_tests import mock_identity_parser_setup
+from cfn_policy_validator.tests import ParsingTest, account_config, ValidationTest, mock_validation_setup, end_to_end
 from cfn_policy_validator.validation.reporter import ResourceOrCodeFindingToIgnore, ResourceAndCodeFindingToIgnore, \
     AllowedExternalPrincipal, AllowedExternalArn, default_finding_types_that_are_blocking
 from cfn_policy_validator.application_error import ApplicationError
@@ -34,7 +32,8 @@ def build_default_arguments(template_path=""):
         treat_as_blocking=default_finding_types_that_are_blocking,
         allowed_external_principals=None,
         profile=None,
-        func=ANY
+        func=ANY,
+        allow_dynamic_ref_without_version=None
     )
     return default_args
 
@@ -45,7 +44,8 @@ def build_default_parse_args(template_path=''):
         region=account_config.region,
         parameters={},
         profile=None,
-        func=ANY
+        func=ANY,
+        allow_dynamic_ref_without_version=False
     )
     return default_args
 
@@ -80,7 +80,7 @@ class WhenParsingATemplateAsCLI(ParsingTest):
 
         roles = self.output['Roles']
         self.assertEqual(2, len(roles))
-        self.assert_role(role_name='CodeBuildServiceRole', role_path='/', number_of_policies=2)
+        self.assert_role(role_name='CodeBuildServiceRole', role_path='/', number_of_policies=3)
         self.assert_role(role_name='CodePipelineServiceRole', role_path='/', number_of_policies=1)
 
         users = self.output['Users']
@@ -96,10 +96,9 @@ class WhenParsingATemplateAsCLI(ParsingTest):
         self.assert_permission_set(permission_set_name='MyPermissionSet', number_of_policies=3)
 
         resources = self.output['Resources']
-        self.assertEqual(6, len(resources))
+        self.assertEqual(5, len(resources))
         self.assert_resource(resource_name='MyQueue', resource_type='AWS::SQS::Queue')
         self.assert_resource(resource_name='prod-app-artifacts', resource_type='AWS::S3::Bucket', configuration={'AccessControl': 'BucketOwnerFullControl'})
-        self.assert_resource(resource_name='OtherS3Bucket', resource_type='AWS::S3::Bucket', configuration={'AccessControl': 'PublicRead'})
         self.assert_resource(resource_name='MySecret', resource_type='AWS::SecretsManager::Secret')
         self.assert_resource(resource_name='MyAccessPoint', resource_type='AWS::S3::AccessPoint', configuration={'VpcId': 'vpc-6741a603'})
         self.assert_resource(resource_name='MyMultiRegionAccessPoint', resource_type='AWS::S3::MultiRegionAccessPoint')
@@ -142,13 +141,12 @@ class WhenValidatingATemplateAsCLI(ValidationTest):
         self.assert_warning('WARNING', 'MISSING_VERSION', 'prod-app-artifacts', 'BucketPolicy')
         self.assert_warning('WARNING', 'MISSING_VERSION', 'MyQueue', 'QueuePolicy')
 
-        self.assertEqual(9, len(self.output['BlockingFindings']))
+        self.assertEqual(8, len(self.output['BlockingFindings']))
         self.assert_error('ERROR', 'MISSING_ARN_FIELD', 'CodePipelineServiceRole', 'root')
         self.assert_error('ERROR', 'MISSING_PRINCIPAL', 'MyQueue', 'QueuePolicy')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'CodePipelineServiceRole', 'root')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'MyIAMGroup', 'root')
         self.assert_error('SECURITY_WARNING', 'PASS_ROLE_WITH_STAR_IN_RESOURCE', 'MyPermissionSet', 'InlinePolicy')
-        self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'OtherS3Bucket', 'BucketAcl')
         self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'prod-app-artifacts', 'BucketPolicy')
         self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'MyAccessPoint', 'AccessPointPolicy')
         self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'MyMultiRegionAccessPoint', 'MultiRegionAccessPointPolicy')
@@ -178,7 +176,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         ]
         ignore_warnings()
 
-    def assert_called_with(self, parameters=ANY, ignore_finding=ANY, treat_as_blocking=ANY, allowed_external_principals=ANY):
+    def assert_called_with(self, parameters=ANY, ignore_finding=ANY, treat_as_blocking=ANY, allowed_external_principals=ANY, allow_dynamic_ref_without_version=ANY):
         arguments = build_default_arguments(template_path='abcdef')
         arguments.parameters = parameters
         arguments.ignore_finding = ignore_finding
@@ -186,6 +184,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         arguments.allowed_external_principals = allowed_external_principals
         arguments.template_configuration_file = None
         arguments.enable_logging = False
+        arguments.allow_dynamic_ref_without_version = allow_dynamic_ref_without_version
         setattr(arguments, '{parse,validate}', ANY)
 
         self.mock.assert_called_with(arguments)
@@ -243,6 +242,17 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
     def test_treat_as_blocking_default(self):
         self.validate()
         self.assert_called_with(treat_as_blocking=['ERROR', 'SECURITY_WARNING'])
+
+    @mock_validation_setup()
+    def test_allow_dynamic_ref_without_version(self):
+        self.args.extend(['--allow-dynamic-ref-without-version'])
+        self.validate()
+        self.assert_called_with(allow_dynamic_ref_without_version=True)
+
+    @mock_validation_setup()
+    def test_allow_dynamic_ref_without_version_default(self):
+        self.validate()
+        self.assert_called_with(allow_dynamic_ref_without_version=False)
 
     @mock_validation_setup()
     def test_treat_as_blocking_is_upper_cased(self):
@@ -357,11 +367,12 @@ class WhenParsingArgumentsForParse(unittest.TestCase):
         ]
         ignore_warnings()
 
-    def assert_called_with(self, parameters=ANY):
+    def assert_called_with(self, parameters=ANY, allow_dynamic_ref_without_version=ANY):
         arguments = build_default_parse_args(template_path='abcdef')
         arguments.parameters = parameters
         arguments.template_configuration_file = None
         arguments.enable_logging = False
+        arguments.allow_dynamic_ref_without_version = allow_dynamic_ref_without_version
         setattr(arguments, '{parse,validate}', ANY)
 
         self.mock.assert_called_with(arguments)
@@ -409,6 +420,17 @@ class WhenParsingArgumentsForParse(unittest.TestCase):
             'parse', '--template-path', 'abcdef'
         ]
         self.parse_with_expected_error("the following arguments are required: --region")
+
+    @mock_validation_setup()
+    def test_allow_dynamic_ref_without_version_default(self):
+        self.parse()
+        self.assert_called_with(allow_dynamic_ref_without_version=False)
+
+    @mock_validation_setup()
+    def test_allow_dynamic_ref_without_version(self):
+        self.args.extend(['--allow-dynamic-ref-without-version'])
+        self.parse()
+        self.assert_called_with(allow_dynamic_ref_without_version=True)
 
 
 class WhenAnErrorOccursWhileValidatingTemplate(unittest.TestCase):
@@ -533,7 +555,8 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
             },
             profile=ANY,
             func=ANY,
-            enable_logging=ANY
+            enable_logging=ANY,
+            allow_dynamic_ref_without_version=ANY
         )
         setattr(expected_args, '{parse,validate}', ANY)
 
@@ -559,7 +582,8 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
             },
             profile=ANY,
             func=ANY,
-            enable_logging=ANY
+            enable_logging=ANY,
+            allow_dynamic_ref_without_version=ANY
         )
         setattr(expected_args, '{parse,validate}', ANY)
 

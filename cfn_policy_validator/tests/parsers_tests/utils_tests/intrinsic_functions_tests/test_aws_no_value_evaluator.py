@@ -5,10 +5,8 @@ SPDX-License-Identifier: MIT-0
 
 import unittest
 
-from cfn_policy_validator.parsers.utils.node_evaluator import NodeEvaluator
-from cfn_policy_validator.tests import account_config
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
-from cfn_policy_validator.tests.utils import load_resources
+from cfn_policy_validator.tests.utils import load_resources, build_node_evaluator
 
 
 class WhenEvaluatingNoValueInObject(unittest.TestCase):
@@ -26,7 +24,7 @@ class WhenEvaluatingNoValueInObject(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = build_node_evaluator(template)
 		result = node_evaluator.eval(template['Resources']['ResourceA'])
 		self.assertNotIn('PropertyA', result['Properties'])
 		self.assertIn('PropertyB', result['Properties'])
@@ -48,7 +46,7 @@ class WhenEvaluatingNoValueInObject(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = build_node_evaluator(template)
 		result = node_evaluator.eval(template['Resources']['ResourceA'])
 		self.assertEqual(len(result['Properties']), 2)
 		self.assertIn('PropertyA', result['Properties'])
@@ -75,7 +73,7 @@ class WhenEvaluatingNoValueInList(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = build_node_evaluator(template)
 		result = node_evaluator.eval(template['Resources']['ResourceA'])
 		self.assertEqual(len(result['Properties']['PropertyA']), 1)
 		self.assertEqual(result['Properties']['PropertyA'][0], 'Item2')
@@ -98,7 +96,7 @@ class WhenEvaluatingNoValueInListAndNoValueIsOnlyMember(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = build_node_evaluator(template)
 		result = node_evaluator.eval(template['Resources']['ResourceA'])
 		self.assertEqual(len(result['Properties']['PropertyA']), 0)
 
@@ -116,7 +114,7 @@ class WhenEvaluatingResourceWithThatDoesNotContainNoValue(unittest.TestCase):
 			}
 		})
 
-		node_evaluator = NodeEvaluator(template, account_config, {})
+		node_evaluator = build_node_evaluator(template)
 		result = node_evaluator.eval(template['Resources']['ResourceA'])
 		self.assertEqual(len(result['Properties']), 2)
 		self.assertEqual(result['Properties']['PropertyA'], 'ValueA')
