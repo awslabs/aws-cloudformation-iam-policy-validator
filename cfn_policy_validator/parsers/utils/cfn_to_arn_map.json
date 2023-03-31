@@ -400,6 +400,30 @@
                 "ServicePrefix": "networkmanager",
                 "ResourceType": "core-network"
             }
+        },
+        "TransitGatewayRouteTableAttachment": {
+            "ResourceArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:attachment/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "attachment"
+            },
+            "CoreNetworkArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:core-network/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "core-network"
+            }
+        },
+        "TransitGatewayPeering": {
+            "ResourceArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:core-network/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "core-network"
+            },
+            "CoreNetworkArn": {
+                "Value": "arn:${Partition}:networkmanager::${Account}:core-network/${ResourceId}",
+                "ServicePrefix": "networkmanager",
+                "ResourceType": "core-network"
+            }
         }
     },
     "StepFunctions": {
@@ -812,6 +836,27 @@
                 "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-package/${ModelPackageName}",
                 "ServicePrefix": "sagemaker",
                 "ResourceType": "model-package"
+            }
+        },
+        "Space": {
+            "SpaceArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:space/${DomainId}/${SpaceName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "space"
+            }
+        },
+        "ModelCard": {
+            "ModelCardArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-card/${ModelCardName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "model-card"
+            }
+        },
+        "InferenceExperiment": {
+            "Arn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:inference-experiment/${InferenceExperimentName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "inference-experiment"
             }
         }
     },
@@ -1316,6 +1361,16 @@
                 "Value": "arn:${Partition}:cloudtrail:${Region}:${Account}:eventdatastore/${EventDataStoreId}",
                 "ServicePrefix": "cloudtrail",
                 "ResourceType": "eventdatastore"
+            }
+        },
+        "ResourcePolicy": {
+            "Ref": null
+        },
+        "Channel": {
+            "ChannelArn": {
+                "Value": "arn:${Partition}:cloudtrail:${Region}:${Account}:channel/${ChannelId}",
+                "ServicePrefix": "cloudtrail",
+                "ResourceType": "channel"
             }
         }
     },
@@ -2273,6 +2328,14 @@
                 "ResourceType": "chatbot-configuration"
             },
             "Arn": null
+        },
+        "MicrosoftTeamsChannelConfiguration": {
+            "Ref": {
+                "Value": "arn:${Partition}:chatbot::${Account}:chat-configuration/${ConfigurationType}/${ChatbotConfigurationName}",
+                "ServicePrefix": "chatbot",
+                "ResourceType": "chatbot-configuration"
+            },
+            "Arn": null
         }
     },
     "ManagedBlockchain": {
@@ -2859,6 +2922,44 @@
                 "Value": "arn:${Partition}:ec2:${Region}:${Account}:network-insights-access-scope-analysis/${NetworkInsightsAccessScopeAnalysisId}",
                 "ServicePrefix": "ec2",
                 "ResourceType": "network-insights-access-scope-analysis"
+            }
+        },
+        "IPAMResourceDiscovery": {
+            "IpamResourceDiscoveryArn": {
+                "Value": "arn:${Partition}:ec2::${Account}:ipam-resource-discovery/${IpamResourceDiscoveryId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "ipam-resource-discovery"
+            }
+        },
+        "LocalGatewayRouteTableVirtualInterfaceGroupAssociation": {
+            "LocalGatewayRouteTableArn": {
+                "Value": "arn:${Partition}:ec2:${Region}:${Account}:local-gateway-route-table/${LocalGatewayRoutetableId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "local-gateway-route-table"
+            }
+        },
+        "LocalGatewayRouteTable": {
+            "OutpostArn": {
+                "Value": "arn:${Partition}:outposts:${Region}:${Account}:outpost:${OutpostId}",
+                "ServicePrefix": "outposts",
+                "ResourceType": "outpost"
+            },
+            "LocalGatewayRouteTableArn": {
+                "Value": "arn:${Partition}:ec2:${Region}:${Account}:local-gateway-route-table/${LocalGatewayRoutetableId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "local-gateway-route-table"
+            }
+        },
+        "IPAMResourceDiscoveryAssociation": {
+            "IpamArn": {
+                "Value": "arn:${Partition}:ec2::${Account}:ipam/${IpamId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "ipam"
+            },
+            "IpamResourceDiscoveryAssociationArn": {
+                "Value": "arn:${Partition}:ec2::${Account}:ipam-resource-discovery-association/${IpamResourceDiscoveryAssociationId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "ipam-resource-discovery-association"
             }
         }
     },
@@ -4236,6 +4337,13 @@
                 "ServicePrefix": "organizations",
                 "ResourceType": "account"
             }
+        },
+        "ResourcePolicy": {
+            "Arn": {
+                "Value": "arn:${Partition}:organizations::${Account}:resourcepolicy/o-${OrganizationId}/rp-${ResourcePolicyId}",
+                "ServicePrefix": "organizations",
+                "ResourceType": "resourcepolicy"
+            }
         }
     },
     "EMRServerless": {
@@ -4253,6 +4361,170 @@
                 "Value": "arn:${Partition}:aoss:${Region}:${Account}:collection/${CollectionId}",
                 "ServicePrefix": "aoss",
                 "ResourceType": "collection"
+            }
+        }
+    },
+    "VpcLattice": {
+        "ServiceNetwork": {
+            "Arn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:servicenetwork/${ServiceNetworkId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "service-network"
+            }
+        },
+        "ServiceNetworkVpcAssociation": {
+            "Arn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:servicenetworkvpcassociation/${ServiceNetworkVpcAssociationId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "service-network-vpc-association"
+            },
+            "ServiceNetworkArn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:servicenetwork/${ServiceNetworkId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "service-network"
+            }
+        },
+        "AccessLogSubscription": {
+            "ResourceArn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:accesslogsubscription/${AccessLogSubscriptionId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "access-log-subscription"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:accesslogsubscription/${AccessLogSubscriptionId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "access-log-subscription"
+            }
+        },
+        "Service": {
+            "Arn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:service/${ServiceId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "service"
+            }
+        },
+        "TargetGroup": {
+            "Arn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:targetgroup/${TargetGroupId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "target-group"
+            }
+        },
+        "Listener": {
+            "ServiceArn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:service/${ServiceId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "service"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:service/${ServiceId}/listener/${ListenerId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "listener"
+            }
+        },
+        "ServiceNetworkServiceAssociation": {
+            "ServiceArn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:service/${ServiceId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "service"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:servicenetworkserviceassociation/${ServiceNetworkServiceAssociationId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "service-network-service-association"
+            },
+            "ServiceNetworkArn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:servicenetwork/${ServiceNetworkId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "service-network"
+            }
+        },
+        "Rule": {
+            "Arn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:service/${ServiceId}/listener/${ListenerId}/rule/${RuleId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "rule"
+            }
+        }
+    },
+    "MediaTailor": {
+        "PlaybackConfiguration": {
+            "PlaybackConfigurationArn": {
+                "Value": "arn:${Partition}:mediatailor:${Region}:${Account}:playbackConfiguration/${ResourceId}",
+                "ServicePrefix": "mediatailor",
+                "ResourceType": "playback-configuration"
+            }
+        }
+    },
+    "M2": {
+        "Application": {
+            "Ref": {
+                "Value": "arn:${Partition}:m2:${Region}:${Account}:app/${ApplicationId}",
+                "ServicePrefix": "m2",
+                "ResourceType": "application"
+            },
+            "ApplicationArn": {
+                "Value": "arn:${Partition}:m2:${Region}:${Account}:app/${ApplicationId}",
+                "ServicePrefix": "m2",
+                "ResourceType": "application"
+            }
+        },
+        "Environment": {
+            "Ref": {
+                "Value": "arn:${Partition}:m2:${Region}:${Account}:env/${EnvironmentId}",
+                "ServicePrefix": "m2",
+                "ResourceType": "environment"
+            },
+            "EnvironmentArn": {
+                "Value": "arn:${Partition}:m2:${Region}:${Account}:env/${EnvironmentId}",
+                "ServicePrefix": "m2",
+                "ResourceType": "environment"
+            }
+        }
+    },
+    "InternetMonitor": {
+        "Monitor": {
+            "Ref": {
+                "Value": "arn:${Partition}:internetmonitor:${Region}:${Account}:monitor/${MonitorName}",
+                "ServicePrefix": "internetmonitor",
+                "ResourceType": "monitor"
+            },
+            "MonitorArn": {
+                "Value": "arn:${Partition}:internetmonitor:${Region}:${Account}:monitor/${MonitorName}",
+                "ServicePrefix": "internetmonitor",
+                "ResourceType": "monitor"
+            }
+        }
+    },
+    "KendraRanking": {
+        "ExecutionPlan": {
+            "Arn": {
+                "Value": "arn:${Partition}:kendra-ranking:${Region}:${Account}:rescore-execution-plan/${RescoreExecutionPlanId}",
+                "ServicePrefix": "kendra-ranking",
+                "ResourceType": "rescore-execution-plan"
+            }
+        }
+    },
+    "SystemsManagerSAP": {
+        "Application": {
+            "Arn": {
+                "Value": "arn:${Partition}:ssm-sap:${Region}:${Account}:${ApplicationType}/${ApplicationId}",
+                "ServicePrefix": "ssm-sap",
+                "ResourceType": "application"
+            }
+        }
+    },
+    "Comprehend": {
+        "Flywheel": {
+            "Ref": {
+                "Value": "arn:${Partition}:comprehend:${Region}:${Account}:flywheel/${FlywheelName}",
+                "ServicePrefix": "comprehend",
+                "ResourceType": "flywheel"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:comprehend:${Region}:${Account}:flywheel/${FlywheelName}",
+                "ServicePrefix": "comprehend",
+                "ResourceType": "flywheel"
             }
         }
     }
