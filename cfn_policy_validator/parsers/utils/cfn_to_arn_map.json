@@ -199,6 +199,18 @@
                 "ServicePrefix": "ram",
                 "ResourceType": "resource-share"
             }
+        },
+        "Permission": {
+            "Ref": {
+                "Value": "arn:${Partition}:ram::${Account}:permission/${ResourcePath}",
+                "ServicePrefix": "ram",
+                "ResourceType": "permission"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:ram::${Account}:permission/${ResourcePath}",
+                "ServicePrefix": "ram",
+                "ResourceType": "permission"
+            }
         }
     },
     "Kinesis": {
@@ -1292,7 +1304,7 @@
         },
         "Script": {
             "Arn": {
-                "Value": "arn:${Partition}:gamelift:${Region}:${AccountId}:script/${ScriptId}",
+                "Value": "arn:${Partition}:gamelift:${Region}:${Account}:script/${ScriptId}",
                 "ServicePrefix": "gamelift",
                 "ResourceType": "script"
             }
@@ -1316,7 +1328,7 @@
         },
         "Location": {
             "LocationArn": {
-                "Value": "arn:${Partition}:gamelift:${Region}::location/${LocationId}",
+                "Value": "arn:${Partition}:gamelift:${Region}:${Account}:location/${LocationId}",
                 "ServicePrefix": "gamelift",
                 "ResourceType": "location"
             }
@@ -1480,6 +1492,27 @@
                 "Value": "arn:${Partition}:iot:${Region}:${Account}:thing/${ThingName}",
                 "ServicePrefix": "iot",
                 "ResourceType": "thing"
+            }
+        },
+        "ThingGroup": {
+            "Arn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:thinggroup/${ThingGroupName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "thinggroup"
+            }
+        },
+        "BillingGroup": {
+            "Arn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:billinggroup/${BillingGroupName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "billinggroup"
+            }
+        },
+        "ThingType": {
+            "Arn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:thingtype/${ThingTypeName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "thingtype"
             }
         }
     },
@@ -2292,6 +2325,21 @@
                 "ServicePrefix": "kafka-cluster",
                 "ResourceType": "cluster"
             }
+        },
+        "ClusterPolicy": {
+            "Ref": null
+        },
+        "VpcConnection": {
+            "Ref": {
+                "Value": "arn:${Partition}:kafka:${Region}:${VpcOwnerAccount}:vpc-connection/${ClusterOwnerAccount}/${ClusterName}/${Uuid}",
+                "ServicePrefix": "kafka",
+                "ResourceType": "vpc-connection"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:kafka:${Region}:${VpcOwnerAccount}:vpc-connection/${ClusterOwnerAccount}/${ClusterName}/${Uuid}",
+                "ServicePrefix": "kafka",
+                "ResourceType": "vpc-connection"
+            }
         }
     },
     "DynamoDB": {
@@ -2556,6 +2604,15 @@
                 "ServicePrefix": "datasync",
                 "ResourceType": "location"
             }
+        },
+        "StorageSystem": {
+            "Ref": null,
+            "StorageSystemArn": null,
+            "SecretsManagerArn": {
+                "Value": "arn:${Partition}:secretsmanager:${Region}:${Account}:secret:${SecretId}",
+                "ServicePrefix": "secretsmanager",
+                "ResourceType": "secret"
+            }
         }
     },
     "MediaConnect": {
@@ -2662,6 +2719,20 @@
                 "Value": "arn:${Partition}:quicksight:${Region}:${Account}:dataset/${ResourceId}",
                 "ServicePrefix": "quicksight",
                 "ResourceType": "dataset"
+            }
+        },
+        "RefreshSchedule": {
+            "Arn": {
+                "Value": "arn:${Partition}:quicksight:${Region}:${Account}:dataset/${DatasetId}/refresh-schedule/${ResourceId}",
+                "ServicePrefix": "quicksight",
+                "ResourceType": "refreshschedule"
+            }
+        },
+        "VPCConnection": {
+            "Arn": {
+                "Value": "arn:${Partition}:quicksight:${Region}:${Account}:vpcConnection/${ResourceId}",
+                "ServicePrefix": "quicksight",
+                "ResourceType": "vpcconnection"
             }
         }
     },
@@ -2961,6 +3032,13 @@
                 "ServicePrefix": "ec2",
                 "ResourceType": "ipam-resource-discovery-association"
             }
+        },
+        "VerifiedAccessGroup": {
+            "VerifiedAccessGroupArn": {
+                "Value": "arn:${Partition}:ec2:${Region}:${Account}:verified-access-group/${VerifiedAccessGroupId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "verified-access-group"
+            }
         }
     },
     "DevOpsGuru": {
@@ -2972,6 +3050,9 @@
             }
         },
         "ResourceCollection": {
+            "Ref": null
+        },
+        "LogAnomalyDetectionIntegration": {
             "Ref": null
         }
     },
@@ -3264,6 +3345,11 @@
                 "Value": "arn:${Partition}:signer:${Region}:${Account}:/signing-profiles/${profileName}",
                 "ServicePrefix": "signer",
                 "ResourceType": "signing-profile"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:signer:${Region}:${Account}:/signing-profiles/${ProfileName}",
+                "ServicePrefix": "signer",
+                "ResourceType": "signing-profile"
             }
         }
     },
@@ -3330,10 +3416,20 @@
                 "Value": "arn:${Partition}:xray:${Region}:${Account}:group/${GroupName}/${Id}",
                 "ServicePrefix": "xray",
                 "ResourceType": "group"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:xray:${Region}:${Account}:group/${GroupName}/${Id}",
+                "ServicePrefix": "xray",
+                "ResourceType": "group"
             }
         },
         "SamplingRule": {
             "RuleARN": {
+                "Value": "arn:${Partition}:xray:${Region}:${Account}:sampling-rule/${SamplingRuleName}",
+                "ServicePrefix": "xray",
+                "ResourceType": "sampling-rule"
+            },
+            "Ref": {
                 "Value": "arn:${Partition}:xray:${Region}:${Account}:sampling-rule/${SamplingRuleName}",
                 "ServicePrefix": "xray",
                 "ResourceType": "sampling-rule"
@@ -3412,6 +3508,18 @@
                 "ServicePrefix": "frauddetector",
                 "ResourceType": "variable"
             }
+        },
+        "List": {
+            "Ref": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:list/${ResourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "list"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:frauddetector:${Region}:${Account}:list/${ResourcePath}",
+                "ServicePrefix": "frauddetector",
+                "ResourceType": "list"
+            }
         }
     },
     "CE": {
@@ -3451,6 +3559,16 @@
                 "Value": "arn:${Partition}:ssm-contacts:${Region}:${Account}:contactchannel/${ContactAlias}/${ContactChannelId}",
                 "ServicePrefix": "ssm-contacts",
                 "ResourceType": "contactchannel"
+            }
+        },
+        "Plan": {
+            "Arn": null
+        },
+        "Rotation": {
+            "Arn": {
+                "Value": "arn:${Partition}:ssm-contacts:${Region}:${Account}:rotation/${RotationId}",
+                "ServicePrefix": "ssm-contacts",
+                "ResourceType": "rotation"
             }
         }
     },
@@ -4370,6 +4488,11 @@
                 "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:servicenetwork/${ServiceNetworkId}",
                 "ServicePrefix": "vpc-lattice",
                 "ResourceType": "service-network"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:servicenetwork/${ServiceNetworkId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "service-network"
             }
         },
         "ServiceNetworkVpcAssociation": {
@@ -4382,6 +4505,11 @@
                 "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:servicenetwork/${ServiceNetworkId}",
                 "ServicePrefix": "vpc-lattice",
                 "ResourceType": "service-network"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:servicenetworkvpcassociation/${ServiceNetworkVpcAssociationId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "service-network-vpc-association"
             }
         },
         "AccessLogSubscription": {
@@ -4394,6 +4522,11 @@
                 "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:accesslogsubscription/${AccessLogSubscriptionId}",
                 "ServicePrefix": "vpc-lattice",
                 "ResourceType": "access-log-subscription"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:accesslogsubscription/${AccessLogSubscriptionId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "access-log-subscription"
             }
         },
         "Service": {
@@ -4401,10 +4534,20 @@
                 "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:service/${ServiceId}",
                 "ServicePrefix": "vpc-lattice",
                 "ResourceType": "service"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:service/${ServiceId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "service"
             }
         },
         "TargetGroup": {
             "Arn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:targetgroup/${TargetGroupId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "target-group"
+            },
+            "Ref": {
                 "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:targetgroup/${TargetGroupId}",
                 "ServicePrefix": "vpc-lattice",
                 "ResourceType": "target-group"
@@ -4417,6 +4560,11 @@
                 "ResourceType": "service"
             },
             "Arn": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:service/${ServiceId}/listener/${ListenerId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "listener"
+            },
+            "Ref": {
                 "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:service/${ServiceId}/listener/${ListenerId}",
                 "ServicePrefix": "vpc-lattice",
                 "ResourceType": "listener"
@@ -4437,6 +4585,11 @@
                 "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:servicenetwork/${ServiceNetworkId}",
                 "ServicePrefix": "vpc-lattice",
                 "ResourceType": "service-network"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:servicenetworkserviceassociation/${ServiceNetworkServiceAssociationId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "service-network-service-association"
             }
         },
         "Rule": {
@@ -4444,7 +4597,18 @@
                 "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:service/${ServiceId}/listener/${ListenerId}/rule/${RuleId}",
                 "ServicePrefix": "vpc-lattice",
                 "ResourceType": "rule"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:vpc-lattice:${Region}:${Account}:service/${ServiceId}/listener/${ListenerId}/rule/${RuleId}",
+                "ServicePrefix": "vpc-lattice",
+                "ResourceType": "rule"
             }
+        },
+        "ResourcePolicy": {
+            "Ref": null
+        },
+        "AuthPolicy": {
+            "Ref": null
         }
     },
     "MediaTailor": {
@@ -4525,6 +4689,89 @@
                 "Value": "arn:${Partition}:comprehend:${Region}:${Account}:flywheel/${FlywheelName}",
                 "ServicePrefix": "comprehend",
                 "ResourceType": "flywheel"
+            }
+        }
+    },
+    "Proton": {
+        "EnvironmentTemplate": {
+            "Ref": {
+                "Value": "arn:${Partition}:proton:${Region}:${Account}:environment-template/${Name}",
+                "ServicePrefix": "proton",
+                "ResourceType": "environment-template"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:proton:${Region}:${Account}:environment-template/${Name}",
+                "ServicePrefix": "proton",
+                "ResourceType": "environment-template"
+            }
+        },
+        "EnvironmentAccountConnection": {
+            "Ref": {
+                "Value": "arn:${Partition}:proton:${Region}:${Account}:environment-account-connection/${Id}",
+                "ServicePrefix": "proton",
+                "ResourceType": "environment-account-connection"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:proton:${Region}:${Account}:environment-account-connection/${Id}",
+                "ServicePrefix": "proton",
+                "ResourceType": "environment-account-connection"
+            }
+        },
+        "ServiceTemplate": {
+            "Ref": {
+                "Value": "arn:${Partition}:proton:${Region}:${Account}:service-template/${Name}",
+                "ServicePrefix": "proton",
+                "ResourceType": "service-template"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:proton:${Region}:${Account}:service-template/${Name}",
+                "ServicePrefix": "proton",
+                "ResourceType": "service-template"
+            }
+        }
+    },
+    "AppConfig": {
+        "ExtensionAssociation": {
+            "ResourceArn": null,
+            "ExtensionArn": {
+                "Value": "arn:${Partition}:appconfig:${Region}:${Account}:extension/${ExtensionId}/${ExtensionVersionNumber}",
+                "ServicePrefix": "appconfig",
+                "ResourceType": "extension"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:appconfig:${Region}:${Account}:extensionassociation/${ExtensionAssociationId}",
+                "ServicePrefix": "appconfig",
+                "ResourceType": "extensionassociation"
+            }
+        },
+        "Extension": {
+            "Arn": {
+                "Value": "arn:${Partition}:appconfig:${Region}:${Account}:extension/${ExtensionId}/${ExtensionVersionNumber}",
+                "ServicePrefix": "appconfig",
+                "ResourceType": "extension"
+            }
+        }
+    },
+    "OSIS": {
+        "Pipeline": {
+            "PipelineArn": {
+                "Value": "arn:${Partition}:osis:${Region}:${Account}:pipeline/${PipelineName}",
+                "ServicePrefix": "osis",
+                "ResourceType": "pipeline"
+            }
+        }
+    },
+    "BackupGateway": {
+        "Hypervisor": {
+            "Ref": {
+                "Value": "arn:${Partition}:backup-gateway::${Account}:hypervisor/${HypervisorId}",
+                "ServicePrefix": "backup-gateway",
+                "ResourceType": "hypervisor"
+            },
+            "HypervisorArn": {
+                "Value": "arn:${Partition}:backup-gateway::${Account}:hypervisor/${HypervisorId}",
+                "ServicePrefix": "backup-gateway",
+                "ResourceType": "hypervisor"
             }
         }
     }
