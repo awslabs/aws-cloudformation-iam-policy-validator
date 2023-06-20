@@ -292,6 +292,28 @@
                 "ServicePrefix": "appsync",
                 "ResourceType": "function"
             }
+        },
+        "SourceApiAssociation": {
+            "Ref": {
+                "Value": "arn:${Partition}:appsync:${Region}:${Account}:apis/${MergedGraphQLAPIId}/sourceApiAssociations/${Associationid}",
+                "ServicePrefix": "appsync",
+                "ResourceType": "source-api-association"
+            },
+            "AssociationArn": {
+                "Value": "arn:${Partition}:appsync:${Region}:${Account}:apis/${MergedGraphQLAPIId}/sourceApiAssociations/${Associationid}",
+                "ServicePrefix": "appsync",
+                "ResourceType": "source-api-association"
+            },
+            "SourceApiArn": {
+                "Value": "arn:${Partition}:appsync:${Region}:${Account}:apis/${GraphQLAPIId}",
+                "ServicePrefix": "appsync",
+                "ResourceType": "graphqlapi"
+            },
+            "MergedApiArn": {
+                "Value": "arn:${Partition}:appsync:${Region}:${Account}:apis/${GraphQLAPIId}",
+                "ServicePrefix": "appsync",
+                "ResourceType": "graphqlapi"
+            }
         }
     },
     "ECS": {
@@ -1153,6 +1175,11 @@
                 "Value": "arn:${Partition}:lambda:${Region}:${Account}:layer:${LayerName}:${LayerVersion}",
                 "ServicePrefix": "lambda",
                 "ResourceType": "layer-version"
+            },
+            "LayerVersionArn": {
+                "Value": "arn:${Partition}:lambda:${Region}:${Account}:layer:${LayerName}:${LayerVersion}",
+                "ServicePrefix": "lambda",
+                "ResourceType": "layer-version"
             }
         },
         "Alias": {
@@ -1781,6 +1808,14 @@
                 "ServicePrefix": "detective",
                 "ResourceType": "graph"
             }
+        },
+        "OrganizationAdmin": {
+            "Ref": null,
+            "GraphArn": {
+                "Value": "arn:${Partition}:detective:${Region}:${Account}:graph:${ResourceId}",
+                "ServicePrefix": "detective",
+                "ResourceType": "graph"
+            }
         }
     },
     "S3": {
@@ -2189,6 +2224,22 @@
                 "ServicePrefix": "securityhub",
                 "ResourceType": "hub"
             }
+        },
+        "AutomationRule": {
+            "Ref": {
+                "Value": "arn:${Partition}:securityhub:${Region}:${Account}:automation-rule/${AutomationRuleId}",
+                "ServicePrefix": "securityhub",
+                "ResourceType": "automation-rule"
+            },
+            "RuleArn": {
+                "Value": "arn:${Partition}:securityhub:${Region}:${Account}:automation-rule/${AutomationRuleId}",
+                "ServicePrefix": "securityhub",
+                "ResourceType": "automation-rule"
+            }
+        },
+        "Standard": {
+            "Ref": null,
+            "StandardsSubscriptionArn": null
         }
     },
     "Route53Resolver": {
@@ -2298,8 +2349,8 @@
                 "ResourceType": "cluster"
             },
             "Arn": {
-                "Value": "arn:${Partition}:kafka:${Region}:${Account}:cluster/${ClusterName}/${ClusterUuid}",
-                "ServicePrefix": "kafka-cluster",
+                "Value": "arn:${Partition}:kafka:${Region}:${Account}:cluster/${ClusterName}/${Uuid}",
+                "ServicePrefix": "kafka",
                 "ResourceType": "cluster"
             }
         },
@@ -2312,7 +2363,11 @@
         },
         "Configuration": {
             "Ref": null,
-            "Arn": null
+            "Arn": {
+                "Value": "arn:${Partition}:kafka:${Region}:${Account}:configuration/${ConfigurationName}/${Uuid}",
+                "ServicePrefix": "kafka",
+                "ResourceType": "configuration"
+            }
         },
         "ServerlessCluster": {
             "Ref": {
@@ -2434,6 +2489,13 @@
                 "Value": "arn:${Partition}:rds:${Region}:${Account}:db:${DbInstanceName}",
                 "ServicePrefix": "rds",
                 "ResourceType": "db"
+            }
+        },
+        "CustomDBEngineVersion": {
+            "DBEngineVersionArn": {
+                "Value": "arn:${Partition}:rds:${Region}:${Account}:cev:${Engine}/${EngineVersion}/${CustomDbEngineVersionId}",
+                "ServicePrefix": "rds",
+                "ResourceType": "cev"
             }
         }
     },
@@ -2606,8 +2668,16 @@
             }
         },
         "StorageSystem": {
-            "Ref": null,
-            "StorageSystemArn": null,
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:system/${StorageSystemId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "storagesystem"
+            },
+            "StorageSystemArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:system/${StorageSystemId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "storagesystem"
+            },
             "SecretsManagerArn": {
                 "Value": "arn:${Partition}:secretsmanager:${Region}:${Account}:secret:${SecretId}",
                 "ServicePrefix": "secretsmanager",
@@ -2733,6 +2803,13 @@
                 "Value": "arn:${Partition}:quicksight:${Region}:${Account}:vpcConnection/${ResourceId}",
                 "ServicePrefix": "quicksight",
                 "ResourceType": "vpcconnection"
+            }
+        },
+        "Topic": {
+            "Arn": {
+                "Value": "arn:${Partition}:quicksight:${Region}:${Account}:topic/${ResourceId}",
+                "ServicePrefix": "quicksight",
+                "ResourceType": "topic"
             }
         }
     },
@@ -4772,6 +4849,81 @@
                 "Value": "arn:${Partition}:backup-gateway::${Account}:hypervisor/${HypervisorId}",
                 "ServicePrefix": "backup-gateway",
                 "ResourceType": "hypervisor"
+            }
+        }
+    },
+    "CleanRooms": {
+        "Membership": {
+            "Arn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:membership/${MembershipId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "membership"
+            },
+            "CollaborationArn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:collaboration/${CollaborationId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "collaboration"
+            }
+        },
+        "ConfiguredTable": {
+            "Arn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:configuredtable/${ConfiguredTableId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "configured-table"
+            }
+        },
+        "Collaboration": {
+            "Arn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:collaboration/${CollaborationId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "collaboration"
+            }
+        },
+        "ConfiguredTableAssociation": {
+            "Arn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:membership/${MembershipId}/configuredtableassociation/${ConfiguredTableAssociationId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "configured-table-association"
+            }
+        }
+    },
+    "Shield": {
+        "Protection": {
+            "Ref": {
+                "Value": "arn:${Partition}:shield::${Account}:protection/${Id}",
+                "ServicePrefix": "shield",
+                "ResourceType": "protection"
+            },
+            "ProtectionArn": {
+                "Value": "arn:${Partition}:shield::${Account}:protection/${Id}",
+                "ServicePrefix": "shield",
+                "ResourceType": "protection"
+            }
+        },
+        "ProtectionGroup": {
+            "Ref": {
+                "Value": "arn:${Partition}:shield::${Account}:protection-group/${Id}",
+                "ServicePrefix": "shield",
+                "ResourceType": "protection-group"
+            },
+            "ProtectionGroupArn": {
+                "Value": "arn:${Partition}:shield::${Account}:protection-group/${Id}",
+                "ServicePrefix": "shield",
+                "ResourceType": "protection-group"
+            }
+        }
+    },
+    "Athena": {
+        "CapacityReservation": {
+            "Ref": {
+                "Value": "arn:${Partition}:athena:${Region}:${Account}:capacity-reservation/${CapacityReservationName}",
+                "ServicePrefix": "athena",
+                "ResourceType": "capacity-reservation"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:athena:${Region}:${Account}:capacity-reservation/${CapacityReservationName}",
+                "ServicePrefix": "athena",
+                "ResourceType": "capacity-reservation"
             }
         }
     }
