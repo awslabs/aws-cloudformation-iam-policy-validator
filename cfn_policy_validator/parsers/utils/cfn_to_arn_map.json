@@ -107,6 +107,11 @@
                 "Value": "arn:${Partition}:iam::${Account}:policy/${PolicyNameWithPath}",
                 "ServicePrefix": "iam",
                 "ResourceType": "policy"
+            },
+            "PolicyArn": {
+                "Value": "arn:${Partition}:iam::${Account}:policy/${PolicyNameWithPath}",
+                "ServicePrefix": "iam",
+                "ResourceType": "policy"
             }
         },
         "OIDCProvider": {
@@ -483,6 +488,30 @@
                 "Value": "arn:${Partition}:states:${Region}:${Account}:stateMachine:${StateMachineName}",
                 "ServicePrefix": "states",
                 "ResourceType": "statemachine"
+            }
+        },
+        "StateMachineAlias": {
+            "Ref": {
+                "Value": "arn:${Partition}:states:${Region}:${Account}:stateMachine:${StateMachineName}:${StateMachineAliasName}",
+                "ServicePrefix": "states",
+                "ResourceType": "statemachinealias"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:states:${Region}:${Account}:stateMachine:${StateMachineName}:${StateMachineAliasName}",
+                "ServicePrefix": "states",
+                "ResourceType": "statemachinealias"
+            }
+        },
+        "StateMachineVersion": {
+            "Ref": {
+                "Value": "arn:${Partition}:states:${Region}:${Account}:stateMachine:${StateMachineName}:${StateMachineVersionId}",
+                "ServicePrefix": "states",
+                "ResourceType": "statemachineversion"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:states:${Region}:${Account}:stateMachine:${StateMachineName}:${StateMachineVersionId}",
+                "ServicePrefix": "states",
+                "ResourceType": "statemachineversion"
             }
         }
     },
@@ -1127,7 +1156,7 @@
     "Batch": {
         "JobDefinition": {
             "Ref": {
-                "Value": "arn:${Partition}:batch:${Region}:${Account}:job-definition/${JobDefinitionName}:${Revision}",
+                "Value": "arn:${Partition}:batch:${Region}:${Account}:job-definition/${JobDefinitionName}",
                 "ServicePrefix": "batch",
                 "ResourceType": "job-definition"
             }
@@ -2289,6 +2318,13 @@
                 "ServicePrefix": "route53resolver",
                 "ResourceType": "firewall-rule-group"
             }
+        },
+        "OutpostResolver": {
+            "Arn": {
+                "Value": "arn:${Partition}:route53resolver:${Region}:${Account}:outpost-resolver/${ResourceId}",
+                "ServicePrefix": "route53resolver",
+                "ResourceType": "outpost-resolver"
+            }
         }
     },
     "ServiceCatalog": {
@@ -2683,6 +2719,18 @@
                 "ServicePrefix": "secretsmanager",
                 "ResourceType": "secret"
             }
+        },
+        "LocationAzureBlob": {
+            "Ref": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            },
+            "LocationArn": {
+                "Value": "arn:${Partition}:datasync:${Region}:${AccountId}:location/${LocationId}",
+                "ServicePrefix": "datasync",
+                "ResourceType": "location"
+            }
         }
     },
     "MediaConnect": {
@@ -2744,6 +2792,36 @@
                 "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:source:${SourceId}:${SourceName}",
                 "ServicePrefix": "mediaconnect",
                 "ResourceType": "source"
+            }
+        },
+        "Bridge": {
+            "Ref": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:bridge:${FlowId}:${FlowName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "bridge"
+            },
+            "BridgeArn": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:bridge:${FlowId}:${FlowName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "bridge"
+            }
+        },
+        "BridgeOutput": {
+            "Ref": null
+        },
+        "BridgeSource": {
+            "Ref": null
+        },
+        "Gateway": {
+            "Ref": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:gateway:${GatewayId}:${GatewayName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "gateway"
+            },
+            "GatewayArn": {
+                "Value": "arn:${Partition}:mediaconnect:${Region}:${Account}:gateway:${GatewayId}:${GatewayName}",
+                "ServicePrefix": "mediaconnect",
+                "ResourceType": "gateway"
             }
         }
     },
@@ -3810,6 +3888,13 @@
                 "ServicePrefix": "apprunner",
                 "ResourceType": "vpcingressconnection"
             }
+        },
+        "AutoScalingConfiguration": {
+            "AutoScalingConfigurationArn": {
+                "Value": "arn:${Partition}:apprunner:${Region}:${Account}:autoscalingconfiguration/${AutoscalingConfigurationName}/${AutoscalingConfigurationVersion}/${AutoscalingConfigurationId}",
+                "ServicePrefix": "apprunner",
+                "ResourceType": "autoscalingconfiguration"
+            }
         }
     },
     "DAX": {
@@ -3912,7 +3997,7 @@
     "HealthLake": {
         "FHIRDatastore": {
             "DatastoreArn": {
-                "Value": "arn:${Partition}:healthlake:${Region}:${AccountId}:datastore/fhir/${DatastoreId}",
+                "Value": "arn:${Partition}:healthlake:${Region}:${Account}:datastore/fhir/${DatastoreId}",
                 "ServicePrefix": "healthlake",
                 "ResourceType": "datastore"
             }
@@ -4399,6 +4484,13 @@
                 "ServicePrefix": "appstream",
                 "ResourceType": "application"
             }
+        },
+        "AppBlockBuilder": {
+            "Arn": {
+                "Value": "arn:${Partition}:appstream:${Region}:${Account}:app-block-builder/${AppBlockBuilderName}",
+                "ServicePrefix": "appstream",
+                "ResourceType": "app-block-builder"
+            }
         }
     },
     "Route53": {
@@ -4441,10 +4533,20 @@
                 "Value": "arn:${Partition}:oam:${Region}:${Account}:sink/${ResourceId}",
                 "ServicePrefix": "oam",
                 "ResourceType": "sink"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:oam:${Region}:${Account}:sink/${ResourceId}",
+                "ServicePrefix": "oam",
+                "ResourceType": "sink"
             }
         },
         "Link": {
             "Arn": {
+                "Value": "arn:${Partition}:oam:${Region}:${Account}:link/${ResourceId}",
+                "ServicePrefix": "oam",
+                "ResourceType": "link"
+            },
+            "Ref": {
                 "Value": "arn:${Partition}:oam:${Region}:${Account}:link/${ResourceId}",
                 "ServicePrefix": "oam",
                 "ResourceType": "link"
@@ -4538,6 +4640,18 @@
                 "Value": "arn:${Partition}:organizations::${Account}:resourcepolicy/o-${OrganizationId}/rp-${ResourcePolicyId}",
                 "ServicePrefix": "organizations",
                 "ResourceType": "resourcepolicy"
+            }
+        },
+        "Organization": {
+            "Arn": {
+                "Value": "arn:${Partition}:organizations::${Account}:organization/o-${OrganizationId}",
+                "ServicePrefix": "organizations",
+                "ResourceType": "organization"
+            },
+            "ManagementAccountArn": {
+                "Value": "arn:${Partition}:organizations::${Account}:account/o-${OrganizationId}/${AccountId}",
+                "ServicePrefix": "organizations",
+                "ResourceType": "account"
             }
         }
     },
@@ -4695,6 +4809,34 @@
                 "ServicePrefix": "mediatailor",
                 "ResourceType": "playback-configuration"
             }
+        },
+        "Channel": {
+            "Arn": {
+                "Value": "arn:${Partition}:mediatailor:${Region}:${Account}:channel/${ChannelName}",
+                "ServicePrefix": "mediatailor",
+                "ResourceType": "channel"
+            }
+        },
+        "LiveSource": {
+            "Arn": {
+                "Value": "arn:${Partition}:mediatailor:${Region}:${Account}:liveSource/${SourceLocationName}/${LiveSourceName}",
+                "ServicePrefix": "mediatailor",
+                "ResourceType": "live-source"
+            }
+        },
+        "SourceLocation": {
+            "Arn": {
+                "Value": "arn:${Partition}:mediatailor:${Region}:${Account}:sourceLocation/${SourceLocationName}",
+                "ServicePrefix": "mediatailor",
+                "ResourceType": "source-location"
+            }
+        },
+        "VodSource": {
+            "Arn": {
+                "Value": "arn:${Partition}:mediatailor:${Region}:${Account}:vodSource/${SourceLocationName}/${VodSourceName}",
+                "ServicePrefix": "mediatailor",
+                "ResourceType": "vod-source"
+            }
         }
     },
     "M2": {
@@ -4766,6 +4908,18 @@
                 "Value": "arn:${Partition}:comprehend:${Region}:${Account}:flywheel/${FlywheelName}",
                 "ServicePrefix": "comprehend",
                 "ResourceType": "flywheel"
+            }
+        },
+        "DocumentClassifier": {
+            "Ref": {
+                "Value": "arn:${Partition}:comprehend:${Region}:${Account}:document-classifier/${DocumentClassifierName}",
+                "ServicePrefix": "comprehend",
+                "ResourceType": "document-classifier"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:comprehend:${Region}:${Account}:document-classifier/${DocumentClassifierName}",
+                "ServicePrefix": "comprehend",
+                "ResourceType": "document-classifier"
             }
         }
     },
@@ -4869,7 +5023,7 @@
             "Arn": {
                 "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:configuredtable/${ConfiguredTableId}",
                 "ServicePrefix": "cleanrooms",
-                "ResourceType": "configured-table"
+                "ResourceType": "configuredtable"
             }
         },
         "Collaboration": {
@@ -4883,7 +5037,7 @@
             "Arn": {
                 "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:membership/${MembershipId}/configuredtableassociation/${ConfiguredTableAssociationId}",
                 "ServicePrefix": "cleanrooms",
-                "ResourceType": "configured-table-association"
+                "ResourceType": "configuredtableassociation"
             }
         }
     },
@@ -4924,6 +5078,27 @@
                 "Value": "arn:${Partition}:athena:${Region}:${Account}:capacity-reservation/${CapacityReservationName}",
                 "ServicePrefix": "athena",
                 "ResourceType": "capacity-reservation"
+            }
+        }
+    },
+    "EntityResolution": {
+        "MatchingWorkflow": {
+            "WorkflowArn": {
+                "Value": "arn:${Partition}:entityresolution::${Account}:matchingworkflow/${WorkflowName}",
+                "ServicePrefix": "entityresolution",
+                "ResourceType": "matching-workflow"
+            }
+        },
+        "SchemaMapping": {
+            "SchemaArn": null
+        }
+    },
+    "VerifiedPermissions": {
+        "PolicyStore": {
+            "Arn": {
+                "Value": "arn:${Partition}:verifiedpermissions::${Account}:policy-store/${PolicyStoreId}",
+                "ServicePrefix": "verifiedpermissions",
+                "ResourceType": "policy-store"
             }
         }
     }
