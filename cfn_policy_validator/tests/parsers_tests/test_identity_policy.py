@@ -249,7 +249,7 @@ class WhenParsingAnInlinePolicyWithReferencesInEachField(IdentityParserTest):
 				{
 					'Effect': 'Allow',
 					'Action': 'ec2:RunInstance',
-					'Resources': {'Ref': 'Resource'}
+					'Resource': {'Ref': 'Resource'}
 				}
 			]
 		}
@@ -294,7 +294,7 @@ class WhenParsingAnInlinePolicyWithReferencesInEachField(IdentityParserTest):
 		self.assertResults(number_of_groups=1, number_of_roles=1, number_of_users=1)
 
 		expected_inline_policy = inline_policy.copy()
-		expected_inline_policy['Statement'][0]['Resources'] = 'my_resource/*'
+		expected_inline_policy['Statement'][0]['Resource'] = 'my_resource/*'
 
 		user = self.users[0]
 		self.assertEqual(1, len(user.Policies))
@@ -536,3 +536,69 @@ class WhenParsingAPolicyThatIsAttachedToAnExternalGroup(IdentityParserTest):
 		self.assertEqual("MyPolicy", policy.Name)
 		self.assertEqual("/", policy.Path)
 		self.assertEqual(sample_policy_a, policy.Policy)
+
+
+class WhenParsingMultipleInlinePoliciesWithTheSameName(IdentityParserTest):
+	@mock_identity_parser_setup()
+	def test_returns_all_inline_policies(self):
+		inline_policy_a = {
+			'Version': '2012-10-17',
+			'Statement': [
+				{
+					'Effect': 'Allow',
+					'Action': 'ec2:RunInstances',
+					'Resource': "*"
+				}
+			]
+		}
+
+		inline_policy_b = {
+			'Version': '2012-10-17',
+			'Statement': [
+				{
+					'Effect': 'Allow',
+					'Action': 'ec2:CreateNetworkInterface',
+					'Resource': "*"
+				}
+			]
+		}
+
+		template = load({
+			'Resources': {
+				'InlinePolicyA': {
+					'Type': 'AWS::IAM::Policy',
+					'Properties': {
+						'PolicyDocument': inline_policy_a,
+						'PolicyName': 'Policy',
+						'Users': [
+							'MyExternalUser'
+						]
+					}
+				},
+				'InlinePolicyB': {
+					'Type': 'AWS::IAM::Policy',
+					'Properties': {
+						'PolicyDocument': inline_policy_b,
+						'PolicyName': 'Policy',
+						'Users': [
+							'MyExternalUser'
+						]
+					}
+				}
+			}
+		}, {
+			'Path': '/custom/policy/path',
+			'Name': 'PolicyName',
+			'Resource': 'my_resource/*'
+		})
+
+		self.parse(template, account_config)
+		self.assertResults(number_of_orphaned_policies=2)
+
+		policy = self.orphaned_policies[0]
+		self.assertEqual("Policy", policy.Name)
+		self.assertEqual(inline_policy_a, policy.Policy)
+
+		policy = self.orphaned_policies[1]
+		self.assertEqual("Policy", policy.Name)
+		self.assertEqual(inline_policy_b, policy.Policy)

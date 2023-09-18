@@ -69,7 +69,7 @@ class IdentityParser:
 
 		all_attached_policies = list(set(role_policies) | set(user_policies) | set(group_policies) | set(permission_set_policies))
 		all_managed_policies = list(ManagedPolicyParser.managed_policies.values())
-		all_inline_policies = list(InlinePolicyParser.inline_policies.values())
+		all_inline_policies = InlinePolicyParser.inline_policies
 
 		orphaned_policies = [managed_policy for managed_policy in all_managed_policies if managed_policy not in all_attached_policies]
 		orphaned_policies.extend([inline_policy for inline_policy in all_inline_policies if inline_policy not in all_attached_policies])
@@ -311,11 +311,11 @@ class PolicyParser(ABC):
 class InlinePolicyParser(PolicyParser):
 	""" AWS::IAM::Policy
 	"""
-	inline_policies = {}
+	inline_policies = []
 
 	def __init__(self):
 		super(InlinePolicyParser, self).__init__()
-		InlinePolicyParser.inline_policies = {}
+		InlinePolicyParser.inline_policies = []
 
 	def parse(self, _, resource):
 		evaluated_resource = resource.eval(inline_policy_schema)
@@ -331,7 +331,7 @@ class InlinePolicyParser(PolicyParser):
 		self.parse_users(policy, properties)
 		self.parse_groups(policy, properties)
 
-		self.inline_policies[policy_name] = policy
+		self.inline_policies.append(policy)
 
 
 class ManagedPolicyParser(PolicyParser):

@@ -5039,6 +5039,23 @@
                 "ServicePrefix": "cleanrooms",
                 "ResourceType": "configuredtableassociation"
             }
+        },
+        "AnalysisTemplate": {
+            "MembershipArn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:membership/${MembershipId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "membership"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:membership/${MembershipId}/analysistemplate/${AnalysisTemplateId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "analysistemplate"
+            },
+            "CollaborationArn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:collaboration/${CollaborationId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "collaboration"
+            }
         }
     },
     "Shield": {
@@ -5088,9 +5105,6 @@
                 "ServicePrefix": "entityresolution",
                 "ResourceType": "matching-workflow"
             }
-        },
-        "SchemaMapping": {
-            "SchemaArn": null
         }
     },
     "VerifiedPermissions": {
@@ -5099,6 +5113,67 @@
                 "Value": "arn:${Partition}:verifiedpermissions::${Account}:policy-store/${PolicyStoreId}",
                 "ServicePrefix": "verifiedpermissions",
                 "ResourceType": "policy-store"
+            }
+        }
+    },
+    "MediaPackageV2": {
+        "Channel": {
+            "Ref": {
+                "Value": "arn:${Partition}:mediapackagev2:${Region}:${Account}:channelGroup/${ChannelGroupName}/channel/${ChannelName}",
+                "ServicePrefix": "mediapackagev2",
+                "ResourceType": "channel"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:mediapackagev2:${Region}:${Account}:channelGroup/${ChannelGroupName}/channel/${ChannelName}",
+                "ServicePrefix": "mediapackagev2",
+                "ResourceType": "channel"
+            }
+        },
+        "ChannelGroup": {
+            "Ref": {
+                "Value": "arn:${Partition}:mediapackagev2:${Region}:${Account}:channelGroup/${ChannelGroupName}",
+                "ServicePrefix": "mediapackagev2",
+                "ResourceType": "channel-group"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:mediapackagev2:${Region}:${Account}:channelGroup/${ChannelGroupName}",
+                "ServicePrefix": "mediapackagev2",
+                "ResourceType": "channel-group"
+            }
+        },
+        "OriginEndpoint": {
+            "Ref": {
+                "Value": "arn:${Partition}:mediapackagev2:${Region}:${Account}:channelGroup/${ChannelGroupName}/channel/${ChannelName}/originEndpoint/${OriginEndpointName}",
+                "ServicePrefix": "mediapackagev2",
+                "ResourceType": "origin-endpoint"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:mediapackagev2:${Region}:${Account}:channelGroup/${ChannelGroupName}/channel/${ChannelName}/originEndpoint/${OriginEndpointName}",
+                "ServicePrefix": "mediapackagev2",
+                "ResourceType": "origin-endpoint"
+            }
+        }
+    },
+    "PCAConnectorAD": {
+        "Connector": {
+            "ConnectorArn": {
+                "Value": "arn:${Partition}:pca-connector-ad:${Region}:${Account}:connector/${ConnectorId}",
+                "ServicePrefix": "pca-connector-ad",
+                "ResourceType": "connector"
+            }
+        },
+        "DirectoryRegistration": {
+            "DirectoryRegistrationArn": {
+                "Value": "arn:${Partition}:pca-connector-ad:${Region}:${Account}:directory-registration/${DirectoryId}",
+                "ServicePrefix": "pca-connector-ad",
+                "ResourceType": "directory-registration"
+            }
+        },
+        "Template": {
+            "TemplateArn": {
+                "Value": "arn:${Partition}:pca-connector-ad:${Region}:${Account}:connector/${ConnectorId}/template/${TemplateId}",
+                "ServicePrefix": "pca-connector-ad",
+                "ResourceType": "template"
             }
         }
     }
