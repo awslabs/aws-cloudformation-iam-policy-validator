@@ -11,7 +11,8 @@ from botocore.exceptions import ClientError
 from cfn_policy_validator import client
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.identity_schemas import groups_schema, managed_policy_schema, \
-	roles_schema, inline_policy_schema, users_schema, permission_set_schema
+	roles_schema, inline_policy_schema, users_schema, permission_set_schema, role_policy_schema, group_policy_schema, \
+	user_policy_schema
 from cfn_policy_validator.parsers.utils.arn_generator import ArnGenerator
 from cfn_policy_validator.parsers.output import Role, User, Policy, Group, PermissionSet
 from cfn_policy_validator.parsers.utils.topological_sorter import TopologicalSorter
@@ -31,6 +32,9 @@ class IdentityParser:
 		parsers = {
 			'AWS::IAM::Role': RoleParser(account_config.region),
 			'AWS::IAM::Policy': InlinePolicyParser(),
+			'AWS::IAM::RolePolicy': RolePolicyParser(),
+			'AWS::IAM::GroupPolicy': GroupPolicyParser(),
+			'AWS::IAM::UserPolicy': UserPolicyParser(),
 			'AWS::IAM::ManagedPolicy': ManagedPolicyParser(account_config),
 			'AWS::IAM::User': UserParser(account_config.region),
 			'AWS::IAM::Group': GroupParser(account_config.region),
@@ -69,7 +73,10 @@ class IdentityParser:
 
 		all_attached_policies = list(set(role_policies) | set(user_policies) | set(group_policies) | set(permission_set_policies))
 		all_managed_policies = list(ManagedPolicyParser.managed_policies.values())
-		all_inline_policies = InlinePolicyParser.inline_policies
+		all_inline_policies = InlinePolicyParser.inline_policies + \
+								RolePolicyParser.role_policies + \
+								GroupPolicyParser.group_policies + \
+								UserPolicyParser.user_policies
 
 		orphaned_policies = [managed_policy for managed_policy in all_managed_policies if managed_policy not in all_attached_policies]
 		orphaned_policies.extend([inline_policy for inline_policy in all_inline_policies if inline_policy not in all_attached_policies])
@@ -283,29 +290,38 @@ class PolicyParser(ABC):
 	Base class for common policy (inline and managed) parsing
 	"""
 
-	@staticmethod
-	def parse_roles(policy, properties):
+	def parse_roles(self, policy, properties):
 		roles_to_apply_policy = properties.get('Roles', [])
 		for role_name in roles_to_apply_policy:
-			referenced_role = RoleParser.get_role_by(role_name)
-			if referenced_role is not None:
-				referenced_role.add_policy(policy)
+			self.add_policy_to_role_with(role_name, policy)
 
 	@staticmethod
-	def parse_users(policy, properties):
+	def add_policy_to_role_with(role_name, policy):
+		referenced_role = RoleParser.get_role_by(role_name)
+		if referenced_role is not None:
+			referenced_role.add_policy(policy)
+
+	def parse_users(self, policy, properties):
 		users_to_apply_policy = properties.get('Users', [])
 		for user_name in users_to_apply_policy:
-			referenced_user = UserParser.get_user_by(user_name)
-			if referenced_user is not None:
-				referenced_user.add_policy(policy)
+			self.add_policy_to_user_with(user_name, policy)
 
 	@staticmethod
-	def parse_groups(policy, properties):
+	def add_policy_to_user_with(user_name, policy):
+		referenced_user = UserParser.get_user_by(user_name)
+		if referenced_user is not None:
+			referenced_user.add_policy(policy)
+
+	def parse_groups(self, policy, properties):
 		groups_to_apply_policy = properties.get('Groups', [])
 		for group_name in groups_to_apply_policy:
-			referenced_group = GroupParser.get_group_by(group_name)
-			if referenced_group is not None:
-				referenced_group.add_policy(policy)
+			self.add_policy_to_group_with(group_name, policy)
+
+	@staticmethod
+	def add_policy_to_group_with(group_name, policy):
+		referenced_group = GroupParser.get_group_by(group_name)
+		if referenced_group is not None:
+			referenced_group.add_policy(policy)
 
 
 class InlinePolicyParser(PolicyParser):
@@ -332,6 +348,78 @@ class InlinePolicyParser(PolicyParser):
 		self.parse_groups(policy, properties)
 
 		self.inline_policies.append(policy)
+
+
+class RolePolicyParser(PolicyParser):
+	""" AWS::IAM::RolePolicy
+	"""
+	role_policies = []
+
+	def __init__(self):
+		super(RolePolicyParser, self).__init__()
+		RolePolicyParser.role_policies = []
+
+	def parse(self, _, resource):
+		evaluated_resource = resource.eval(role_policy_schema)
+
+		properties = evaluated_resource['Properties']
+
+		policy_name = properties['PolicyName']
+		policy_document = properties['PolicyDocument']
+		role_name = properties['RoleName']
+
+		policy = Policy(policy_name, policy_document)
+
+		self.add_policy_to_role_with(role_name, policy)
+		self.role_policies.append(policy)
+
+
+class GroupPolicyParser(PolicyParser):
+	""" AWS::IAM::GroupPolicy
+	"""
+	group_policies = []
+
+	def __init__(self):
+		super(GroupPolicyParser, self).__init__()
+		GroupPolicyParser.group_policies = []
+
+	def parse(self, _, resource):
+		evaluated_resource = resource.eval(group_policy_schema)
+
+		properties = evaluated_resource['Properties']
+
+		policy_name = properties['PolicyName']
+		policy_document = properties['PolicyDocument']
+		group_name = properties['GroupName']
+
+		policy = Policy(policy_name, policy_document)
+
+		self.add_policy_to_group_with(group_name, policy)
+		self.group_policies.append(policy)
+
+
+class UserPolicyParser(PolicyParser):
+	""" AWS::IAM::UserPolicy
+	"""
+	user_policies = []
+
+	def __init__(self):
+		super(UserPolicyParser, self).__init__()
+		UserPolicyParser.user_policies = []
+
+	def parse(self, _, resource):
+		evaluated_resource = resource.eval(user_policy_schema)
+
+		properties = evaluated_resource['Properties']
+
+		policy_name = properties['PolicyName']
+		policy_document = properties['PolicyDocument']
+		user_name = properties['UserName']
+
+		policy = Policy(policy_name, policy_document)
+
+		self.add_policy_to_user_with(user_name, policy)
+		self.user_policies.append(policy)
 
 
 class ManagedPolicyParser(PolicyParser):

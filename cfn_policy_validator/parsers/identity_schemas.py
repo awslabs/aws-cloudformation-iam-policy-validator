@@ -21,6 +21,7 @@ policies_schema = {
 	}
 }
 
+
 managed_policy_arns_schema = {
 	'type': 'array',
 	'items': {
@@ -154,6 +155,75 @@ inline_policy_schema = {
 				'Groups': array_of_strings_schema
 			},
 			'required': ['PolicyName', 'PolicyDocument']
+		}
+	},
+	'required': ['Properties']
+}
+
+
+role_policy_schema = {
+	'type': 'object',
+	'properties': {
+		'Properties': {
+			'type': 'object',
+			'properties': {
+				'PolicyName': {
+					'type': 'string'
+				},
+				'PolicyDocument': {
+					'type': 'object'
+				},
+				'RoleName': {
+					'type': 'string'
+				},
+			},
+			'required': ['PolicyName', 'PolicyDocument', 'RoleName']
+		}
+	},
+	'required': ['Properties']
+}
+
+
+group_policy_schema = {
+	'type': 'object',
+	'properties': {
+		'Properties': {
+			'type': 'object',
+			'properties': {
+				'PolicyName': {
+					'type': 'string'
+				},
+				'PolicyDocument': {
+					'type': 'object'
+				},
+				'GroupName': {
+					'type': 'string'
+				},
+			},
+			'required': ['PolicyName', 'PolicyDocument', 'GroupName']
+		}
+	},
+	'required': ['Properties']
+}
+
+
+user_policy_schema = {
+	'type': 'object',
+	'properties': {
+		'Properties': {
+			'type': 'object',
+			'properties': {
+				'PolicyName': {
+					'type': 'string'
+				},
+				'PolicyDocument': {
+					'type': 'object'
+				},
+				'UserName': {
+					'type': 'string'
+				},
+			},
+			'required': ['PolicyName', 'PolicyDocument', 'UserName']
 		}
 	},
 	'required': ['Properties']

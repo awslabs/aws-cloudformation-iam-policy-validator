@@ -586,10 +586,6 @@ class WhenParsingMultipleInlinePoliciesWithTheSameName(IdentityParserTest):
 					}
 				}
 			}
-		}, {
-			'Path': '/custom/policy/path',
-			'Name': 'PolicyName',
-			'Resource': 'my_resource/*'
 		})
 
 		self.parse(template, account_config)
