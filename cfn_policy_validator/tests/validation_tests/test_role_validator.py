@@ -4,9 +4,8 @@ SPDX-License-Identifier: MIT-0
 """
 import copy
 import unittest
-from unittest.mock import MagicMock, patch
 
-from botocore.stub import Stubber, ANY
+from botocore.stub import ANY
 
 from cfn_policy_validator.tests import account_config, offline_only
 from cfn_policy_validator.tests.boto_mocks import mock_test_setup, BotoResponse
@@ -106,6 +105,8 @@ invalid_identity_policy = {
 	]
 }
 
+trust_policy_validate_policy_resource_type = 'AWS::IAM::AssumeRolePolicyDocument'
+
 
 class WhenValidatingRoles(unittest.TestCase):
 	def setUp(self):
@@ -141,8 +142,8 @@ class WhenValidatingRoles(unittest.TestCase):
 		]
 
 	@mock_access_analyzer_role_setup(
-		MockAccessPreviewFinding(),
-		MockAccessPreviewFinding()
+		MockAccessPreviewFinding(custom_validate_policy_type=trust_policy_validate_policy_resource_type),
+		MockAccessPreviewFinding(custom_validate_policy_type=trust_policy_validate_policy_resource_type)
 	)
 	def test_with_trust_policy_that_allows_external_access(self):
 		self.add_roles_to_output(trust_policy=trust_policy_that_allows_external_access)
@@ -163,8 +164,8 @@ class WhenValidatingRoles(unittest.TestCase):
 		)
 
 	@mock_access_analyzer_role_setup(
-		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION),
-		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION)
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION, custom_resource_type=trust_policy_validate_policy_resource_type),
+		MockValidateResourcePolicyFinding(code='EMPTY_OBJECT_PRINCIPAL', finding_type=FINDING_TYPE.SUGGESTION, custom_resource_type=trust_policy_validate_policy_resource_type)
 	)
 	def test_with_trust_policy_with_findings(self):
 		self.add_roles_to_output(trust_policy=trust_policy_with_findings)
@@ -185,8 +186,8 @@ class WhenValidatingRoles(unittest.TestCase):
 		)
 
 	@mock_access_analyzer_role_setup(
-		MockNoFindings(),
-		MockNoFindings()
+		MockNoFindings(custom_validate_policy_type=trust_policy_validate_policy_resource_type),
+		MockNoFindings(custom_validate_policy_type=trust_policy_validate_policy_resource_type)
 	)
 	def test_with_trust_policy_with_no_findings(self):
 		self.add_roles_to_output(trust_policy=trust_policy_with_no_findings)
@@ -230,8 +231,8 @@ class WhenValidatingRoles(unittest.TestCase):
 		)
 
 	@mock_access_analyzer_role_setup(
-		MockNoFindings(),
-		MockNoFindings()
+		MockNoFindings(custom_validate_policy_type=trust_policy_validate_policy_resource_type),
+		MockNoFindings(custom_validate_policy_type=trust_policy_validate_policy_resource_type)
 	)
 	def test_with_identity_policy_with_no_findings(self):
 		self.add_roles_to_output(trust_policy=trust_policy_with_no_findings, identity_policy=identity_policy_with_no_findings)
@@ -270,9 +271,10 @@ class WhenValidatingRoles(unittest.TestCase):
 						'iamRole': ANY
 					}
 				}
-			}
+			},
+			custom_validate_policy_type=trust_policy_validate_policy_resource_type
 		),
-		MockNoFindings()
+		MockNoFindings(custom_validate_policy_type=trust_policy_validate_policy_resource_type)
 	)
 	def test_with_role_name_that_exceeds_limit(self):
 		self.add_roles_to_output(
@@ -287,11 +289,13 @@ class WhenValidatingRoles(unittest.TestCase):
 	@mock_access_analyzer_role_setup(
 		MockValidateIdentityAndResourcePolicyFinding(
 			resource_code='EMPTY_OBJECT_PRINCIPAL', resource_finding_type=FINDING_TYPE.SUGGESTION,
-			identity_code='DATA_TYPE_MISMATCH', identity_finding_type=FINDING_TYPE.ERROR
+			identity_code='DATA_TYPE_MISMATCH', identity_finding_type=FINDING_TYPE.ERROR,
+			custom_resource_type=trust_policy_validate_policy_resource_type
 		),
 		MockValidateIdentityAndResourcePolicyFinding(
 			resource_code='EMPTY_OBJECT_PRINCIPAL', resource_finding_type=FINDING_TYPE.SUGGESTION,
-			identity_code='DATA_TYPE_MISMATCH', identity_finding_type=FINDING_TYPE.ERROR
+			identity_code='DATA_TYPE_MISMATCH', identity_finding_type=FINDING_TYPE.ERROR,
+			custom_resource_type=trust_policy_validate_policy_resource_type
 		)
 	)
 	def test_with_findings_in_both_trust_policy_and_identity_policy(self):
@@ -325,7 +329,7 @@ class WhenValidatingRoles(unittest.TestCase):
 		)
 
 	@mock_access_analyzer_role_setup(
-		MockUnknownError(),
+		MockUnknownError(custom_validate_policy_type=trust_policy_validate_policy_resource_type)
 	)
 	@offline_only
 	def test_unknown_access_preview_failure(self):
@@ -339,7 +343,7 @@ class WhenValidatingRoles(unittest.TestCase):
 		self.assertEqual('Failed to create access preview for role1.  Reason: UNKNOWN_ERROR', str(cm.exception))
 
 	@mock_access_analyzer_role_setup(
-		MockTimeout()
+		MockTimeout(custom_validate_policy_type=trust_policy_validate_policy_resource_type)
 	)
 	@offline_only
 	def test_unknown_access_preview_timeout(self):

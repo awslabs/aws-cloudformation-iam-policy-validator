@@ -75,12 +75,16 @@ def mock_test_setup(**kwargs):
 				mock_client_builder.side_effect = get_mock_client
 				func(self)
 
-			should_assert_no_pending_responses = kwargs.get('assert_no_pending_responses')
-			if should_assert_no_pending_responses:
+			try:
+				should_assert_no_pending_responses = kwargs.get('assert_no_pending_responses')
+				if should_assert_no_pending_responses:
+					for stubber in stubbers:
+						stubber.assert_no_pending_responses()
+			finally:
 				for stubber in stubbers:
-					stubber.assert_no_pending_responses()
+					stubber.deactivate()
 
-			mock_clients.clear()
+				mock_clients.clear()
 
 		return wrapper
 	return decorator

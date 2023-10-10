@@ -87,10 +87,7 @@ class Validator:
 		previews_to_await = []
 		for role in roles:
 			LOGGER.info(f'Validating trust policy for role {role.RoleName}..')
-			response = self._validate_policy(role.TrustPolicy, self.RESOURCE_POLICY_TYPE, False)
-			LOGGER.info(f'ValidatePolicy response: {response}')
-
-			validation_findings = response['findings']
+			validation_findings = self._validate_policy(role.TrustPolicy, self.RESOURCE_POLICY_TYPE, False, 'AWS::IAM::AssumeRolePolicyDocument')
 			self.findings.add_validation_finding(validation_findings, role.RoleName, 'TrustPolicy')
 
 			# use access previews to validate a role's trust policy
@@ -100,9 +97,8 @@ class Validator:
 			# validate identity policies attached to the role
 			for policy in role.Policies:
 				LOGGER.info(f'Validating identity policy for {role.RoleName} with name {policy.Name}')
-				response = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
-				LOGGER.info(f'ValidatePolicy response: {response}')
-				self.findings.add_validation_finding(response['findings'], role.RoleName, policy.Name)
+				validation_findings = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
+				self.findings.add_validation_finding(validation_findings, role.RoleName, policy.Name)
 
 		access_preview_findings = self._wait_for_findings(previews_to_await)
 		for access_preview_finding in access_preview_findings:
@@ -127,9 +123,8 @@ class Validator:
 		resource_name = 'No resource attached'
 		for policy in policies:
 			LOGGER.info(f'Validating identity policy for {policy.Name}')
-			response = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
-			LOGGER.info(f'ValidatePolicy response: {response}')
-			self.findings.add_validation_finding(response['findings'], resource_name, policy.Name)
+			validation_findings = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
+			self.findings.add_validation_finding(validation_findings, resource_name, policy.Name)
 
 	def validate_users(self, users):
 		"""
@@ -138,9 +133,8 @@ class Validator:
 		for user in users:
 			for policy in user.Policies:
 				LOGGER.info(f'Validating identity policy for user {user.UserName} with policy name {policy.Name}')
-				response = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
-				LOGGER.info(f'ValidatePolicy response {response}')
-				self.findings.add_validation_finding(response['findings'], user.UserName, policy.Name)
+				validation_findings = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
+				self.findings.add_validation_finding(validation_findings, user.UserName, policy.Name)
 
 	def validate_groups(self, groups):
 		"""
@@ -149,9 +143,8 @@ class Validator:
 		for group in groups:
 			for policy in group.Policies:
 				LOGGER.info(f'Validating identity policy for group {group.GroupName} with policy name {policy.Name}')
-				response = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
-				LOGGER.info(f'ValidatePolicy response {response}')
-				self.findings.add_validation_finding(response['findings'], group.GroupName, policy.Name)
+				validation_findings = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
+				self.findings.add_validation_finding(validation_findings, group.GroupName, policy.Name)
 
 	def validate_permission_sets(self, permission_sets):
 		"""
@@ -160,9 +153,8 @@ class Validator:
 		for permission_set in permission_sets:
 			for policy in permission_set.Policies:
 				LOGGER.info(f'Validating identity policy for permission set {permission_set.Name} with policy name {policy.Name}')
-				response = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
-				LOGGER.info(f'ValidatePolicy response {response}')
-				self.findings.add_validation_finding(response['findings'], permission_set.Name, policy.Name)
+				validation_findings = self._validate_policy(policy.Policy, self.IDENTITY_POLICY_TYPE, policy.IsAWSManagedPolicy)
+				self.findings.add_validation_finding(validation_findings, permission_set.Name, policy.Name)
 
 	def validate_resources(self, resources):
 		"""
@@ -179,9 +171,7 @@ class Validator:
 				LOGGER.info(f'Validating resource policy for resource {resource.ResourceName} of type {resource.ResourceType}')
 
 				validate_policy_resource_type = self.service_specific_policy_validation.get(resource.ResourceType)
-				response = self._validate_policy(resource.Policy.Policy, self.RESOURCE_POLICY_TYPE, False, validate_policy_resource_type)
-				LOGGER.info(f'ValidatePolicy response {response}')
-				validation_findings = response['findings']
+				validation_findings = self._validate_policy(resource.Policy.Policy, self.RESOURCE_POLICY_TYPE, False, validate_policy_resource_type)
 				self.findings.add_validation_finding(validation_findings, resource.ResourceName, resource.Policy.Name)
 
 			# only supported policies for access previews will have config builders
@@ -222,27 +212,31 @@ class Validator:
 		if length_of_policy_without_whitespace >= 32768:
 			if is_aws_managed_policy:
 				LOGGER.info(f'AWS managed policy has length {length_of_policy_without_whitespace} which exceeds the max size (32768 bytes) for ValidatePolicy call.  Ignoring..')
-				return {'findings': []}
+				return []
 			else:
 				# if this is a customer policy, we return an error finding
-				return {
-					'findings': [self._build_policy_size_finding(length_of_policy_without_whitespace)]
-				}
+				return [self._build_policy_size_finding(length_of_policy_without_whitespace)]
 
-		if resource_type is None:
-			response = self.client.validate_policy(
-				policyType=policy_type,
-				policyDocument=policy_as_string
-			)
-		else:
+		LOGGER.info(policy_as_string)
+		paginator = self.client.get_paginator('validate_policy')
+		args = {
+			'policyDocument': policy_as_string,
+			'policyType': policy_type
+		}
+
+		if resource_type is not None:
 			LOGGER.info(f'Running service specific policy validation for {resource_type}')
-			response = self.client.validate_policy(
-				policyType=self.RESOURCE_POLICY_TYPE,
-				policyDocument=policy_as_string,
-				validatePolicyResourceType=resource_type
-			)
+			args['policyType'] = self.RESOURCE_POLICY_TYPE
+			args['validatePolicyResourceType'] = resource_type
 
-		return response
+		response_iterator = paginator.paginate(**args)
+		findings = []
+		for page in response_iterator:
+			print(f'running for {policy_as_string}')
+			LOGGER.info(f'ValidatePolicy response: {page}')
+			findings.extend(page['findings'])
+
+		return findings
 
 	@staticmethod
 	def _build_policy_size_finding(policy_size):

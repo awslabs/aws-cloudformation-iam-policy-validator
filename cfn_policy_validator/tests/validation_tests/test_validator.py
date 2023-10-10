@@ -7,6 +7,7 @@ import json
 import os
 import unittest
 
+from cfn_policy_validator.tests import account_config, offline_only
 from cfn_policy_validator.tests.validation_tests import MockNoFindings, \
 	mock_access_analyzer_identity_setup, FINDING_TYPE, MockValidateIdentityPolicyFinding
 from cfn_policy_validator.validation.validator import validate_parser_output
@@ -417,3 +418,48 @@ class WhenValidatingPoliciesAndPolicyExceedsMaximumValidatePolicySizeAndIsAWSMan
 		self.assertEqual(0, len(findings.security_warnings))
 		self.assertEqual(0, len(findings.warnings))
 		self.assertEqual(0, len(findings.suggestions))
+
+
+class WhenValidatingPoliciesAndFindingsPaginate(unittest.TestCase):
+	def setUp(self):
+		self.output = Output(account_config)
+
+	@mock_access_analyzer_identity_setup(
+		MockValidateIdentityPolicyFinding(code='PASS_ROLE_WITH_STAR_IN_RESOURCE', finding_type=FINDING_TYPE.SECURITY_WARNING, has_next_token_in_response=True),
+		MockValidateIdentityPolicyFinding(code='PASS_ROLE_WITH_STAR_IN_RESOURCE', finding_type=FINDING_TYPE.SECURITY_WARNING, has_next_token_in_request=True),
+
+		MockValidateIdentityPolicyFinding(code='ANOTHER_SECURITY_WARNING', finding_type=FINDING_TYPE.SECURITY_WARNING, has_next_token_in_response=True),
+		MockValidateIdentityPolicyFinding(code='ANOTHER_SECURITY_WARNING', finding_type=FINDING_TYPE.SECURITY_WARNING, has_next_token_in_request=True)
+	)
+	@offline_only
+	def test_adds_identity_finding_for_bad_policies(self):
+		self.output.OrphanedPolicies = [
+			Policy('Policy1', copy.deepcopy(policy_document_with_findings), 'MyPath'),
+			Policy('Policy2', copy.deepcopy(policy_document_with_findings))
+		]
+
+		findings = validate_parser_output(self.output)
+		self.assertEqual(0, len(findings.errors))
+		self.assertEqual(4, len(findings.security_warnings))
+		self.assertEqual(0, len(findings.warnings))
+		self.assertEqual(0, len(findings.suggestions))
+
+		first_finding = findings.security_warnings[0]
+		self.assertEqual('Policy1', first_finding.policyName)
+		self.assertEqual('No resource attached', first_finding.resourceName)
+		self.assertEqual('PASS_ROLE_WITH_STAR_IN_RESOURCE', first_finding.code)
+
+		second_finding = findings.security_warnings[1]
+		self.assertEqual('Policy1', second_finding.policyName)
+		self.assertEqual('No resource attached', second_finding.resourceName)
+		self.assertEqual('PASS_ROLE_WITH_STAR_IN_RESOURCE', second_finding.code)
+
+		third_finding = findings.security_warnings[2]
+		self.assertEqual('Policy2', third_finding.policyName)
+		self.assertEqual('No resource attached', third_finding.resourceName)
+		self.assertEqual('ANOTHER_SECURITY_WARNING', third_finding.code)
+
+		fourth_finding = findings.security_warnings[3]
+		self.assertEqual('Policy2', fourth_finding.policyName)
+		self.assertEqual('No resource attached', fourth_finding.resourceName)
+		self.assertEqual('ANOTHER_SECURITY_WARNING', fourth_finding.code)
