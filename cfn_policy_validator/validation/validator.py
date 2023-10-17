@@ -232,7 +232,6 @@ class Validator:
 		response_iterator = paginator.paginate(**args)
 		findings = []
 		for page in response_iterator:
-			print(f'running for {policy_as_string}')
 			LOGGER.info(f'ValidatePolicy response: {page}')
 			findings.extend(page['findings'])
 
