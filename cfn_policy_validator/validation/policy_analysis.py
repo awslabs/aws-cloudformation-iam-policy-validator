@@ -84,9 +84,6 @@ class PolicyAnalysis:
 		response_no_metadata = response.copy()
 		del response_no_metadata['ResponseMetadata']
 		rawFinding = {
-			# TODO: 200 responses will contain a 'message' string that summarizes the result (currently not implemented)
-			# All error responses currently contain this summary string
-			# Verify that this works correctly with 200 responses after implementation
 			'message': response.get('message'), 
 			'findingType': finding_type,
 			'response': response_no_metadata,
