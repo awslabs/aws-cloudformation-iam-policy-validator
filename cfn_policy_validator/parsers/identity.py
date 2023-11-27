@@ -28,7 +28,7 @@ class IdentityParser:
 	"""
 
 	@classmethod
-	def parse(cls, template, account_config):
+	def parse(cls, template, account_config, excluded_resource_types={}):
 		parsers = {
 			'AWS::IAM::Role': RoleParser(account_config.region),
 			'AWS::IAM::Policy': InlinePolicyParser(),
@@ -47,10 +47,11 @@ class IdentityParser:
 
 		for resource in sorted_resources:
 			resource_type = resource.value['Type']
-			parser = parsers.get(resource_type)
-			if parser is not None:
-				LOGGER.info(f'Parsing resource type {resource_type} with logical name {resource.logical_name}..')
-				parser.parse(resource.logical_name, resource.value)
+			if resource_type not in excluded_resource_types:
+				parser = parsers.get(resource_type)
+				if parser is not None:
+					LOGGER.info(f'Parsing resource type {resource_type} with logical name {resource.logical_name}..')
+					parser.parse(resource.logical_name, resource.value)
 
 		orphaned_policies = cls.get_orphaned_policies()
 

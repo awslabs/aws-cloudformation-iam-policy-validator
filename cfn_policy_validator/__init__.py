@@ -3,6 +3,7 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: MIT-0
 """
 import io
+import json
 import logging
 
 from cfn_policy_validator import client, parameters
@@ -148,10 +149,25 @@ def _parse_template_file(file_path, account_config, template_parameters, allow_d
     return template
 
 
-def _parse_template_output(template, account_config):
+def _parse_template_output(template, account_config, excluded_resource_types={}):
     output = Output(account_config)
+    LOGGER.info(f'Not parsing resources: {excluded_resource_types}' if excluded_resource_types else 'Parsing all resources')
     output.Roles, output.Users, output.Groups, output.PermissionSets, output.OrphanedPolicies = \
-        IdentityParser.parse(template, account_config)
-    output.Resources = ResourceParser.parse(template, account_config)
+        IdentityParser.parse(template, account_config, excluded_resource_types)
+    output.Resources = ResourceParser.parse(template, account_config, excluded_resource_types)
 
     return output
+
+def _load_json_file(file_path):
+    try:
+        with open(file_path, 'r') as stream:
+            ret = stream.read()
+            try:
+                json.loads(ret)
+            except Exception:
+                logging.exception('Unable to parse json file. Invalid JSON detected.')
+                raise ApplicationError('Unable to parse json file. Invalid JSON detected.')
+    except FileNotFoundError:
+        raise ApplicationError(f'File not found: {file_path}')
+
+    return ret
