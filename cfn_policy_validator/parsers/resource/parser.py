@@ -25,7 +25,7 @@ class ResourceParser:
     """
 
     @classmethod
-    def parse(cls, template, account_config):
+    def parse(cls, template, account_config, excluded_resource_types={}):
         # topologically sort which allows us to process dependent resources first
         sorter = TopologicalSorter(template)
         sorted_resources = sorter.sort_resources()
@@ -46,11 +46,12 @@ class ResourceParser:
         invoked_parsers = set()
         for resource in sorted_resources:
             resource_type = resource.value['Type']
-            parser = parsers.get(resource_type)
-            if parser is not None:
-                LOGGER.info(f'Parsing resource type {resource_type} with logical name {resource.logical_name}..')
-                parser.parse(resource.logical_name, resource.value)
-                invoked_parsers.add(parser)
+            if resource_type not in excluded_resource_types:
+                parser = parsers.get(resource_type)
+                if parser is not None:
+                    LOGGER.info(f'Parsing resource type {resource_type} with logical name {resource.logical_name}..')
+                    parser.parse(resource.logical_name, resource.value)
+                    invoked_parsers.add(parser)
 
         # If multiple cfn resource types exist in the same template that should be validated together, combine them
         # into a single resource as it may be confusing to validate the same resource twice.

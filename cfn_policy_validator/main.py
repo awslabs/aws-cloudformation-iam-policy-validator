@@ -6,30 +6,49 @@ import argparse
 import logging
 import sys
 import traceback
+from cfn_policy_validator.validation import policy_analysis
 
 from cfn_policy_validator.validation import validator
 from cfn_policy_validator.version import __version__
 from cfn_policy_validator import parameters, client, AccountConfig, \
-    _parse_template_file, _parse_template_output
+    _parse_template_file, _parse_template_output, _load_json_file
 from cfn_policy_validator.validation.reporter import default_finding_types_that_are_blocking
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.argument_actions import DictionaryArgument, \
-    ParseFindingsToIgnoreFromCLI, ParseAllowExternalPrincipalsFromCLI
+    ParseFindingsToIgnoreFromCLI, ParseAllowExternalPrincipalsFromCLI, \
+    ParseListFromCLI
 from cfn_policy_validator.logger import configure_logging
-from cfn_policy_validator.parameters import validate_region, validate_finding_types_from_cli, validate_credentials
+from cfn_policy_validator.parameters import validate_region, \
+    validate_finding_types_from_cli, \
+    validate_credentials
 
 LOGGER = logging.getLogger('cfn-policy-validator')
 
 
-# consumable when running as CLI
-def validate_from_cli(arguments):
+def get_parser_output(arguments):
     LOGGER.info(f'Validating template {arguments.template_path}')
     account_id, partition = client.get_account_and_partition(arguments.region)
     account_config = AccountConfig(partition, arguments.region, account_id)
 
     template = _parse_template_file(arguments.template_path, account_config, arguments.parameters, arguments.allow_dynamic_ref_without_version)
-    parser_output = _parse_template_output(template, account_config)
-    report = validator.validate(parser_output, arguments.ignore_finding, arguments.treat_as_blocking, arguments.allowed_external_principals)
+    return _parse_template_output(template, account_config, set(arguments.exclude_resource_type))
+
+# consumable when running as CLI
+def validate_from_cli(arguments):
+    LOGGER.info(f'Validating template {arguments.template_path}')
+    report = validator.validate(get_parser_output(arguments), arguments.ignore_finding, arguments.treat_as_blocking, arguments.allowed_external_principals)
+
+    report.print()
+    if report.has_blocking_findings():
+        exit(2)
+    else:
+        exit(0)
+
+# consumable when running as CLI
+def compare_from_cli(arguments):
+    LOGGER.info(f'Checking that template {arguments.template_path} is less permissive than reference policy {arguments.reference_policy}')
+    reference_policy = _load_json_file(arguments.reference_policy)
+    report = policy_analysis.compare(get_parser_output(arguments), reference_policy, arguments.reference_policy_type, arguments.ignore_finding, arguments.findings_are_blocking)
 
     report.print()
     if report.has_blocking_findings():
@@ -39,13 +58,26 @@ def validate_from_cli(arguments):
 
 
 # consumable when running as CLI
+def check_access_from_cli(arguments):
+    LOGGER.info(f'Checking that template {arguments.template_path} is not granting actions: {arguments.actions}')
+    report = policy_analysis.check_access(get_parser_output(arguments), arguments.actions, arguments.ignore_finding, arguments.findings_are_blocking)
+    report.print()
+
+    if report.has_blocking_findings():
+        exit(2)
+    else:
+        exit(0)
+
+
+
+# consumable when running as CLI
 def parse_from_cli(arguments):
     LOGGER.info(f'Parsing template {arguments.template_path}')
     account_id, partition = client.get_account_and_partition(arguments.region)
     account_config = AccountConfig(partition, arguments.region, account_id)
 
     template = _parse_template_file(arguments.template_path, account_config, arguments.parameters, arguments.allow_dynamic_ref_without_version)
-    parser_output = _parse_template_output(template, account_config)
+    parser_output = _parse_template_output(template, account_config, set(arguments.exclude_resource_type))
 
     parser_output.print()
     exit(0)
@@ -82,10 +114,14 @@ def main(args=None):
                                 ' helps ensure that the reference does not change between validation and deployment. Allowing dynamic references without versions would make it'
                                 ' possible for the template you deploy to be different from the one that was validated.', default=False, action='store_true')
 
+    parent_parser.add_argument('--exclude-resource-types', dest="exclude_resource_type", action=ParseListFromCLI, default=[],
+                        help='Resource types to exclude from parsing. Specify as a comma separated list of CloudFormation resource types. '
+                        'Please see README for full list of possible types.')
+
     parser = argparse.ArgumentParser(description='Parses IAM identity-based and resource-based policies from AWS CloudFormation templates.')
     parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
 
-    subparsers = parser.add_subparsers(dest='{parse,validate}')
+    subparsers = parser.add_subparsers(dest='{parse,validate,check-no-new-access,check-access-not-granted}')
     subparsers.required = True
 
     # parse command
@@ -121,6 +157,54 @@ def main(args=None):
                                      'user, a federated SAML user, or an ARN. Specify "*" to allow anonymous access. '
                                      '(e.g. 123456789123,arn:aws:iam::111111111111:role/MyOtherRole,graph.facebook.com)',
                                  action=ParseAllowExternalPrincipalsFromCLI)
+    
+    def add_policy_analysis_subparsers():
+        # check-no-new-access command
+        compare_parser = subparsers.add_parser('check-no-new-access', help='Parses IAM identity-based and resource-based policies from AWS CloudFormation templates '
+                                                            'and runs them through IAM Access Analyzer for comparison with a reference policy.  Returns the response '
+                                                            'in JSON format.', parents=[parent_parser])
+        compare_parser.set_defaults(func=compare_from_cli)
+
+        compare_parser.add_argument('--reference-policy', dest="reference_policy", required=True,
+                                    help='Reference policy to be compared to.\n')
+
+        compare_parser.add_argument('--reference-policy-type', dest="reference_policy_type", required=True,
+                                    type=str, help='The type of the reference policy (identity or resource)')
+
+        
+        compare_parser.add_argument('--ignore-finding', dest="ignore_finding", metavar='FINDING_CODE,RESOURCE_NAME,RESOURCE_NAME.FINDING_CODE',
+                                    help='Allow findings to be ignored.\n'
+                                        'Specify as a comma separated list of findings to be ignored. Can be individual '
+                                        'finding codes (e.g. "PASS_ROLE_WITH_STAR_IN_RESOURCE"), a specific resource name '
+                                        '(e.g. "MyResource"), or a combination of both separated by a period.'
+                                        '(e.g. "MyResource.PASS_ROLE_WITH_STAR_IN_RESOURCE").',
+                                        action=ParseFindingsToIgnoreFromCLI)
+        compare_parser.add_argument('--treat-findings-as-non-blocking', dest="findings_are_blocking", 
+                                    help='If set, all findings will be treated as non-blocking',
+                                    default=True, action='store_false')
+        
+        # check-access-not-granted command
+        check_access_parser = subparsers.add_parser('check-access-not-granted', help='Parses IAM identity-based and resource-based policies from AWS CloudFormation templates '
+                                                            'and runs them through IAM Access Analyzer to check that access to a list of actions is not granted.  Returns the response '
+                                                            'in JSON format.', parents=[parent_parser])
+        check_access_parser.set_defaults(func=check_access_from_cli)
+
+        check_access_parser.add_argument('--actions', dest="actions", required=True,
+                                    help= 'Actions that policies should not grant.'
+                                    'Specify as a comma separated list of actions to be checked.'
+                                    'The tool will make multiple requests if you provide more actions than the allowed quota.', action=ParseListFromCLI)
+        
+        check_access_parser.add_argument('--ignore-finding', dest="ignore_finding", metavar='FINDING_CODE,RESOURCE_NAME,RESOURCE_NAME.FINDING_CODE',
+                                    help='Allow findings to be ignored.\n'
+                                        'Specify as a comma separated list of findings to be ignored. Can be individual '
+                                        'finding codes (e.g. "PASS_ROLE_WITH_STAR_IN_RESOURCE"), a specific resource name '
+                                        '(e.g. "MyResource"), or a combination of both separated by a period.'
+                                        '(e.g. "MyResource.PASS_ROLE_WITH_STAR_IN_RESOURCE").',
+                                        action=ParseFindingsToIgnoreFromCLI)
+        check_access_parser.add_argument('--treat-findings-as-non-blocking', dest="findings_are_blocking", 
+                                    help='If set, all findings will be treated as non-blocking',
+                                    default=True, action='store_false')
+    add_policy_analysis_subparsers()
 
     args = parser.parse_args(args)
 

@@ -8,7 +8,6 @@ from cfn_policy_validator.validation.reporter import ResourceOrCodeFindingToIgno
     AllowedExternalArn, AllowedExternalPrincipal
 from cfn_policy_validator.cfn_tools import regex_patterns
 
-
 class DictionaryArgument(argparse.Action):
     """
     Converts key/value pairs in the format of Key=Value to a dictionary
@@ -87,3 +86,12 @@ def parse_allow_external_principals(values_as_list):
         allowed_external_principals.append(allowed_external_principal)
 
     return allowed_external_principals
+
+
+class ParseListFromCLI(argparse.Action):
+    def __call__(self, _, namespace, values, option_string=None):
+        values = values.split(',')
+        if values is None:
+            setattr(namespace, self.dest, None)
+        values = [value.strip() for value in values]
+        setattr(namespace, self.dest, values)

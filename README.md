@@ -1,6 +1,6 @@
 ## IAM Policy Validator for AWS CloudFormation
 
-A command line tool that takes a CloudFormation template, parses the IAM policies attached to IAM roles, users, groups, and resources then runs them through IAM Access Analyzer validation checks.
+A command line tool that takes a CloudFormation template, parses the IAM policies attached to IAM roles, users, groups, and resources then runs them through IAM Access Analyzer for basic policy validation checks and for custom policy checks. Note that a charge is associated with each custom policy check. For more details about pricing, see [IAM Access Analyzer pricing](https://aws.amazon.com/iam/access-analyzer/pricing/).
 
 ### Getting Started
 
@@ -55,7 +55,7 @@ CloudFormation templates commonly use [intrinsic functions](https://docs.aws.ama
 }
 ```
 
-Extracting the queue policy from this template as is would not give you a valid IAM policy.  The line `Fn:GetAtt: ["MyQueue", "Arn"]` is not valid IAM policy syntax - this is syntax specific to CloudFormation. The IAM Policy Validator for AWS CloudFormation (cfn-policy-validator) evaluates these intrinsic functions, like Fn:GetAtt, substituting similar or identical values to what you will get when you deploy the template.  This allows it to extract the IAM policies from the template and send them to IAM Access Analyzer, which validates the policies against checks for best practices and external access. 
+Extracting the queue policy from this template as is would not give you a valid IAM policy.  The line `Fn:GetAtt: ["MyQueue", "Arn"]` is not valid IAM policy syntax - this is syntax specific to CloudFormation. The IAM Policy Validator for AWS CloudFormation (cfn-policy-validator) evaluates these intrinsic functions, like Fn:GetAtt, substituting similar or identical values to what you will get when you deploy the template.  This allows it to extract the IAM policies from the template and send them to IAM Access Analyzer, which validates the policies against checks for best practices, external access, and your custom security standard. 
 
 The cfn-policy-validator returns a non-zero exit code when findings in IAM policies are detected and is designed to be run in a CI/CD pipeline to prevent the deployment of unwanted IAM policies to your AWS environment.
 
@@ -84,6 +84,52 @@ Exits with a non-zero error code if any findings categorized as blocking are fou
 | --treat-finding-type-as-blocking | | ERROR,SECURITY_WARNING,WARNING,SUGGESTION,NONE | Specify which finding types should be treated as blocking. Other finding types are treated as nonblocking.  If the tool detects any blocking finding types, it will exit with a non-zero exit code.  If all findings are nonblocking or there are no findings, the tool exits with an exit code of 0.  Defaults to "ERROR" and "SECURITY_WARNING". Specify as a comma separated list of finding types that should be blocking. Pass "NONE" to ignore all findings. |
 | --allow-external-principals | | ACCOUNT,ARN | A comma separated list of external principals that should be ignored.  Specify as a comma separated list of a 12 digit AWS account ID, a federated web identity user, a federated SAML user, or an ARN. Specify "*" to allow anonymous access. (e.g. 123456789123,arn:aws:iam::111111111111:role/MyOtherRole,graph.facebook.com) |
 | --allow-dynamic-ref-without-version | | | Override the default behavior and allow dynamic SSM references without version numbers.  The version number ensures that the SSM parameter value that was validated is the one that is deployed. |
+| --exclude-resource-types | | AWS::SERVICE::RESOURCE, AWS::SERVICE::RESOURCE | List of comma-separated resource types. Resource types should be the same as Cloudformation template resource names such as AWS::IAM::Role, AWS::S3::Bucket |
+
+**check-no-new-access**
+
+```bash
+cfn-policy-validator check-no-new-access --template-path ./my-template.json --region us-east-1 --reference-policy ./my-reference-policy.json --reference-policy-type identity
+```
+
+Parses IAM identity-based and resource-based policies from AWS CloudFormation templates and evaluated CloudFormation intrinsic functions and pseudo parameters. Then runs the policies through IAM Access Analyzer for a custom check against a reference policy. Returns the findings from the custom check in JSON format. Exits with a non-zero error code if any findings categorized as blocking, based on new access, are found in your template. Exits with an error code of zero if all findings are non-blocking or there are no findings. You can find examples for reference policies and learn how to set up and run a custom policy check for new access in the [IAM Access Analyzer custom policy checks samples](https://github.com/aws-samples/iam-access-analyzer-custom-policy-check-samples) repository on GitHub.
+
+
+| Arguments | Required |  Options | Description |
+| --------- | -------- | ---------| ----------- |
+| --template-path | Yes | FILE_NAME | The path to the CloudFormation template. |
+| --region | Yes | REGION | The destination region the resources will be deployed to. |
+| --parameters | | KEY=VALUE [KEY=VALUE ...] | Keys and values for CloudFormation template parameters.  Only parameters that are referenced by IAM policies in the template are required. |
+| --template-configuration-file | | FILE_PATH.json | A JSON formatted file that specifies template parameter values, a stack policy, and tags. Only parameters are used from this file.  Everything else is ignored. Identical values passed in the --parameters flag override parameters in this file. See CloudFormation documentation for file format: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html#w2ab1c21c15c15
+| --profile | | PROFILE | The named profile to use for AWS API calls. |
+| --enable-logging | | | Enables log output to stdout |
+| --ignore-finding | | FINDING_CODE,RESOURCE_NAME,RESOURCE_NAME.FINDING_CODE | Allow validation failures to be ignored. Specify as a comma separated list of findings to be ignored. Can be individual finding codes (e.g. "PASS_ROLE_WITH_STAR_IN_RESOURCE"), a specific resource name (e.g. "MyResource"), or a combination of both separated by a period.(e.g. "MyResource.PASS_ROLE_WITH_STAR_IN_RESOURCE").  Names of finding codes may change in IAM Access Analyzer over time.
+| --reference-policy | Yes | FILE_PATH.json | A JSON formatted file that specifies the path to the reference policy that is used for a permissions comparison.   |
+| --reference-policy-type | Yes | IDENTITY or RESOURCE | The policy type associated with the IAM policy under analysis and the reference policy.  |
+| --treat-findings-as-non-blocking | | | When not specified, the tool detects any findings, it will exit with a non-zero exit code. When specified, the tool exits with an exit code of 0. |
+| --allow-dynamic-ref-without-version | | | Override the default behavior and allow dynamic SSM references without version numbers.  The version number ensures that the SSM parameter value that was validated is the one that is deployed. |
+| --exclude-resource-types | | AWS::SERVICE::RESOURCE, AWS::SERVICE::RESOURCE | List of comma-separated resource types. Resource types should be the same as Cloudformation template resource names such as AWS::IAM::Role, AWS::S3::Bucket |
+
+**check-access-not-granted**
+```bash
+cfn-policy-validator check-access-not-granted --template-path ./my-template.json --region us-east-1 --actions "secretsmanager:DeleteSecret"
+```
+
+Parses IAM identity-based and resource-based policies from AWS CloudFormation templates and evaluated CloudFormation intrinsic functions and pseudo parameters. Then runs the policies through IAM Access Analyzer for a custom check against a list of IAM actions. Returns the findings from the custom check in JSON format. Exits with a non-zero error code if any findings categorized as blocking, based on access granted to at least one of the listed IAM actions, are found in your template. Exits with an error code of zero if all findings are non-blocking or there are no findings.
+
+| Arguments | Required |  Options | Description |
+| --------- | -------- | ---------| ----------- |
+| --template-path | Yes | FILE_NAME | The path to the CloudFormation template. |
+| --region | Yes | REGION | The destination region the resources will be deployed to. |
+| --parameters | | KEY=VALUE [KEY=VALUE ...] | Keys and values for CloudFormation template parameters.  Only parameters that are referenced by IAM policies in the template are required. |
+| --template-configuration-file | | FILE_PATH.json | A JSON formatted file that specifies template parameter values, a stack policy, and tags. Only parameters are used from this file.  Everything else is ignored. Identical values passed in the --parameters flag override parameters in this file. See CloudFormation documentation for file format: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html#w2ab1c21c15c15
+| --profile | | PROFILE | The named profile to use for AWS API calls. |
+| --enable-logging | | | Enables log output to stdout |
+| --ignore-finding | | FINDING_CODE,RESOURCE_NAME,RESOURCE_NAME.FINDING_CODE | Allow validation failures to be ignored. Specify as a comma separated list of findings to be ignored. Can be individual finding codes (e.g. "PASS_ROLE_WITH_STAR_IN_RESOURCE"), a specific resource name (e.g. "MyResource"), or a combination of both separated by a period.(e.g. "MyResource.PASS_ROLE_WITH_STAR_IN_RESOURCE").  Names of finding codes may change in IAM Access Analyzer over time.
+| --actions | Yes | ACTION,ACTION,ACTION | List of comma-separated actions. |
+| --treat-findings-as-non-blocking | | | When not specified, the tool detects any findings, it will exit with a non-zero exit code. When specified, the tool exits with an exit code of 0. |
+| --allow-dynamic-ref-without-version | | | Override the default behavior and allow dynamic SSM references without version numbers.  The version number ensures that the SSM parameter value that was validated is the one that is deployed. |
+| --exclude-resource-types | | AWS::SERVICE::RESOURCE, AWS::SERVICE::RESOURCE | List of comma-separated resource types. Resource types should be the same as Cloudformation template resource names such as AWS::IAM::Role, AWS::S3::Bucket |
 
 **parse**  
 
@@ -102,6 +148,7 @@ Parses IAM identity-based and resource-based policies from AWS CloudFormation te
 | --profile | | PROFILE | The named profile to use for AWS API calls. |
 | --enable-logging | | | Enables log output to stdout |
 | --allow-dynamic-ref-without-version | | | Override the default behavior and allow dynamic SSM references without version numbers.  The version number ensures that the SSM parameter value that was validated is the one that is deployed. |
+| --exclude-resource-types | | AWS::SERVICE::RESOURCE, AWS::SERVICE::RESOURCE | List of comma-separated resource types. Resource types should be the same as Cloudformation template resource names such as AWS::IAM::Role, AWS::S3::Bucket |
 
 ### Supported resource-based policies
 
@@ -180,6 +227,8 @@ The principal used to execute the cfn-policy-validator requires the following pe
               "access-analyzer:GetAccessPreview",
               "access-analyzer:ListAccessPreviewFindings",
               "access-analyzer:CreateAnalyzer",
+              "access-analyzer:CheckNoNewAccess",
+              "access-analyzer:CheckAccessNotGranted",
               "s3:ListAllMyBuckets",
               "cloudformation:ListExports",
               "ssm:GetParameter"
@@ -200,7 +249,7 @@ The principal used to execute the cfn-policy-validator requires the following pe
 }
 ```
 
-| Action Name| Justificiation |
+| Action Name| Justification |
 | ---------- | ------------- |
 | iam:GetPolicy | Read IAM managed policies from your environment if included in an IAM user, role, or group. |
 | iam:GetPolicyVersion | Read IAM managed policies from your environment if included in an IAM user, role, or group. |
@@ -210,6 +259,8 @@ The principal used to execute the cfn-policy-validator requires the following pe
 | access-analyzer:GetAccessPreview | Retrieve generated access previews.  |
 | access-analyzer:ListAccessPreviewFindings | Retrieve findings from access preview. |
 | access-analyzer:CreateAnalyzer | (Optional) Create an analyzer if one does not already exist in the account.  Optional if account has analyzer already. |
+| access-analyzer:CheckNoNewAccess | Called for each policy to validate against a reference policy to compare permissions. |
+| access-analyzer:CheckAccessNotGranted | Called for each policy to validate that it does not grant access to a list of IAM actions, considered as critical permissions, provided as input. |
 | iam:CreateServiceLinkedRole | (Optional) Create a service linked role if an analyzer must be created in account.  Optional if account has analyzer already. |
 | s3:ListAllMyBuckets | Retrieve the canonical ID of the account. |
 | cloudformation:ListExports | List CloudFormation exports to be used with Fn::ImportValue  |
@@ -245,6 +296,12 @@ Basic validate call
 cfn-policy-validator validate --template-path ./my-template.json --region us-east-1
 ```
 
+Basic custom policy check calls
+```bash 
+cfn-policy-validator check-no-new-access --template-path ./my-template.json --region us-east-1 --reference-policy ./my-reference-policy.json --reference-policy-type identity
+cfn-policy-validator check-access-not-granted --template-path ./my-template.json --region us-east-1 --actions "secretsmanager:DeleteSecret"
+```
+
 Basic parse call
 ```bash
 cfn-policy-validator parse --template-path ./my-template.json --region us-east-1
@@ -253,6 +310,12 @@ cfn-policy-validator parse --template-path ./my-template.json --region us-east-1
 Validate with parameters
 ```bash
 cfn-policy-validator validate --template-path ./my-template.json --region us-east-1 --parameters MyParameter1=MyValue1 MyParameter2=MyValue2
+```
+
+Custom policy check with parameters
+```bash 
+cfn-policy-validator check-no-new-access --template-path ./my-template.json --region us-east-1 --reference-policy ./my-reference-policy.json --reference-policy-type identity --parameters MyParameter1=MyValue1 MyParameter2=MyValue2
+cfn-policy-validator check-access-not-granted --template-path ./my-template.json --region us-east-1 --actions "secretsmanager:DeleteSecret" --parameters MyParameter1=MyValue1 MyParameter2=MyValue2
 ```
 
 Validate with template configuration file
@@ -270,6 +333,12 @@ Validate and ignore findings for a specific resource
 cfn-policy-validator validate --template-path ./my-template.json --region us-east-1 --ignore-findings MyResource1
 ```
 
+Custom policy check and ignore findings for a specific resource
+```bash
+cfn-policy-validator check-no-new-access --template-path ./my-template.json --region us-east-1 --reference-policy ./my-reference-policy.json --reference-policy-type identity --ignore-findings MyResource1
+cfn-policy-validator check-access-not-granted --template-path ./my-template.json --region us-east-1 --actions "secretsmanager:DeleteSecret" --ignore-findings MyResource1
+```
+
 Validate and ignore all findings for `MyResource1` and finding code `PASS_ROLE_WITH_STAR_IN_RESOURCE` for all resources
 ```bash
 cfn-policy-validator validate --template-path ./my-template.json --region us-east-1 --ignore-findings MyResource1,PASS_ROLE_WITH_STAR_IN_RESOURCE
@@ -278,6 +347,12 @@ cfn-policy-validator validate --template-path ./my-template.json --region us-eas
 Validate and treat warnings as blocking in addition to ERROR and SECURITY_WARNING (defaults)
 ```bash
 cfn-policy-validator validate --template-path ./my-template.json --region us-east-1 --treat-finding-type-as-blocking ERROR,SECURITY_WARNING,WARNING
+```
+
+Custom policy check and treat findings as non-blocking
+```bash
+cfn-policy-validator check-no-new-access --template-path ./my-template.json --region us-east-1 --reference-policy ./my-reference-policy.json --reference-policy-type identity --treat-findings-as-non-blocking
+cfn-policy-validator check-access-not-granted --template-path ./my-template.json --region us-east-1 --actions "secretsmanager:DeleteSecret" --ignore-findings MyResource1 --treat-findings-as-non-blocking
 ```
 
 Validate and ignore findings from account 123456789123 for cross account access

@@ -33,7 +33,8 @@ def build_default_arguments(template_path=""):
         allowed_external_principals=None,
         profile=None,
         func=ANY,
-        allow_dynamic_ref_without_version=None
+        allow_dynamic_ref_without_version=None,
+        exclude_resource_type=None
     )
     return default_args
 
@@ -45,7 +46,8 @@ def build_default_parse_args(template_path=''):
         parameters={},
         profile=None,
         func=ANY,
-        allow_dynamic_ref_without_version=False
+        allow_dynamic_ref_without_version=False,
+        exclude_resource_type=None
     )
     return default_args
 
@@ -176,7 +178,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         ]
         ignore_warnings()
 
-    def assert_called_with(self, parameters=ANY, ignore_finding=ANY, treat_as_blocking=ANY, allowed_external_principals=ANY, allow_dynamic_ref_without_version=ANY):
+    def assert_called_with(self, parameters=ANY, ignore_finding=ANY, treat_as_blocking=ANY, allowed_external_principals=ANY, allow_dynamic_ref_without_version=ANY, exclude_resource_type=ANY):
         arguments = build_default_arguments(template_path='abcdef')
         arguments.parameters = parameters
         arguments.ignore_finding = ignore_finding
@@ -185,7 +187,8 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         arguments.template_configuration_file = None
         arguments.enable_logging = False
         arguments.allow_dynamic_ref_without_version = allow_dynamic_ref_without_version
-        setattr(arguments, '{parse,validate}', ANY)
+        arguments.exclude_resource_type=exclude_resource_type
+        setattr(arguments, '{parse,validate,check-no-new-access,check-access-not-granted}', ANY)
 
         self.mock.assert_called_with(arguments)
 
@@ -367,13 +370,14 @@ class WhenParsingArgumentsForParse(unittest.TestCase):
         ]
         ignore_warnings()
 
-    def assert_called_with(self, parameters=ANY, allow_dynamic_ref_without_version=ANY):
+    def assert_called_with(self, parameters=ANY, allow_dynamic_ref_without_version=ANY, exclude_resource_type=ANY):
         arguments = build_default_parse_args(template_path='abcdef')
         arguments.parameters = parameters
         arguments.template_configuration_file = None
         arguments.enable_logging = False
         arguments.allow_dynamic_ref_without_version = allow_dynamic_ref_without_version
-        setattr(arguments, '{parse,validate}', ANY)
+        arguments.exclude_resource_type = exclude_resource_type
+        setattr(arguments, '{parse,validate,check-no-new-access,check-access-not-granted}', ANY)
 
         self.mock.assert_called_with(arguments)
 
@@ -556,9 +560,10 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
             profile=ANY,
             func=ANY,
             enable_logging=ANY,
-            allow_dynamic_ref_without_version=ANY
+            allow_dynamic_ref_without_version=ANY,
+            exclude_resource_type=ANY
         )
-        setattr(expected_args, '{parse,validate}', ANY)
+        setattr(expected_args, '{parse,validate,check-no-new-access,check-access-not-granted}', ANY)
 
         mock.assert_called_once()
         mock.assert_called_with(expected_args)
@@ -583,9 +588,10 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
             profile=ANY,
             func=ANY,
             enable_logging=ANY,
-            allow_dynamic_ref_without_version=ANY
+            allow_dynamic_ref_without_version=ANY,
+            exclude_resource_type=ANY
         )
-        setattr(expected_args, '{parse,validate}', ANY)
+        setattr(expected_args, '{parse,validate,check-no-new-access,check-access-not-granted}', ANY)
 
         mock.assert_called_once()
         mock.assert_called_with(expected_args)
@@ -635,7 +641,7 @@ class WhenRunningWithNoSubparser(unittest.TestCase):
             main.main([])
 
         self.assertEqual(2, context_manager.exception.code)
-        self.assertIn('error: the following arguments are required: {parse,validate}', err.getvalue())
+        self.assertIn('error: the following arguments are required: {parse,validate,check-no-new-access,check-access-not-granted}', err.getvalue())
 
 
 class WhenSettingProfileAndRegion(unittest.TestCase):
