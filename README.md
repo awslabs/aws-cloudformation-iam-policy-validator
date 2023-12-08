@@ -325,12 +325,12 @@ cfn-policy-validator validate --template-path ./my-template.json --region us-eas
 
 Validate and ignore findings for a specific finding code for all resources
 ```bash
-cfn-policy-validator validate --template-path ./my-template.json --region us-east-1 --ignore-findings PASS_ROLE_WITH_STAR_IN_RESOURCE
+cfn-policy-validator validate --template-path ./my-template.json --region us-east-1 --ignore-finding PASS_ROLE_WITH_STAR_IN_RESOURCE
 ```
 
 Validate and ignore findings for a specific resource
 ```bash
-cfn-policy-validator validate --template-path ./my-template.json --region us-east-1 --ignore-findings MyResource1
+cfn-policy-validator validate --template-path ./my-template.json --region us-east-1 --ignore-finding MyResource1
 ```
 
 Custom policy check and ignore findings for a specific resource
@@ -341,7 +341,7 @@ cfn-policy-validator check-access-not-granted --template-path ./my-template.json
 
 Validate and ignore all findings for `MyResource1` and finding code `PASS_ROLE_WITH_STAR_IN_RESOURCE` for all resources
 ```bash
-cfn-policy-validator validate --template-path ./my-template.json --region us-east-1 --ignore-findings MyResource1,PASS_ROLE_WITH_STAR_IN_RESOURCE
+cfn-policy-validator validate --template-path ./my-template.json --region us-east-1 --ignore-finding MyResource1,PASS_ROLE_WITH_STAR_IN_RESOURCE
 ```
 
 Validate and treat warnings as blocking in addition to ERROR and SECURITY_WARNING (defaults)
