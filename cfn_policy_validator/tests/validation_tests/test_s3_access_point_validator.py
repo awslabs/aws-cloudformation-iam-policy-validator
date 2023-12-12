@@ -60,7 +60,7 @@ s3_access_point_invalid_policy = {
 		"Effect": "Allow",
 		"Principal": {"AWS": [f"arn:aws:iam::{account_config.account_id}:root"]},
 		"Action": ["s3:PutObject", "s3:PutObjectAcl"],
-		"Resource": "arn:aws:s4:notvalid"
+		"Resource": "arn:aws:s3:::notvalid"
 	}]
 }
 
@@ -189,24 +189,28 @@ class WhenValidatingS3AccessPointPolicy(BaseResourcePolicyTest):
 		self.assert_has_findings(findings)
 
 	@mock_access_analyzer_resource_setup(
-		MockInvalidConfiguration(),
-		MockInvalidConfiguration()
+		MockInvalidConfiguration(code='UNSUPPORTED_RESOURCE_ARN_IN_POLICY'),
+		MockNoFindings(custom_validate_policy_type='AWS::S3::AccessPoint')
 	)
 	def test_with_invalid_s3_access_point_policy(self):
 		self.add_resources_to_output(
 			'AWS::S3::AccessPoint',
-			s3_access_point_invalid_policy
+			s3_access_point_invalid_policy,
+			build_s3_access_point_policy_with_no_findings('resource2')
 		)
 
-		with self.assertRaises(ApplicationError) as cm:
-			validate_parser_output(self.output)
-
-		self.assertIn("Failed to create access preview for resource1.  Validate that your trust or resource "
-						 "policy's schema is correct.\nThe following validation findings were detected for this resource:", str(cm.exception))
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, errors=1)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[0],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='UNSUPPORTED_RESOURCE_ARN_IN_POLICY'
+		)
 
 	@mock_access_analyzer_resource_setup(
 		MockBadRequest(custom_validate_policy_type='AWS::S3::AccessPoint'),
-		MockBadRequest(custom_validate_policy_type='AWS::S3::AccessPoint')
+		MockNoFindings(custom_validate_policy_type='AWS::S3::AccessPoint')
 	)
 	def test_with_invalid_s3_access_point_vpc_id(self):
 		self.add_resources_to_output(
@@ -214,10 +218,14 @@ class WhenValidatingS3AccessPointPolicy(BaseResourcePolicyTest):
 			build_s3_access_point_policy_with_no_findings('resource1'),
 			build_s3_access_point_policy_with_no_findings('resource2'),
 			{'VpcId': 'NotAValidVpc'},
-			{'VpcId': 'NotAValidVpc'}
+			access_point_configuration
 		)
 
-		with self.assertRaises(ApplicationError) as cm:
-			validate_parser_output(self.output)
-
-		self.assertIn('Failed to create access preview for resource1.', str(cm.exception))
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, errors=1)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[0],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='FAILED_ACCESS_PREVIEW_CREATION'
+		)

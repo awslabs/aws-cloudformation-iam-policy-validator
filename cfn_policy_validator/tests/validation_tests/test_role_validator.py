@@ -62,7 +62,9 @@ invalid_trust_policy = {
 			'Effect': 'Allow',
 			'Action': '*',
 			'Principal': {
-				'AwS': account_config.account_id
+				'AWS': {
+					'Fn::UnsupportedKey': 'Value'
+				}
 			}
 		}
 	]
@@ -118,19 +120,22 @@ class WhenValidatingRoles(unittest.TestCase):
 		self.assertEqual(expected_code, actual_role_finding.code)
 
 	def assert_has_findings(self, findings, errors=0, security_warnings=0, warnings=0, suggestions=0):
-		self.assertEqual(errors, len(findings.errors))
-		self.assertEqual(security_warnings, len(findings.security_warnings))
-		self.assertEqual(warnings, len(findings.warnings))
-		self.assertEqual(suggestions, len(findings.suggestions))
+		self.assertEqual(len(findings.errors), errors)
+		self.assertEqual(len(findings.security_warnings), security_warnings)
+		self.assertEqual(len(findings.warnings), warnings)
+		self.assertEqual(len(findings.suggestions), suggestions)
 
-	def add_roles_to_output(self, trust_policy, identity_policy=None, role_1_name='role1'):
+	def add_roles_to_output(self, trust_policy, trust_policy_2=None, identity_policy=None, role_1_name='role1'):
+		if trust_policy_2 is None:
+			trust_policy_2 = trust_policy
+
 		role1 = Role(role_1_name, role_path="/", trust_policy=copy.deepcopy(trust_policy))
 		if identity_policy is None:
 			identity_policy = identity_policy_with_no_findings
 
 		role1.add_policy(Policy('Policy1', copy.deepcopy(identity_policy)))
 
-		role2 = Role('role2', role_path='/', trust_policy=copy.deepcopy(trust_policy))
+		role2 = Role('role2', role_path='/', trust_policy=copy.deepcopy(trust_policy_2))
 		if identity_policy is None:
 			identity_policy = identity_policy_with_no_findings
 
@@ -196,17 +201,41 @@ class WhenValidatingRoles(unittest.TestCase):
 		self.assert_has_findings(findings)
 
 	@mock_access_analyzer_role_setup(
-		MockInvalidConfiguration(),
-		MockInvalidConfiguration()
+		MockInvalidConfiguration(code='DATA_TYPE_MISMATCH'),
+		MockNoFindings(custom_validate_policy_type=trust_policy_validate_policy_resource_type)
 	)
 	def test_with_invalid_trust_policy(self):
+		self.add_roles_to_output(
+			trust_policy=invalid_trust_policy,
+			trust_policy_2=trust_policy_with_no_findings
+		)
+
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, errors=1)
+		self.assert_role_finding_is_equal(
+			actual_role_finding=findings.errors[0],
+			expected_policy_name='TrustPolicy',
+			expected_resource_name='role1',
+			expected_code='DATA_TYPE_MISMATCH'
+		)
+
+	@mock_access_analyzer_role_setup(
+		MockInvalidConfiguration(finding_type='WARNING'),
+		MockNoFindings(custom_validate_policy_type=trust_policy_validate_policy_resource_type)
+	)
+	# unsure how to replicate this specific scenario
+	@offline_only
+	def test_with_invalid_role_trust_policy_and_no_error_findings(self):
 		self.add_roles_to_output(trust_policy=invalid_trust_policy)
 
-		with self.assertRaises(ApplicationError) as cm:
-			validate_parser_output(self.output)
-
-		self.assertIn("Failed to create access preview for role1.  Validate that your trust or resource "
-						 "policy's schema is correct.\nThe following validation findings were detected for this resource:", str(cm.exception))
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, errors=1, warnings=1)
+		self.assert_role_finding_is_equal(
+			actual_role_finding=findings.errors[0],
+			expected_policy_name='TrustPolicy',
+			expected_resource_name='role1',
+			expected_code='FAILED_ACCESS_PREVIEW_CREATION'
+		)
 
 	@mock_access_analyzer_role_setup(
 		MockValidateIdentityPolicyFinding(code='PASS_ROLE_WITH_STAR_IN_RESOURCE', finding_type=FINDING_TYPE.SECURITY_WARNING),

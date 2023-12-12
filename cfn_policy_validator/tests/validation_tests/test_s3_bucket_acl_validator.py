@@ -12,7 +12,7 @@ from cfn_policy_validator.tests import account_config, BotoResponse, my_canonica
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 from cfn_policy_validator.tests.validation_tests import mock_access_analyzer_resource_setup, MockAccessPreviewFinding, \
 	MockNoFindings, MockInvalidConfiguration,\
-	MockAccessPreviewFindingOnly, MockNoFindingsAccessPreviewOnly
+	MockAccessPreviewFindingOnly, MockSkippedFindingsAccessPreviewOnly
 from cfn_policy_validator.tests.validation_tests.test_resource_validator import BaseResourcePolicyTest
 from cfn_policy_validator.validation.validator import validate_parser_output, S3BucketPreviewBuilder
 
@@ -97,8 +97,8 @@ class WhenValidatingS3BucketAcl(BaseResourcePolicyTest):
 
 	@mock_canonical_user_id()
 	@mock_access_analyzer_resource_setup(
-		MockNoFindingsAccessPreviewOnly(),
-		MockNoFindingsAccessPreviewOnly()
+		MockSkippedFindingsAccessPreviewOnly(),
+		MockSkippedFindingsAccessPreviewOnly()
 	)
 	def test_with_s3_bucket_acl_with_no_findings(self):
 		self.add_resources_to_output(

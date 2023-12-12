@@ -318,17 +318,25 @@ class WhenValidatingSqsQueuePolicy(BaseResourcePolicyTest):
 		self.assert_has_findings(findings)
 
 	@mock_access_analyzer_resource_setup(
-		MockInvalidConfiguration(),
-		MockInvalidConfiguration()
+		MockInvalidConfiguration(code='DATA_TYPE_MISMATCH'),
+		MockNoFindings()
 	)
 	def test_with_invalid_sqs_queue_policy(self):
-		self.add_resources_to_output('AWS::SQS::Queue', sqs_queue_invalid_policy)
+		self.add_resources_to_output(
+			'AWS::SQS::Queue',
+			sqs_queue_invalid_policy,
+			sqs_queue_policy_with_no_findings
+		)
 
-		with self.assertRaises(ApplicationError) as cm:
-			validate_parser_output(self.output)
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, errors=1)
 
-		self.assertIn("Failed to create access preview for resource1.  Validate that your trust or resource "
-						 "policy's schema is correct.\nThe following validation findings were detected for this resource:", str(cm.exception))
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[0],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='DATA_TYPE_MISMATCH'
+		)
 
 
 kms_key_policy_that_allows_external_access = {
@@ -434,17 +442,24 @@ class WhenValidatingKmsKeyPolicy(BaseResourcePolicyTest):
 		self.assert_has_findings(findings)
 
 	@mock_access_analyzer_resource_setup(
-		MockInvalidConfiguration(),
-		MockInvalidConfiguration()
+		MockInvalidConfiguration(code='DATA_TYPE_MISMATCH'),
+		MockNoFindings()
 	)
 	def test_with_invalid_kms_policy(self):
-		self.add_resources_to_output('AWS::KMS::Key', kms_key_invalid_policy)
+		self.add_resources_to_output(
+			'AWS::KMS::Key',
+			kms_key_invalid_policy,
+			kms_key_policy_with_no_findings
+		)
+		findings = validate_parser_output(self.output)
 
-		with self.assertRaises(ApplicationError) as cm:
-			validate_parser_output(self.output)
-
-		self.assertIn("Failed to create access preview for resource1.  Validate that your trust or resource "
-						 "policy's schema is correct.\nThe following validation findings were detected for this resource:", str(cm.exception))
+		self.assert_has_findings(findings, errors=1)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[0],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='DATA_TYPE_MISMATCH'
+		)
 
 
 def build_s3_bucket_policy_that_allows_external_access(resource_name):
@@ -555,17 +570,24 @@ class WhenValidatingS3BucketPolicy(BaseResourcePolicyTest):
 		self.assert_has_findings(findings)
 
 	@mock_access_analyzer_resource_setup(
-		MockInvalidConfiguration(),
-		MockInvalidConfiguration()
+		MockInvalidConfiguration(code='DATA_TYPE_MISMATCH'),
+		MockNoFindings(custom_validate_policy_type='AWS::S3::Bucket')
 	)
 	def test_with_invalid_s3_bucket_policy(self):
-		self.add_resources_to_output('AWS::S3::Bucket', s3_bucket_invalid_policy)
+		self.add_resources_to_output(
+			'AWS::S3::Bucket',
+			s3_bucket_invalid_policy,
+			build_s3_bucket_policy_with_no_findings('resource2')
+		)
 
-		with self.assertRaises(ApplicationError) as cm:
-			validate_parser_output(self.output)
-
-		self.assertIn("Failed to create access preview for resource1.  Validate that your trust or resource "
-						 "policy's schema is correct.\nThe following validation findings were detected for this resource:", str(cm.exception))
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, errors=1)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[0],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='DATA_TYPE_MISMATCH'
+		)
 
 
 secrets_manager_resource_policy_that_allows_external_access = {
@@ -670,14 +692,21 @@ class WhenValidatingSecretsManagerResourcePolicy(BaseResourcePolicyTest):
 		self.assert_has_findings(findings)
 
 	@mock_access_analyzer_resource_setup(
-		MockInvalidConfiguration(),
-		MockInvalidConfiguration()
+		MockInvalidConfiguration(code='DATA_TYPE_MISMATCH'),
+		MockNoFindings()
 	)
 	def test_with_invalid_secrets_manager_resource_policy(self):
-		self.add_resources_to_output('AWS::SecretsManager::Secret', secrets_manager_resource_invalid_policy)
+		self.add_resources_to_output(
+			'AWS::SecretsManager::Secret',
+			secrets_manager_resource_invalid_policy,
+			secrets_manager_resource_policy_with_no_findings
+		)
 
-		with self.assertRaises(ApplicationError) as cm:
-			validate_parser_output(self.output)
-
-		self.assertIn("Failed to create access preview for resource1.  Validate that your trust or resource "
-						 "policy's schema is correct.\nThe following validation findings were detected for this resource:", str(cm.exception))
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, errors=1)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[0],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='DATA_TYPE_MISMATCH'
+		)

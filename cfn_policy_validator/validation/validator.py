@@ -9,8 +9,8 @@ import time
 import uuid
 
 from cfn_policy_validator.canonical_user_id import client, get_canonical_user
-from cfn_policy_validator.validation.findings import Findings
-from cfn_policy_validator.validation import default_to_json, InvalidPolicyException
+from cfn_policy_validator.validation.findings import Findings, create_custom_error_finding
+from cfn_policy_validator.validation import InvalidPolicyException
 from cfn_policy_validator.validation.reporter import Reporter
 from cfn_policy_validator.application_error import ApplicationError
 
@@ -114,7 +114,7 @@ class Validator:
 			configurations=configuration
 		)
 		LOGGER.info(f'CreateAccessPreview response: {response}')
-		return PreviewAwaitingResponse(response['id'], role, role.RoleName, validation_findings)
+		return PreviewAwaitingResponse(response['id'], role, role.RoleName, 'TrustPolicy', validation_findings)
 
 	def validate_policies(self, policies):
 		"""
@@ -180,7 +180,12 @@ class Validator:
 				try:
 					configuration = preview_builder.build_configuration(resource)
 				except InvalidPolicyException as e:
-					self._raise_invalid_configuration_error_for(resource.ResourceName, validation_findings, e.to_string())
+					validation_finding = create_custom_error_finding(
+						f'Failed to create access preview for {resource.ResourceName}. Reason: {e.to_string()}',
+						'FAILED_ACCESS_PREVIEW_CREATION'
+					)
+					self.findings.add_validation_finding([validation_finding], resource.ResourceName,resource.Policy.Name)
+					continue
 
 				LOGGER.info(f'Creating access preview for resource {resource.ResourceName} of type {resource.ResourceType}')
 				LOGGER.info(f'Using access preview configuration: {configuration}')
@@ -191,10 +196,19 @@ class Validator:
 						configurations=configuration
 					)
 				except Exception as e:
-					raise ApplicationError(f'Failed to create access preview for {resource.ResourceName}.', e)
+					validation_finding = create_custom_error_finding(
+						f'Failed to create access preview for {resource.ResourceName}. Reason: {e}',
+						'FAILED_ACCESS_PREVIEW_CREATION'
+					)
+					self.findings.add_validation_finding(
+						[validation_finding],
+						resource.ResourceName,
+						resource.Policy.Name
+					)
+					continue
 
 				LOGGER.info(f'CreateAccessPreview response: {response}')
-				preview = PreviewAwaitingResponse(response['id'], resource, resource.ResourceName, validation_findings)
+				preview = PreviewAwaitingResponse(response['id'], resource, resource.ResourceName, resource.Policy.Name, validation_findings)
 				previews_to_await.append(preview)
 
 		# batch and wait for all access previews to complete
@@ -267,14 +281,32 @@ class Validator:
 				else:
 					break
 
-			LOGGER.info(f'Access preview creation completed for {preview.name} with status {status}')
+			LOGGER.info(f'Access preview creation completed for {preview.resource_name} with status {status}')
 
 			if status == 'FAILED':
 				reason = response["accessPreview"]["statusReason"]["code"]
 				if reason == 'INVALID_CONFIGURATION':
-					self._raise_invalid_configuration_error_for(preview.name, preview.validation_findings)
+					# if we have a validation finding of type error, return that instead of throwing an exception so
+					# that users can implement rules to ignore the finding and/or resource.  This is useful when policies
+					# use functions that are not yet supported
+					if self._has_validation_finding_of_type_error(preview.validation_findings):
+						# do nothing, there is already an error finding being reported
+						continue
+					else:
+						# if there's no error finding, create our own
+						validation_finding = create_custom_error_finding(
+							f'Failed to create access preview for {preview.resource_name}. Reason: {reason}',
+							'FAILED_ACCESS_PREVIEW_CREATION'
+						)
+						self.findings.add_validation_finding(
+							[validation_finding],
+							preview.resource_name,
+							preview.policy_name
+						)
 
-				raise ApplicationError(f'Failed to create access preview for {preview.name}.  Reason: {reason}')
+					continue
+				else:
+					raise ApplicationError(f'Failed to create access preview for {preview.resource_name}.  Reason: {reason}')
 
 			paginator = self.client.get_paginator('list_access_preview_findings')
 			for page in paginator.paginate(accessPreviewId=preview.id, analyzerArn=self.analyzer_arn):
@@ -323,19 +355,8 @@ class Validator:
 		self.analyzer_arn = response['arn']
 
 	@staticmethod
-	def _raise_invalid_configuration_error_for(resource_name, validation_findings, custom_message=None):
-		# if we get an invalid configuration error, surface the validation findings as they likely point
-		# to the issue
-		message = f'Failed to create access preview for {resource_name}.  Validate that your trust or resource policy\'s ' \
-				  f'schema is correct.'
-		if len(validation_findings) > 0:
-			message += f'\nThe following validation findings were detected for this resource: ' \
-					   f'{json.dumps(validation_findings, default=default_to_json, indent=4)}.'
-
-		if custom_message is not None:
-			message += f'\nAdditional information:\n{custom_message}'
-
-		raise ApplicationError(message)
+	def _has_validation_finding_of_type_error(validation_findings):
+		return any(validation_finding for validation_finding in validation_findings if validation_finding['findingType'] == 'ERROR')
 
 
 class AccessPreviewFindings:
@@ -345,10 +366,11 @@ class AccessPreviewFindings:
 
 
 class PreviewAwaitingResponse:
-	def __init__(self, preview_id, resource, name, validation_findings):
+	def __init__(self, preview_id, resource, resource_name, policy_name, validation_findings):
 		self.id = preview_id
 		self.resource = resource
-		self.name = name
+		self.resource_name = resource_name
+		self.policy_name = policy_name
 		self.validation_findings = validation_findings
 
 

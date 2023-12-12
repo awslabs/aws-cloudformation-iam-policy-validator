@@ -96,3 +96,11 @@ class Findings:
 
 	def to_json(self):
 		return json.dumps(self, default=default_to_json, indent=4)
+
+
+def create_custom_error_finding(finding_details, issue_code):
+	return {
+		'findingType': 'ERROR',
+		'findingDetails': finding_details,
+		'issueCode': issue_code,
+	}

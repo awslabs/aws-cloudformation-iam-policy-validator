@@ -10,7 +10,8 @@ from cfn_policy_validator import ApplicationError
 from cfn_policy_validator.parsers.output import Policy, Resource
 from cfn_policy_validator.tests import account_config
 from cfn_policy_validator.tests.validation_tests import mock_access_analyzer_resource_setup, MockAccessPreviewFinding, \
-	MockValidateResourcePolicyFinding, MockNoFindings, MockInvalidConfiguration, FINDING_TYPE
+	MockValidateResourcePolicyFinding, MockNoFindings, MockInvalidConfiguration, FINDING_TYPE, \
+	MockInvalidAccessPreviewSetup
 from cfn_policy_validator.tests.validation_tests.test_resource_validator import BaseResourcePolicyTest
 from cfn_policy_validator.validation import InvalidPolicyException
 from cfn_policy_validator.validation.validator import validate_parser_output, S3MultiRegionAccessPointPreviewBuilder
@@ -65,7 +66,7 @@ s3_multi_region_access_point_invalid_policy = {
 		"Effect": "Allow",
 		"Principal": {"AWS": [f"arn:aws:iam::{account_config.account_id}:root"]},
 		"Action": ["s3:PutObject", "s3:PutObjectAcl"],
-		"Resource": "arn:aws:s4:notvalid"
+		"Resource": "arn:aws:s3:::notvalid"
 	}]
 }
 
@@ -138,40 +139,64 @@ class WhenValidatingS3MultiRegionAccessPointPolicy(BaseResourcePolicyTest):
 		self.assert_has_findings(findings)
 
 	@mock_access_analyzer_resource_setup(
-		MockInvalidConfiguration(),
-		MockInvalidConfiguration()
+		MockInvalidAccessPreviewSetup(
+			code='UNSUPPORTED_RESOURCE_ARN_IN_POLICY',
+			custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint'
+		),
+		MockNoFindings(custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint')
 	)
 	def test_with_s3_multi_region_access_point_policy_with_invalid_access_point_arn(self):
 		self.add_resources_to_output(
 			'AWS::S3::MultiRegionAccessPoint',
-			s3_multi_region_access_point_invalid_policy
+			s3_multi_region_access_point_invalid_policy,
+			build_s3_multi_region_access_point_policy_with_no_findings('resource2.mrap')
 		)
 
-		with self.assertRaises(ApplicationError) as cm:
-			validate_parser_output(self.output)
-
-		self.assertIn("Failed to create access preview for resource1.  Validate that your trust or resource "
-						 "policy's schema is correct.\nThe following validation findings were detected for this resource:", str(cm.exception))
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, errors=2)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[0],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='UNSUPPORTED_RESOURCE_ARN_IN_POLICY'
+		)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[1],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='FAILED_ACCESS_PREVIEW_CREATION'
+		)
 
 	@mock_access_analyzer_resource_setup(
-		MockInvalidConfiguration(),
-		MockInvalidConfiguration()
+		MockInvalidAccessPreviewSetup(
+			code='MISSING_STATEMENT',
+			custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint'
+		),
+		MockNoFindings(custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint')
 	)
 	def test_with_s3_multi_region_access_point_policy_with_no_statements(self):
 		self.add_resources_to_output(
 			'AWS::S3::MultiRegionAccessPoint',
 			{
 				"Version": "2012-10-17"
-			}
+			},
+			build_s3_multi_region_access_point_policy_with_no_findings('resource2.mrap')
 		)
 
-		with self.assertRaises(ApplicationError) as cm:
-			validate_parser_output(self.output)
-
-		self.assertIn("Failed to create access preview for resource1.  Validate that your trust or resource "
-						 "policy's schema is correct.", str(cm.exception))
-		self.assertIn("The following validation findings", str(cm.exception))
-		self.assertIn("Access point policy for resource1 has 'Statement'", str(cm.exception))
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, errors=2)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[0],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='MISSING_STATEMENT'
+		)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[1],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='FAILED_ACCESS_PREVIEW_CREATION'
+		)
 
 	@mock_access_analyzer_resource_setup(
 		MockNoFindings(custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint'),
@@ -198,8 +223,11 @@ class WhenValidatingS3MultiRegionAccessPointPolicy(BaseResourcePolicyTest):
 		self.assert_has_findings(findings)
 
 	@mock_access_analyzer_resource_setup(
-		MockInvalidConfiguration(),
-		MockInvalidConfiguration()
+		MockInvalidAccessPreviewSetup(
+			code='DATA_TYPE_MISMATCH',
+			custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint'
+		),
+		MockNoFindings(custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint')
 	)
 	def test_with_s3_multi_region_access_point_policy_with_statement_of_invalid_type(self):
 		self.add_resources_to_output(
@@ -207,20 +235,28 @@ class WhenValidatingS3MultiRegionAccessPointPolicy(BaseResourcePolicyTest):
 			{
 				"Version": "2012-10-17",
 				"Statement": "invalid"
-			}
+			},
+			build_s3_multi_region_access_point_policy_with_no_findings('resource2.mrap')
 		)
 
-		with self.assertRaises(ApplicationError) as cm:
-			validate_parser_output(self.output)
-
-		self.assertIn("Failed to create access preview for resource1.  Validate that your trust or resource "
-					  "policy's schema is correct.", str(cm.exception))
-		self.assertIn("The following validation findings", str(cm.exception))
-		self.assertIn("Access point policy for resource1 has 'Statement'", str(cm.exception))
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, errors=2)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[0],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='DATA_TYPE_MISMATCH'
+		)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[1],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='FAILED_ACCESS_PREVIEW_CREATION'
+		)
 
 	@mock_access_analyzer_resource_setup(
-		MockNoFindings(custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint'),
-		MockNoFindings(custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint')
+		MockInvalidAccessPreviewSetup(custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint'),
+		MockInvalidAccessPreviewSetup(custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint')
 	)
 	def test_with_s3_multi_region_access_point_policy_with_no_resource(self):
 		self.add_resources_to_output(
@@ -235,13 +271,20 @@ class WhenValidatingS3MultiRegionAccessPointPolicy(BaseResourcePolicyTest):
 			}
 		)
 
-		with self.assertRaises(ApplicationError) as cm:
-			validate_parser_output(self.output)
-
-		self.assertIn("Failed to create access preview for resource1.  Validate that your trust or resource "
-					  "policy's schema is correct.", str(cm.exception))
-		self.assertNotIn("The following validation findings", str(cm.exception))
-		self.assertIn("Access point policy for resource1 has 'Resource'", str(cm.exception))
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, errors=2)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[0],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='FAILED_ACCESS_PREVIEW_CREATION'
+		)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[1],
+			expected_policy_name='policy2',
+			expected_resource_name='resource2',
+			expected_code='FAILED_ACCESS_PREVIEW_CREATION'
+		)
 
 	@mock_access_analyzer_resource_setup(
 		MockNoFindings(custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint'),
@@ -265,8 +308,11 @@ class WhenValidatingS3MultiRegionAccessPointPolicy(BaseResourcePolicyTest):
 		self.assert_has_findings(findings)
 
 	@mock_access_analyzer_resource_setup(
-		MockInvalidConfiguration(),
-		MockInvalidConfiguration()
+		MockInvalidAccessPreviewSetup(
+			code='DATA_TYPE_MISMATCH',
+			custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint'
+		),
+		MockNoFindings(custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint')
 	)
 	def test_with_s3_multi_region_access_point_policy_with_resource_of_invalid_type(self):
 		self.add_resources_to_output(
@@ -279,16 +325,24 @@ class WhenValidatingS3MultiRegionAccessPointPolicy(BaseResourcePolicyTest):
 					"Action": ["s3:PutObject", "s3:PutObjectAcl"],
 					"Resource": {"Im": "Invalid"}
 				}
-			}
+			},
+			build_s3_multi_region_access_point_policy_with_no_findings('resource2.mrap')
 		)
 
-		with self.assertRaises(ApplicationError) as cm:
-			validate_parser_output(self.output)
-
-		self.assertIn("Failed to create access preview for resource1.  Validate that your trust or resource "
-					  "policy's schema is correct.", str(cm.exception))
-		self.assertIn("The following validation findings", str(cm.exception))
-		self.assertIn("Access point policy for resource1 has 'Resource'", str(cm.exception))
+		findings = validate_parser_output(self.output)
+		self.assert_has_findings(findings, errors=2)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[0],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='DATA_TYPE_MISMATCH'
+		)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[1],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='FAILED_ACCESS_PREVIEW_CREATION'
+		)
 
 
 class WhenBuildingMultiRegionAccessPointArn(unittest.TestCase):

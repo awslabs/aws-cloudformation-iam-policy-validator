@@ -285,9 +285,9 @@ class MockNoFindings(MockValidationResult):
 		super(MockNoFindings, self).__init__(expected_params_create_access_preview, expected_params_validate_policy)
 
 
-class MockNoFindingsAccessPreviewOnly(MockNoFindings):
+class MockSkippedFindingsAccessPreviewOnly(MockNoFindings):
 	def __init__(self, custom_validate_policy_type=None):
-		super(MockNoFindingsAccessPreviewOnly, self).__init__(custom_validate_policy_type)
+		super(MockSkippedFindingsAccessPreviewOnly, self).__init__(custom_validate_policy_type)
 
 	def get_validate_identity_policy_response(self):
 		return None
@@ -377,6 +377,12 @@ class MockBadRequest(MockValidationResult):
 			service_message='[instance failed to match exactly one schema (matched 0 out of 12)]'
 		)
 
+	def get_get_access_preview_response(self, access_preview_id):
+		return None
+
+	def get_list_access_preview_findings_response(self, access_preview_id):
+		return None
+
 
 class MockInvalidConfiguration(MockValidationResult):
 	def __init__(self, code='SOME_CODE', finding_type='ERROR'):
@@ -418,6 +424,45 @@ class MockInvalidConfiguration(MockValidationResult):
 				'analyzerArn': analyzer_arn
 			}
 		)
+
+	def get_list_access_preview_findings_response(self, access_preview_id):
+		return None
+
+
+class MockInvalidAccessPreviewSetup(MockValidationResult):
+	def __init__(self, code=None, finding_type='ERROR', custom_validate_policy_type=None):
+		expected_params_validate_policy = self.build_expected_validate_policy_params(custom_validate_policy_type)
+		super(MockInvalidAccessPreviewSetup, self).__init__(expected_params_validate_policy=expected_params_validate_policy)
+		self.code = code
+		self.finding_type = finding_type
+
+	def get_validate_resource_policy_response(self):
+		findings = []
+		if self.code is not None:
+			findings.append({
+				'issueCode': self.code,
+				'findingDetails': 'details',
+				'findingType': self.finding_type,
+				'learnMoreLink': 'link',
+				'locations': []
+			})
+
+		return BotoResponse(
+			method='validate_policy',
+			service_response={
+				'findings': findings
+			}
+		)
+
+	def get_get_access_preview_response(self, access_preview_id):
+		return None
+
+	def get_list_access_preview_findings_response(self, access_preview_id):
+		return None
+
+	def get_create_access_preview_response(self, access_preview_id):
+		return None
+
 
 
 def validate_identities(*mock_validation_results):
