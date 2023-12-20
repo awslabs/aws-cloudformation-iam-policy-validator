@@ -446,7 +446,7 @@ class WhenGeneratingAnArnForELBv2ResourcesAndValidatingSchema(unittest.TestCase)
         })
 
         with self.assertRaises(ApplicationError) as cm:
-            self.arn_generator.try_generate_arn('MyLB', resource, 'Ref')
+            self.arn_generator.try_generate_arn('MyLB', resource, 'LoadBalancerArns')
 
         self.assertEqual(expected_type_error('ResourceA.Properties.Protocol', 'string', '[]'), str(cm.exception))
 

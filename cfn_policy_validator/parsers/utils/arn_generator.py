@@ -31,13 +31,30 @@ class ArnGenerator:
 
         # some ARN generation requires custom logic (e.g. an ELB can have 2 different ARNs depending on the ELB type)
         self.custom_generators = {
-            'AWS::ElasticLoadBalancingV2::LoadBalancer': generate_elbv2_load_balancer_arn,
-            'AWS::ElasticLoadBalancingV2::Listener': generate_elbv2_listener_arn,
-            'AWS::ElasticLoadBalancingV2::TargetGroup': generate_elbv2_target_group_arn,
-            'AWS::IAM::Role': generate_role_arn,
-            'AWS::IAM::User': generate_user_arn,
-            'AWS::IAM::ManagedPolicy': generate_managed_policy_arn,
-            'AWS::NetworkFirewall::RuleGroup': generate_network_firewall_rule_group
+            'AWS::ElasticLoadBalancingV2::LoadBalancer': {
+                'Ref': generate_elbv2_load_balancer_arn,
+                'LoadBalancerArn': generate_elbv2_load_balancer_arn
+            },
+            'AWS::ElasticLoadBalancingV2::Listener': {
+                'Ref': generate_elbv2_listener_arn
+            },
+            'AWS::ElasticLoadBalancingV2::TargetGroup': {
+                'LoadBalancerArns': generate_elbv2_target_group_load_balancer_arn
+            },
+            'AWS::IAM::Role': {
+                'Arn': generate_role_arn
+            },
+            'AWS::IAM::User': {
+                'Arn': generate_user_arn
+            },
+            'AWS::IAM::ManagedPolicy': {
+                'Ref': generate_managed_policy_arn,
+                'PolicyArn': generate_managed_policy_arn
+            },
+            'AWS::NetworkFirewall::RuleGroup': {
+                'Ref': generate_network_firewall_rule_group,
+                'RuleGroupArn': generate_network_firewall_rule_group
+            }
         }
 
     def try_generate_arn(self, resource_name, resource, attribute_or_ref, visited_values=None):
@@ -74,7 +91,7 @@ class ArnGenerator:
         # certain CFN types require some additional generation that is specific to the resource type
         # for example, we include the exact path with any roles or users, ALBs and NLBs share the same cfn resource,
         # but have different ARNs
-        custom_generator = self.custom_generators.get(cfn_type)
+        custom_generator = self.custom_generators.get(cfn_type, {}).get(attribute_or_ref)
         if custom_generator is not None:
             arn_pattern = custom_generator(arn_pattern, resource_name, resource, visited_values)
 
@@ -168,7 +185,7 @@ def generate_elbv2_listener_arn(arn_pattern, _, resource, visited_values):
 
 
 # AWS::ElasticLoadBalancingV2::TargetGroup
-def generate_elbv2_target_group_arn(arn_pattern, _, resource, visited_values):
+def generate_elbv2_target_group_load_balancer_arn(arn_pattern, _, resource, visited_values):
     evaluated_resource = resource.eval(elbv2_target_group_schema, visited_values)
 
     properties = evaluated_resource.get('Properties', {})

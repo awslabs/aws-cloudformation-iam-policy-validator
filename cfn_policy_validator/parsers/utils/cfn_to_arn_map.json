@@ -31,36 +31,36 @@
     "GlobalAccelerator": {
         "Accelerator": {
             "AcceleratorArn": {
-                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${AcceleratorId}",
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${ResourceId}",
                 "ServicePrefix": "globalaccelerator",
                 "ResourceType": "accelerator"
             },
             "Ref": {
-                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${AcceleratorId}",
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${ResourceId}",
                 "ServicePrefix": "globalaccelerator",
                 "ResourceType": "accelerator"
             }
         },
         "Listener": {
             "ListenerArn": {
-                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${AcceleratorId}/listener/${ListenerId}",
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${ResourceId}/listener/${ListenerId}",
                 "ServicePrefix": "globalaccelerator",
                 "ResourceType": "listener"
             },
             "Ref": {
-                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${AcceleratorId}/listener/${ListenerId}",
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${ResourceId}/listener/${ListenerId}",
                 "ServicePrefix": "globalaccelerator",
                 "ResourceType": "listener"
             }
         },
         "EndpointGroup": {
             "EndpointGroupArn": {
-                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${AcceleratorId}/listener/${ListenerId}/endpoint-group/${EndpointGroupId}",
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${ResourceId}/listener/${ListenerId}/endpoint-group/${EndpointGroupId}",
                 "ServicePrefix": "globalaccelerator",
                 "ResourceType": "endpointgroup"
             },
             "Ref": {
-                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${AcceleratorId}/listener/${ListenerId}/endpoint-group/${EndpointGroupId}",
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:accelerator/${ResourceId}/listener/${ListenerId}/endpoint-group/${EndpointGroupId}",
                 "ServicePrefix": "globalaccelerator",
                 "ResourceType": "endpointgroup"
             }
@@ -181,6 +181,13 @@
                 "ServicePrefix": "backup",
                 "ResourceType": "report-plan"
             }
+        },
+        "RestoreTestingPlan": {
+            "RestoreTestingPlanArn": {
+                "Value": "arn:${Partition}:backup:${Region}:${Account}:restore-testing-plan:${RestoreTestingPlanName}-${RestoreTestingPlanId}",
+                "ServicePrefix": "backup",
+                "ResourceType": "restore-testing-plan"
+            }
         }
     },
     "Elasticsearch": {
@@ -268,7 +275,8 @@
                 "Value": "arn:${Partition}:appsync:${Region}:${Account}:apis/${GraphQLAPIId}",
                 "ServicePrefix": "appsync",
                 "ResourceType": "graphqlapi"
-            }
+            },
+            "GraphQLEndpointArn": null
         },
         "ApiKey": {
             "Ref": null,
@@ -527,6 +535,21 @@
                 "ServicePrefix": "codestar-connections",
                 "ResourceType": "connection"
             }
+        },
+        "RepositoryLink": {
+            "Ref": {
+                "Value": "arn:${Partition}:codestar-connections:${Region}:${Account}:repository-link/${RepositoryLinkId}",
+                "ServicePrefix": "codestar-connections",
+                "ResourceType": "repository-link"
+            },
+            "RepositoryLinkArn": {
+                "Value": "arn:${Partition}:codestar-connections:${Region}:${Account}:repository-link/${RepositoryLinkId}",
+                "ServicePrefix": "codestar-connections",
+                "ResourceType": "repository-link"
+            }
+        },
+        "SyncConfiguration": {
+            "Ref": null
         }
     },
     "GroundStation": {
@@ -738,6 +761,13 @@
                 "ServicePrefix": "sns",
                 "ResourceType": "topic"
             }
+        },
+        "TopicInlinePolicy": {
+            "Ref": {
+                "Value": "arn:${Partition}:sns:${Region}:${Account}:${TopicName}",
+                "ServicePrefix": "sns",
+                "ResourceType": "topic"
+            }
         }
     },
     "SageMaker": {
@@ -873,6 +903,11 @@
                 "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:domain/${DomainId}",
                 "ServicePrefix": "sagemaker",
                 "ResourceType": "domain"
+            },
+            "SingleSignOnApplicationArn": {
+                "Value": "arn:${Partition}:sso::${AccountId}:application/${InstanceId}/${ApplicationId}",
+                "ServicePrefix": "sso",
+                "ResourceType": "application"
             }
         },
         "Project": {
@@ -920,6 +955,13 @@
                 "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:inference-experiment/${InferenceExperimentName}",
                 "ServicePrefix": "sagemaker",
                 "ResourceType": "inference-experiment"
+            }
+        },
+        "InferenceComponent": {
+            "InferenceComponentArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:inference-component/${InferenceComponentName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "inference-component"
             }
         }
     },
@@ -978,6 +1020,13 @@
                 "Value": "arn:${Partition}:eks:${Region}:${Account}:identityproviderconfig/${ClusterName}/${IdentityProviderType}/${IdentityProviderConfigName}/${UUID}",
                 "ServicePrefix": "eks",
                 "ResourceType": "identityproviderconfig"
+            }
+        },
+        "PodIdentityAssociation": {
+            "AssociationArn": {
+                "Value": "arn:${Partition}:eks:${Region}:${Account}:podidentityassociation/${ClusterName}/${UUID}",
+                "ServicePrefix": "eks",
+                "ResourceType": "podidentityassociation"
             }
         }
     },
@@ -1226,6 +1275,11 @@
                 "Value": "arn:${Partition}:lambda:${Region}:${Account}:layer:${LayerName}:${LayerVersion}",
                 "ServicePrefix": "lambda",
                 "ResourceType": "layer-version"
+            },
+            "FunctionArn": {
+                "Value": "arn:${Partition}:lambda:${Region}:${Account}:function:${FunctionName}",
+                "ServicePrefix": "lambda",
+                "ResourceType": "function"
             }
         },
         "Function": {
@@ -1287,6 +1341,12 @@
                 "ServicePrefix": "elasticloadbalancing",
                 "ResourceType": "loadbalancer/app/",
                 "DoNotUpdate": "ELBv2 ARNs are dynamic based on the type of load balancer. This should default to loadbalancer/app/."
+            },
+            "LoadBalancerArn": {
+                "Value": "arn:${Partition}:elasticloadbalancing:${Region}:${Account}:loadbalancer/app/${LoadBalancerName}/${LoadBalancerId}",
+                "ServicePrefix": "elasticloadbalancing",
+                "ResourceType": "loadbalancer/app/",
+                "DoNotUpdate": "ELBv2 ARNs are dynamic based on the type of load balancer. This should default to loadbalancer/app/."
             }
         },
         "Listener": {
@@ -1333,6 +1393,13 @@
                 "Value": "arn:${Partition}:elasticloadbalancing:${Region}:${Account}:targetgroup/${TargetGroupName}/${TargetGroupId}",
                 "ServicePrefix": "elasticloadbalancing",
                 "ResourceType": "targetgroup"
+            }
+        },
+        "TrustStore": {
+            "TrustStoreArn": {
+                "Value": "arn:${Partition}:elasticloadbalancing:${Region}:${Account}:truststore/${TrustStoreName}/${TrustStoreId}",
+                "ServicePrefix": "elasticloadbalancing",
+                "ResourceType": "truststore"
             }
         }
     },
@@ -1384,6 +1451,11 @@
         },
         "Location": {
             "LocationArn": {
+                "Value": "arn:${Partition}:gamelift:${Region}:${Account}:location/${LocationId}",
+                "ServicePrefix": "gamelift",
+                "ResourceType": "location"
+            },
+            "Ref": {
                 "Value": "arn:${Partition}:gamelift:${Region}:${Account}:location/${LocationId}",
                 "ServicePrefix": "gamelift",
                 "ResourceType": "location"
@@ -1569,6 +1641,20 @@
                 "Value": "arn:${Partition}:iot:${Region}:${Account}:thingtype/${ThingTypeName}",
                 "ServicePrefix": "iot",
                 "ResourceType": "thingtype"
+            }
+        },
+        "SoftwarePackage": {
+            "PackageArn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:package/${PackageName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "package"
+            }
+        },
+        "SoftwarePackageVersion": {
+            "PackageVersionArn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:package/${PackageName}/version/${VersionName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "packageversion"
             }
         }
     },
@@ -1868,6 +1954,39 @@
                 "ServicePrefix": "s3",
                 "ResourceType": "accesspoint"
             }
+        },
+        "AccessGrant": {
+            "AccessGrantArn": {
+                "Value": "arn:${Partition}:s3:${Region}:${Account}:access-grants/default/grant/${Token}",
+                "ServicePrefix": "s3",
+                "ResourceType": "accessgrant"
+            }
+        },
+        "AccessGrantsInstance": {
+            "AccessGrantsInstanceArn": {
+                "Value": "arn:${Partition}:s3:${Region}:${Account}:access-grants/default",
+                "ServicePrefix": "s3",
+                "ResourceType": "accessgrantsinstance"
+            }
+        },
+        "AccessGrantsLocation": {
+            "AccessGrantsLocationArn": {
+                "Value": "arn:${Partition}:s3:${Region}:${Account}:access-grants/default/location/${Token}",
+                "ServicePrefix": "s3",
+                "ResourceType": "accessgrantslocation"
+            }
+        },
+        "StorageLensGroup": {
+            "Ref": {
+                "Value": "arn:${Partition}:s3:${Region}:${Account}:storage-lens-group/${Name}",
+                "ServicePrefix": "s3",
+                "ResourceType": "storagelensgroup"
+            },
+            "StorageLensGroupArn": {
+                "Value": "arn:${Partition}:s3:${Region}:${Account}:storage-lens-group/${Name}",
+                "ServicePrefix": "s3",
+                "ResourceType": "storagelensgroup"
+            }
         }
     },
     "Cognito": {
@@ -1951,6 +2070,13 @@
                 "Value": "arn:${Partition}:logs:${Region}:${Account}:log-group:${LogGroupName}",
                 "ServicePrefix": "logs",
                 "ResourceType": "log-group"
+            }
+        },
+        "LogAnomalyDetector": {
+            "AnomalyDetectorArn": {
+                "Value": "arn:${Partition}:logs:${Region}:${Account}:anomaly-detector:${DetectorId}",
+                "ServicePrefix": "logs",
+                "ResourceType": "anomaly-detector"
             }
         }
     },
@@ -2143,6 +2269,13 @@
                 "ServicePrefix": "imagebuilder",
                 "ResourceType": "container-recipe"
             }
+        },
+        "LifecyclePolicy": {
+            "Arn": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:lifecycle-policy/${LifecyclePolicyName}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "lifecycle-policy"
+            }
         }
     },
     "AutoScalingPlans": {
@@ -2243,6 +2376,27 @@
                 "Value": "arn:${Partition}:dms:${Region}:${Account}:rep:*",
                 "ServicePrefix": "dms",
                 "ResourceType": "replication-instance"
+            }
+        },
+        "DataProvider": {
+            "DataProviderArn": {
+                "Value": "arn:${Partition}:dms:${Region}:${Account}:data-provider:*",
+                "ServicePrefix": "dms",
+                "ResourceType": "data-provider"
+            }
+        },
+        "InstanceProfile": {
+            "InstanceProfileArn": {
+                "Value": "arn:${Partition}:dms:${Region}:${Account}:instance-profile:*",
+                "ServicePrefix": "dms",
+                "ResourceType": "instance-profile"
+            }
+        },
+        "MigrationProject": {
+            "MigrationProjectArn": {
+                "Value": "arn:${Partition}:dms:${Region}:${Account}:migration-project:*",
+                "ServicePrefix": "dms",
+                "ResourceType": "migration-project"
             }
         }
     },
@@ -2347,7 +2501,8 @@
     },
     "ApplicationAutoScaling": {
         "ScalingPolicy": {
-            "Ref": null
+            "Ref": null,
+            "Arn": null
         }
     },
     "CodeCommit": {
@@ -2430,6 +2585,13 @@
                 "Value": "arn:${Partition}:kafka:${Region}:${VpcOwnerAccount}:vpc-connection/${ClusterOwnerAccount}/${ClusterName}/${Uuid}",
                 "ServicePrefix": "kafka",
                 "ResourceType": "vpc-connection"
+            }
+        },
+        "Replicator": {
+            "ReplicatorArn": {
+                "Value": "arn:${Partition}:kafka:${Region}:${Account}:replicator/${ReplicatorName}/${Uuid}",
+                "ServicePrefix": "kafka",
+                "ResourceType": "replicator"
             }
         }
     },
@@ -2925,6 +3087,13 @@
                 "ServicePrefix": "elasticache",
                 "ResourceType": "usergroup"
             }
+        },
+        "ServerlessCache": {
+            "ARN": {
+                "Value": "arn:${Partition}:elasticache:${Region}:${Account}:serverlesscache:${ServerlessCacheName}",
+                "ServicePrefix": "elasticache",
+                "ResourceType": "serverlesscache"
+            }
         }
     },
     "CodeArtifact": {
@@ -3193,6 +3362,13 @@
                 "Value": "arn:${Partition}:ec2:${Region}:${Account}:verified-access-group/${VerifiedAccessGroupId}",
                 "ServicePrefix": "ec2",
                 "ResourceType": "verified-access-group"
+            }
+        },
+        "TransitGateway": {
+            "TransitGatewayArn": {
+                "Value": "arn:${Partition}:ec2:${Region}:${Account}:transit-gateway/${TransitGatewayId}",
+                "ServicePrefix": "ec2",
+                "ResourceType": "transit-gateway"
             }
         }
     },
@@ -3689,6 +3865,30 @@
                 "ServicePrefix": "ce",
                 "ResourceType": "costcategory"
             }
+        },
+        "AnomalyMonitor": {
+            "Ref": {
+                "Value": "arn:${Partition}:ce::${Account}:anomalymonitor/${Identifier}",
+                "ServicePrefix": "ce",
+                "ResourceType": "anomalymonitor"
+            },
+            "MonitorArn": {
+                "Value": "arn:${Partition}:ce::${Account}:anomalymonitor/${Identifier}",
+                "ServicePrefix": "ce",
+                "ResourceType": "anomalymonitor"
+            }
+        },
+        "AnomalySubscription": {
+            "Ref": {
+                "Value": "arn:${Partition}:ce::${Account}:anomalysubscription/${Identifier}",
+                "ServicePrefix": "ce",
+                "ResourceType": "anomalysubscription"
+            },
+            "SubscriptionArn": {
+                "Value": "arn:${Partition}:ce::${Account}:anomalysubscription/${Identifier}",
+                "ServicePrefix": "ce",
+                "ResourceType": "anomalysubscription"
+            }
         }
     },
     "SSMContacts": {
@@ -3920,6 +4120,13 @@
                 "ServicePrefix": "medialive",
                 "ResourceType": "input-security-group"
             }
+        },
+        "Multiplex": {
+            "Arn": {
+                "Value": "arn:${Partition}:medialive:${Region}:${Account}:multiplex:${MultiplexId}",
+                "ServicePrefix": "medialive",
+                "ResourceType": "multiplex"
+            }
         }
     },
     "Lightsail": {
@@ -3991,6 +4198,11 @@
                 "Value": "arn:${Partition}:lightsail:${Region}:${Account}:ContainerService/${Id}",
                 "ServicePrefix": "lightsail",
                 "ResourceType": "container-service"
+            },
+            "PrincipalArn": {
+                "Value": "arn:${Partition}:iam::${Account}:role/${RoleNameWithPath}",
+                "ServicePrefix": "iam",
+                "ResourceType": "role"
             }
         }
     },
@@ -4981,6 +5193,13 @@
                 "ServicePrefix": "appconfig",
                 "ResourceType": "extension"
             }
+        },
+        "ConfigurationProfile": {
+            "KmsKeyArn": {
+                "Value": "arn:${Partition}:kms:${Region}:${Account}:key/${KeyId}",
+                "ServicePrefix": "kms",
+                "ResourceType": "key"
+            }
         }
     },
     "OSIS": {
@@ -5105,6 +5324,13 @@
                 "ServicePrefix": "entityresolution",
                 "ResourceType": "matching-workflow"
             }
+        },
+        "IdMappingWorkflow": {
+            "WorkflowArn": {
+                "Value": "arn:${Partition}:entityresolution::${Account}:idmappingworkflow/${WorkflowName}",
+                "ServicePrefix": "entityresolution",
+                "ResourceType": "id-mapping-workflow"
+            }
         }
     },
     "VerifiedPermissions": {
@@ -5174,6 +5400,50 @@
                 "Value": "arn:${Partition}:pca-connector-ad:${Region}:${Account}:connector/${ConnectorId}/template/${TemplateId}",
                 "ServicePrefix": "pca-connector-ad",
                 "ResourceType": "template"
+            }
+        }
+    },
+    "ARCZonalShift": {
+        "ZonalAutoshiftConfiguration": {
+            "Ref": null
+        }
+    },
+    "B2BI": {
+        "Capability": {
+            "CapabilityArn": {
+                "Value": "arn:${Partition}:b2bi:${Region}:${Account}:capability/${ResourceId}",
+                "ServicePrefix": "b2bi",
+                "ResourceType": "capability"
+            }
+        },
+        "Partnership": {
+            "PartnershipArn": {
+                "Value": "arn:${Partition}:b2bi:${Region}:${Account}:partnership/${ResourceId}",
+                "ServicePrefix": "b2bi",
+                "ResourceType": "partnership"
+            }
+        },
+        "Profile": {
+            "ProfileArn": {
+                "Value": "arn:${Partition}:b2bi:${Region}:${Account}:profile/${ResourceId}",
+                "ServicePrefix": "b2bi",
+                "ResourceType": "profile"
+            }
+        },
+        "Transformer": {
+            "TransformerArn": {
+                "Value": "arn:${Partition}:b2bi:${Region}:${Account}:transformer/${ResourceId}",
+                "ServicePrefix": "b2bi",
+                "ResourceType": "transformer"
+            }
+        }
+    },
+    "ControlTower": {
+        "LandingZone": {
+            "Arn": {
+                "Value": "arn:${Partition}:controltower:${Region}:${Account}:landingzone/${LandingZoneId}",
+                "ServicePrefix": "controltower",
+                "ResourceType": "landing-zone"
             }
         }
     }
