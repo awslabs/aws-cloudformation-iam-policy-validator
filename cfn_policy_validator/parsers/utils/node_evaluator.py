@@ -8,12 +8,20 @@ import functools
 from cfn_policy_validator.cfn_tools.cfn_object import CfnObject
 from cfn_policy_validator.cfn_tools.schema_validator import validate_schema
 from cfn_policy_validator.parsers.utils.arn_generator import ArnGenerator
+from cfn_policy_validator.parsers.utils.conditions_evaluator import ConditionsEvaluator
 from cfn_policy_validator.parsers.utils.intrinsic_functions.aws_no_value_evaluator import AwsNoValueEvaluator
+from cfn_policy_validator.parsers.utils.intrinsic_functions.condition_function_evaluator import \
+    ConditionFunctionEvaluator
 from cfn_policy_validator.parsers.utils.intrinsic_functions.dynamic_ref_evaluator import DynamicReferenceEvaluator
+from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_and_evaluator import AndEvaluator
+from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_equals_evaluator import EqualsEvaluator
 from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_find_in_map_evaluator import FindInMapEvaluator
 from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_get_att_evaluator import GetAttEvaluator
+from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_if_evaluator import IfEvaluator
 from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_import_value_evaluator import ImportValueEvaluator
 from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_join_evaluator import JoinEvaluator
+from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_not_evaluator import NotEvaluator
+from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_or_evaluator import OrEvaluator
 from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_select_evaluator import SelectEvaluator
 from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_split_evaluator import SplitEvaluator
 from cfn_policy_validator.parsers.utils.intrinsic_functions.fn_sub_evaluator import SubEvaluator
@@ -50,12 +58,14 @@ class NodeEvaluator:
         resources = template['Resources']
         parameters = template.get('Parameters', {})
         mappings = template.get('Mappings', {})
+        conditions = template.get('Conditions', {})
 
         arn_generator = ArnGenerator(account_config)
 
         self.dynamic_reference_evaluator = DynamicReferenceEvaluator(account_config.region, allow_dynamic_ref_without_version)
         self.no_value_evaluator = AwsNoValueEvaluator()
 
+        conditions_evaluator = ConditionsEvaluator(conditions, self)
         ref_evaluator = RefEvaluator(resources, arn_generator, parameters, parameter_values, account_config, self)
         get_att_evaluator = GetAttEvaluator(resources, arn_generator, self, account_config.region)
         self.evaluators = {
@@ -66,11 +76,17 @@ class NodeEvaluator:
             'Fn::Split': SplitEvaluator(self),
             'Fn::Join': JoinEvaluator(self),
             'Fn::Select': SelectEvaluator(self),
-            'Fn::FindInMap':  FindInMapEvaluator(mappings, self)
+            'Fn::FindInMap':  FindInMapEvaluator(mappings, self),
+            'Fn::If': IfEvaluator(conditions_evaluator, self),
+            'Fn::Equals': EqualsEvaluator(self),
+            'Fn::Or': OrEvaluator(self),
+            'Fn::And': AndEvaluator(self),
+            'Fn::Not': NotEvaluator(self),
+            'Condition': ConditionFunctionEvaluator(conditions_evaluator)
         }
 
-    def eval_with_validation(self, value: Any, expected_schema: Any, resource_properties_to_eval=None, path: str = None, visited_values=None):
-        value = self.eval(value, resource_properties_to_eval, visited_values)
+    def eval_with_validation(self, value: Any, expected_schema: Any, resource_properties_to_eval=None, path: str = None, visited_nodes=None):
+        value = self.eval(value, resource_properties_to_eval, visited_nodes)
         if value is not None:
             validate_schema(value, expected_schema, path)
 
@@ -78,7 +94,7 @@ class NodeEvaluator:
 
     @prune_references_to_no_value
     @evaluate_dynamic_references
-    def eval(self, value: Any, resource_properties_to_eval=None, visited_values=None):
+    def eval(self, value: Any, resource_properties_to_eval=None, visited_nodes=None, is_evaluating_conditions=False):
         """ Evaluates the value of a CloudFormation key/value pair by evaluating intrinsic functions and pseudo
             parameters in the template and returns the evaluated value.
 
@@ -86,14 +102,14 @@ class NodeEvaluator:
             resource_properties_to_eval: only evaluate these properties for a resource.  This limits the scope of intrinsic
                 function support to be only those functions that we'd expect to exist in an IAM policy
                 (e.g. Fn::GetAZs is not likely to appear)
-            visited_values: tracks visited values to detect circular references in a CloudFormation template
+            visited_nodes: tracks visited nodes to detect circular references in a CloudFormation template
         """
-        visited_values = [] if visited_values is None else visited_values
+        visited_nodes = [] if visited_nodes is None else visited_nodes
 
         if isinstance(value, list):
             # when passing the list of visited values to child list items, we create a separate copy for each so
             # that they don't share the same visited references
-            return [self.eval(item, copy.deepcopy(visited_values)) for item in value]
+            return [self.eval(item, copy.deepcopy(visited_nodes)) for item in value]
 
         elif isinstance(value, CfnObject):
             # intrinsic functions must be the only key, so we only need to look at the first key
@@ -101,7 +117,7 @@ class NodeEvaluator:
             evaluator = self.evaluators.get(first_key)
             if evaluator is not None:
                 intrinsic_function_value = value.get(first_key)
-                return evaluator.evaluate(intrinsic_function_value, visited_values=visited_values)
+                return evaluator.evaluate(intrinsic_function_value, visited_nodes=visited_nodes)
 
             # if it's not an intrinsic function, recursively traverse through child nodes
             for key in value.keys():
@@ -114,10 +130,10 @@ class NodeEvaluator:
                             key not in resource_properties_to_eval:
                         continue
 
-                # when passing the list of visited values to child evals, create a separate copy for each so
+                # when passing the list of visited nodes to child evals, create a separate copy for each so
                 # that they don't share the same visited references
-                copy_of_visited_values = copy.deepcopy(visited_values)
-                value[key] = self.eval(value[key], resource_properties_to_eval, copy_of_visited_values)
+                copy_of_visited_nodes = copy.deepcopy(visited_nodes)
+                value[key] = self.eval(value[key], resource_properties_to_eval, copy_of_visited_nodes, is_evaluating_conditions)
 
             return dict(value)
 

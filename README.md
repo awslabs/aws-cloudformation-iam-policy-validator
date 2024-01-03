@@ -178,6 +178,12 @@ Supported intrinsic functions
 - Fn::Split
 - Fn::Sub
 - Ref
+- Fn::If
+- Fn::Equals
+- Condition
+- Fn::Not
+- Fn::And
+- Fn::Or
 
 Supported pseudo parameters:
 - AWS::Region
@@ -193,6 +199,7 @@ SSM-Secure and SecretsManager dynamic references are not yet supported.
 Notes:
 - Fn::Transform (includes macros and AWS::Serverless/SAM transforms) not yet supported
 - References (Ref/GetAtt) to CloudFormation modules are not yet supported
+- A [condition function](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-conditions.html) may have different behavior when deployed if you use the ```Ref``` function in the condition. This is because the tool is unable to accurately provide a value for references that are not known until deployment.
 
 ### Credentials
 

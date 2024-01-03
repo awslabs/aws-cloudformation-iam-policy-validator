@@ -11,11 +11,11 @@ class ImportValueEvaluator:
 		self.node_evaluator = node_evaluator
 		self.cloudformation_client = client.build('cloudformation', region)
 
-	def evaluate(self, value, visited_values=None):
-		if visited_values is None:
-			visited_values = []
+	def evaluate(self, value, visited_nodes=None):
+		if visited_nodes is None:
+			visited_nodes = []
 
-		imported_value = self.node_evaluator.eval(value, visited_values=visited_values)
+		imported_value = self.node_evaluator.eval(value, visited_nodes=visited_nodes)
 
 		paginator = self.cloudformation_client.get_paginator('list_exports')
 		response_iterator = paginator.paginate()

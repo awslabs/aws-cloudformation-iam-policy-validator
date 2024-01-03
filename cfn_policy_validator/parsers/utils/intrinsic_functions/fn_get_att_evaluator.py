@@ -25,9 +25,9 @@ class GetAttEvaluator:
 			}
 		}
 
-	def evaluate(self, get_att_lookup, visited_values=None):
-		if visited_values is None:
-			visited_values = []
+	def evaluate(self, get_att_lookup, visited_nodes=None):
+		if visited_nodes is None:
+			visited_nodes = []
 
 		validate_fn_get_att_schema(get_att_lookup)
 
@@ -49,10 +49,10 @@ class GetAttEvaluator:
 		else:
 			# we found a valid property value for the name of the resources. this property may reference another resource,
 			# so check to see if we've already done that and we're stuck in a cycle
-			validate_no_cycle(logical_name_of_resource, explicit_name_property, visited_values)
-			resource_name = self.node_evaluator.eval(explicit_resource_name, visited_values=visited_values)
+			validate_no_cycle(logical_name_of_resource, explicit_name_property, visited_nodes)
+			resource_name = self.node_evaluator.eval(explicit_resource_name, visited_nodes=visited_nodes)
 
-		arn = self.arn_generator.try_generate_arn(resource_name, resource, attribute_name, visited_values=visited_values)
+		arn = self.arn_generator.try_generate_arn(resource_name, resource, attribute_name, visited_nodes=visited_nodes)
 		if arn is not None:
 			return arn
 
@@ -73,10 +73,10 @@ class GetAttEvaluator:
 
 		# we may need to traverse to another resource, so check to see if we've already done that and
 		# we're stuck in a cycle
-		validate_no_cycle(logical_name_of_resource, attribute_name, visited_values)
+		validate_no_cycle(logical_name_of_resource, attribute_name, visited_nodes)
 
 		# there are many return types for GetAtt, so it's the caller's responsibility to validate expected type
-		return self.node_evaluator.eval(property_value, visited_values=visited_values)
+		return self.node_evaluator.eval(property_value, visited_nodes=visited_nodes)
 
 
 get_att_schema = {

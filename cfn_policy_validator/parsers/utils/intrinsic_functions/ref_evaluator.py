@@ -33,12 +33,12 @@ class RefEvaluator:
 			'AWS::SQS::Queue': evaluate_sqs_queue_ref
 		}
 
-	def evaluate(self, resource_logical_name_or_param, visited_values=None):
+	def evaluate(self, resource_logical_name_or_param, visited_nodes=None):
 		""" Evaluates a Fn::Ref function
-			visited_values: tracks visited values to detect circular references in a CloudFormation template
+			visited_nodes: tracks visited nodes to detect circular references in a CloudFormation template
 		"""
-		if visited_values is None:
-			visited_values = []
+		if visited_nodes is None:
+			visited_nodes = []
 
 		validate_schema(resource_logical_name_or_param, ref_schema, 'Ref')
 
@@ -68,12 +68,12 @@ class RefEvaluator:
 
 			# first, see if this ref should return an ARN.  Not all Ref's return ARNs.
 			if resource_type in self.services_where_ref_returns_arn:
-				return self.arn_generator.try_generate_arn(resource_logical_name_or_param, resource, 'Ref', visited_values=visited_values)
+				return self.arn_generator.try_generate_arn(resource_logical_name_or_param, resource, 'Ref', visited_nodes=visited_nodes)
 
 			# next, see if we have a custom evaluation for this ref
 			custom_ref_eval = self.custom_ref_evals.get(resource_type)
 			if custom_ref_eval is not None:
-				return custom_ref_eval(resource_logical_name_or_param, resource, self.account_config, visited_values)
+				return custom_ref_eval(resource_logical_name_or_param, resource, self.account_config, visited_nodes)
 
 			# at this point, we make the assumption that the resource just returns a string (probably either the resource
 			# name or ID)
@@ -88,8 +88,8 @@ class RefEvaluator:
 
 			# we found a valid property value for the name of the resources. this property may reference another resource,
 			# so check to see if we've already done that and we're stuck in a cycle
-			validate_no_cycle(resource_logical_name_or_param, name_returned_by_ref, visited_values)
-			return self.node_evaluator.eval(property_value, visited_values=visited_values)
+			validate_no_cycle(resource_logical_name_or_param, name_returned_by_ref, visited_nodes)
+			return self.node_evaluator.eval(property_value, visited_nodes=visited_nodes)
 
 		# if it's not a reference to a resource, check to see if it references a parameter
 		parameter = self.parameters.get(resource_logical_name_or_param)
@@ -124,8 +124,8 @@ ref_schema = {
 
 
 # for SQS, we need to know that Ref returns a queue URL.  This queue URL is used to link the queue's policy to the queue
-def evaluate_sqs_queue_ref(resource_name, sqs_queue_resource, account_config, visited_values):
-	evaluated_resource = sqs_queue_resource.eval(sqs_queue_schema, visited_values)
+def evaluate_sqs_queue_ref(resource_name, sqs_queue_resource, account_config, visited_nodes):
+	evaluated_resource = sqs_queue_resource.eval(sqs_queue_schema, visited_nodes)
 
 	properties = evaluated_resource.get('Properties', {})
 	queue_name = properties.get('QueueName', resource_name)

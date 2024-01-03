@@ -12,13 +12,13 @@ class FindInMapEvaluator:
 		self.node_evaluator = node_evaluator
 		self.mappings = mappings
 
-	def evaluate(self, value, visited_values):
+	def evaluate(self, value, visited_nodes):
 		validate_schema(value, find_in_map_schema, 'Fn::FindInMap')
 
 		# these hardcoded path names help with debugging if there are eval issues
-		map_name = self.node_evaluator.eval_with_validation(value[0], string_schema, path='Fn::FindInMap.0', visited_values=visited_values)
-		top_level_key = self.node_evaluator.eval_with_validation(value[1], string_schema, path='Fn::FindInMap.1', visited_values=visited_values)
-		second_level_key = self.node_evaluator.eval_with_validation(value[2], string_schema, path='Fn::FindInMap.2', visited_values=visited_values)
+		map_name = self.node_evaluator.eval_with_validation(value[0], string_schema, path='Fn::FindInMap.0', visited_nodes=visited_nodes)
+		top_level_key = self.node_evaluator.eval_with_validation(value[1], string_schema, path='Fn::FindInMap.1', visited_nodes=visited_nodes)
+		second_level_key = self.node_evaluator.eval_with_validation(value[2], string_schema, path='Fn::FindInMap.2', visited_nodes=visited_nodes)
 
 		result = self.mappings.get(map_name, {}) \
 								.get(top_level_key, {}) \

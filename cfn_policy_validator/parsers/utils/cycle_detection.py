@@ -5,17 +5,17 @@ SPDX-License-Identifier: MIT-0
 from cfn_policy_validator.application_error import ApplicationError
 
 
-def validate_no_cycle(resource_name, resource_property, visited_values):
+def validate_no_cycle(resource_name, resource_property, visited_nodes):
     """
     Validate that there are no recursive cycles present in CFN intrinsic functions.
     """
 
     node_to_check = VisitedNode(resource_name, resource_property)
     # if we've seen this node before, there must be a cycle
-    if node_to_check in visited_values:
+    if node_to_check in visited_nodes:
         raise ApplicationError(f'Cycle detected for {resource_name} and {resource_property}.')
 
-    visited_values.append(node_to_check)
+    visited_nodes.append(node_to_check)
 
 
 class VisitedNode:

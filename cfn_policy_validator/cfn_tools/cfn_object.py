@@ -39,7 +39,7 @@ class CfnObject(dict):
 		if resource_properties is not None:
 			resource_properties = list(resource_properties.keys())
 
-		return self.node_evaluator.eval_with_validation(self, expected_schema, resource_properties_to_eval=resource_properties, path=path, visited_values=visited_values)
+		return self.node_evaluator.eval_with_validation(self, expected_schema, resource_properties_to_eval=resource_properties, path=path, visited_nodes=visited_values)
 
 	# iterate through schema and find the properties of the resource.  When we evaluate the resource, we only evaluate
 	# the properties that we need to parse the policies

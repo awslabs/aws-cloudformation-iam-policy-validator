@@ -10,11 +10,11 @@ class SplitEvaluator:
 	def __init__(self, node_evaluator):
 		self.node_evaluator = node_evaluator
 
-	def evaluate(self, value, visited_values):
+	def evaluate(self, value, visited_nodes):
 		validate_schema(value, split_schema, f'Fn::Split')
 
 		delimiter = value[0]
-		string_to_split = self.node_evaluator.eval_with_validation(value[1], string_schema, visited_values)
+		string_to_split = self.node_evaluator.eval_with_validation(value[1], string_schema, visited_nodes)
 
 		return string_to_split.split(delimiter)
 

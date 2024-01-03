@@ -42,6 +42,14 @@ def expected_type_error(path: str, expected_type: str, actual_value: str):
     return f"{actual_value} is not of type '{expected_type}', Path: {path}"
 
 
+def too_short_error(path: str, actual_value: str):
+    return f"{actual_value} is too short, Path: {path}"
+
+
+def too_long_error(path: str, actual_value: str):
+    return f"{actual_value} is too long, Path: {path}"
+
+
 @contextmanager
 def captured_output():
     new_out, new_err = StringIO(), StringIO()

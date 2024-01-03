@@ -29,9 +29,8 @@ class SubEvaluator:
 		self.ref_evaluator = ref_evaluator
 		self.node_evaluator = node_evaluator
 
-	def evaluate(self, value: CfnObject, visited_values: list = None):
-		if visited_values is None:
-			visited_values = []
+	def evaluate(self, value: CfnObject, visited_nodes: list = None):
+		visited_nodes = [] if visited_nodes is None else visited_nodes
 
 		validate_fn_sub_schema(value)
 
@@ -45,28 +44,28 @@ class SubEvaluator:
 			for variable_in_string in variables_in_string:
 				variable_value = variable_mapping.get(variable_in_string)
 				if variable_value is not None:
-					variable_value = self.node_evaluator.eval_with_validation(variable_value, string_schema, visited_values=visited_values)
+					variable_value = self.node_evaluator.eval_with_validation(variable_value, string_schema, visited_nodes=visited_nodes)
 					string_to_evaluate = string_to_evaluate.replace("${" + variable_in_string + "}", variable_value)
 				else:
 					# this will throw if it can't find the variable anywhere
-					string_to_evaluate = self._evaluate_ref_or_get_att_in_sub(string_to_evaluate, variable_in_string, visited_values)
+					string_to_evaluate = self._evaluate_ref_or_get_att_in_sub(string_to_evaluate, variable_in_string, visited_nodes)
 
 			return string_to_evaluate
 		else:
 			# the sub is a string value
 			variables_in_string = re.findall(regex_patterns.fn_sub_variables, value)
 			for variable_in_string in variables_in_string:
-				value = self._evaluate_ref_or_get_att_in_sub(value, variable_in_string, visited_values)
+				value = self._evaluate_ref_or_get_att_in_sub(value, variable_in_string, visited_nodes)
 
 			return value
 
-	def _evaluate_ref_or_get_att_in_sub(self, value, variable_in_string, visited_values):
+	def _evaluate_ref_or_get_att_in_sub(self, value, variable_in_string, visited_nodes):
 		if '.' in variable_in_string:
 			# e.g. variable is MyResource.Arn
-			variable_value = self.get_att_evaluator.evaluate(variable_in_string.split('.'), visited_values=visited_values)
+			variable_value = self.get_att_evaluator.evaluate(variable_in_string.split('.'), visited_nodes=visited_nodes)
 		else:
 			# e.g. variable is just MyResource
-			variable_value = self.ref_evaluator.evaluate(variable_in_string, visited_values=visited_values)
+			variable_value = self.ref_evaluator.evaluate(variable_in_string, visited_nodes=visited_nodes)
 
 		# validate the evaluated value is a string
 		validate_schema(variable_value, string_schema, 'Fn::Sub')
