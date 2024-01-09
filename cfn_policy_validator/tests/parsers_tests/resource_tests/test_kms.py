@@ -60,7 +60,7 @@ class WhenParsingAKmsKeyPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
+		self.assertEqual(required_property_error('Properties', 'Resources.ResourceA'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_no_key_policy(self):
@@ -74,7 +74,7 @@ class WhenParsingAKmsKeyPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('KeyPolicy', 'ResourceA.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('KeyPolicy', 'Resources.ResourceA.Properties'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_invalid_key_policy(self):
@@ -90,7 +90,7 @@ class WhenParsingAKmsKeyPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.KeyPolicy', 'object', "['Invalid']"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.KeyPolicy', 'object', "['Invalid']"), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_unsupported_function_in_unused_property(self):

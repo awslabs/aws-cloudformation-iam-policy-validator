@@ -94,7 +94,7 @@ class NodeEvaluator:
 
     @prune_references_to_no_value
     @evaluate_dynamic_references
-    def eval(self, value: Any, resource_properties_to_eval=None, visited_nodes=None, is_evaluating_conditions=False):
+    def eval(self, value: Any, resource_properties_to_eval=None, visited_nodes=None):
         """ Evaluates the value of a CloudFormation key/value pair by evaluating intrinsic functions and pseudo
             parameters in the template and returns the evaluated value.
 
@@ -114,7 +114,15 @@ class NodeEvaluator:
         elif isinstance(value, CfnObject):
             # intrinsic functions must be the only key, so we only need to look at the first key
             first_key = next(iter(value), None)
-            evaluator = self.evaluators.get(first_key)
+
+            # the condition function is a special case since 'condition' can appear in other places like IAM policies
+            # ignore it if we're not in the "Conditions" section of the template.  longer term we should only evaluate
+            # intrinsic functions in valid sections of the template
+            if first_key == 'Condition' and value.top_level_ancestor != 'Conditions':
+                evaluator = None
+            else:
+                evaluator = self.evaluators.get(first_key)
+
             if evaluator is not None:
                 intrinsic_function_value = value.get(first_key)
                 return evaluator.evaluate(intrinsic_function_value, visited_nodes=visited_nodes)
@@ -133,7 +141,7 @@ class NodeEvaluator:
                 # when passing the list of visited nodes to child evals, create a separate copy for each so
                 # that they don't share the same visited references
                 copy_of_visited_nodes = copy.deepcopy(visited_nodes)
-                value[key] = self.eval(value[key], resource_properties_to_eval, copy_of_visited_nodes, is_evaluating_conditions)
+                value[key] = self.eval(value[key], resource_properties_to_eval, copy_of_visited_nodes)
 
             return dict(value)
 

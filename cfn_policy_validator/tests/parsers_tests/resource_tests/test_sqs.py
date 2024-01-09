@@ -52,7 +52,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
+		self.assertEqual(required_property_error('Properties', 'Resources.ResourceA'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_no_policy_document(self):
@@ -71,7 +71,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('PolicyDocument', 'ResourceA.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('PolicyDocument', 'Resources.ResourceA.Properties'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_invalid_policy_document_type(self):
@@ -91,7 +91,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.PolicyDocument', 'object', "'Invalid'"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.PolicyDocument', 'object', "'Invalid'"), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_no_queues(self):
@@ -107,7 +107,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Queues', 'ResourceA.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('Queues', 'Resources.ResourceA.Properties'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_invalid_queues_type(self):
@@ -127,7 +127,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.Queues', 'array',
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Queues', 'array',
 											 "{'https://sqs.us-east-1.amazonaws.com/123456/MyTestQueue': 1, "
 											 "'https://sqs.us-east-1.amazonaws.com/123456/MySecondTestQueue': 2}"),
 						 str(cm.exception))
@@ -147,7 +147,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual('[] is too short, Path: ResourceA.Properties.Queues', str(cm.exception))
+		self.assertEqual('[] is too short, Path: Resources.ResourceA.Properties.Queues', str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_invalid_queues_item_type(self):
@@ -167,7 +167,7 @@ class WhenParsingAnSqsQueuePolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.Queues.0', 'string',
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Queues.0', 'string',
 											 "{'https://sqs.us-east-1.amazonaws.com/123456/MyTestQueue': 1, "
 											 "'https://sqs.us-east-1.amazonaws.com/123456/MySecondTestQueue': 2}"),
 						 str(cm.exception))

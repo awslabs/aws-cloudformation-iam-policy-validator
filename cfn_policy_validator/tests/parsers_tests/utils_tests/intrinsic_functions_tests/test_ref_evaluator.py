@@ -258,7 +258,7 @@ class WhenEvaluatingTemplateWithSqsRefEvalWithInvalidQueueNameType(unittest.Test
 		with self.assertRaises(ApplicationError) as cm:
 			node_evaluator.eval(template['Resources']['ResourceB']['Properties']['Queues'])
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.QueueName', 'string', "['Invalid']"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.QueueName', 'string', "['Invalid']"), str(cm.exception))
 
 
 class WhenEvaluatingTemplateWithAnInvalidRef(unittest.TestCase):

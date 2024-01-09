@@ -71,7 +71,7 @@ class WhenParsingAnS3MultiRegionAccessPointPolicyAndValidatingSchema(unittest.Te
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
+        self.assertEqual(required_property_error('Properties', 'Resources.ResourceA'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_no_name(self):
@@ -87,7 +87,7 @@ class WhenParsingAnS3MultiRegionAccessPointPolicyAndValidatingSchema(unittest.Te
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(required_property_error('MrapName', 'ResourceA.Properties'),
+        self.assertEqual(required_property_error('MrapName', 'Resources.ResourceA.Properties'),
                          str(cm.exception))
 
     @mock_node_evaluator_setup()
@@ -105,7 +105,7 @@ class WhenParsingAnS3MultiRegionAccessPointPolicyAndValidatingSchema(unittest.Te
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.MrapName', 'string', "['MyMultiRegionAccessPoint']"),  str(cm.exception))
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.MrapName', 'string', "['MyMultiRegionAccessPoint']"),  str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_no_policy(self):
@@ -121,7 +121,7 @@ class WhenParsingAnS3MultiRegionAccessPointPolicyAndValidatingSchema(unittest.Te
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(required_property_error('Policy', 'ResourceA.Properties'), str(cm.exception))
+        self.assertEqual(required_property_error('Policy', 'Resources.ResourceA.Properties'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_invalid_policy_type(self):
@@ -138,7 +138,7 @@ class WhenParsingAnS3MultiRegionAccessPointPolicyAndValidatingSchema(unittest.Te
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.Policy', 'object', "['Invalid']"),
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Policy', 'object', "['Invalid']"),
                          str(cm.exception))
 
     @mock_node_evaluator_setup()

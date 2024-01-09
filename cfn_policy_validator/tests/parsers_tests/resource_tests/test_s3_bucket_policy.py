@@ -68,7 +68,7 @@ class WhenParsingAnS3BucketPolicyAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
+        self.assertEqual(required_property_error('Properties', 'Resources.ResourceA'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_no_bucket(self):
@@ -86,7 +86,7 @@ class WhenParsingAnS3BucketPolicyAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(required_property_error('Bucket', 'ResourceA.Properties'), str(cm.exception))
+        self.assertEqual(required_property_error('Bucket', 'Resources.ResourceA.Properties'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_invalid_bucket_type(self):
@@ -103,7 +103,7 @@ class WhenParsingAnS3BucketPolicyAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.Bucket', 'string', "['MyBucket']"),  str(cm.exception))
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Bucket', 'string', "['MyBucket']"),  str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_no_policy_document(self):
@@ -119,7 +119,7 @@ class WhenParsingAnS3BucketPolicyAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(required_property_error('PolicyDocument', 'ResourceA.Properties'), str(cm.exception))
+        self.assertEqual(required_property_error('PolicyDocument', 'Resources.ResourceA.Properties'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_invalid_policy_document_type(self):
@@ -136,7 +136,7 @@ class WhenParsingAnS3BucketPolicyAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.PolicyDocument', 'object', "['Invalid']"),
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.PolicyDocument', 'object', "['Invalid']"),
                          str(cm.exception))
 
     @mock_node_evaluator_setup()

@@ -88,7 +88,7 @@ class WhenGeneratingAnArnForAnIAMRoleAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             arn_generator.try_generate_arn('MyRole', template['Resources']['ResourceA'], 'Arn')
 
-        self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
+        self.assertEqual(required_property_error('Properties', 'Resources.ResourceA'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_invalid_path_type(self):
@@ -106,7 +106,7 @@ class WhenGeneratingAnArnForAnIAMRoleAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             arn_generator.try_generate_arn('MyRole', template['Resources']['ResourceA'], 'Arn')
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.Path', 'string', '[]'), str(cm.exception))
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Path', 'string', '[]'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_invalid_role_name_type(self):
@@ -124,7 +124,7 @@ class WhenGeneratingAnArnForAnIAMRoleAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             arn_generator.try_generate_arn('MyRole', template['Resources']['ResourceA'], 'Arn')
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.RoleName', 'string', '[]'), str(cm.exception))
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.RoleName', 'string', '[]'), str(cm.exception))
 
 
 class WhenGeneratingAnArnForAnIAMRole(unittest.TestCase):
@@ -208,7 +208,7 @@ class WhenGeneratingAnArnForAnIAMUserAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             arn_generator.try_generate_arn('MyUser', template['Resources']['ResourceA'], 'Arn')
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.Path', 'string', '[]'), str(cm.exception))
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Path', 'string', '[]'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_invalid_user_name_type(self):
@@ -226,7 +226,7 @@ class WhenGeneratingAnArnForAnIAMUserAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             arn_generator.try_generate_arn('MyUser', template['Resources']['ResourceA'], 'Arn')
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.UserName', 'string', '[]'), str(cm.exception))
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.UserName', 'string', '[]'), str(cm.exception))
 
 
 class WhenGeneratingAnArnForAnIAMUser(unittest.TestCase):
@@ -308,7 +308,7 @@ class WhenGeneratingAnArnForAnIAMManagedPolicyAndValidatingSchema(unittest.TestC
         with self.assertRaises(ApplicationError) as cm:
             arn_generator.try_generate_arn('MyPolicy', template['Resources']['ResourceA'], 'Ref')
 
-        self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
+        self.assertEqual(required_property_error('Properties', 'Resources.ResourceA'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_invalid_path_type(self):
@@ -326,7 +326,7 @@ class WhenGeneratingAnArnForAnIAMManagedPolicyAndValidatingSchema(unittest.TestC
         with self.assertRaises(ApplicationError) as cm:
             arn_generator.try_generate_arn('ResourceA', template['Resources']['ResourceA'], 'Ref')
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.Path', 'string', '[]'), str(cm.exception))
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Path', 'string', '[]'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_invalid_managed_policy_name_type(self):
@@ -344,7 +344,7 @@ class WhenGeneratingAnArnForAnIAMManagedPolicyAndValidatingSchema(unittest.TestC
         with self.assertRaises(ApplicationError) as cm:
             arn_generator.try_generate_arn('ResourceA', template['Resources']['ResourceA'], 'Ref')
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.ManagedPolicyName', 'string', '[]'), str(cm.exception))
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.ManagedPolicyName', 'string', '[]'), str(cm.exception))
 
 
 class WhenGeneratingAnArnForAnIAMUser(unittest.TestCase):
@@ -420,7 +420,7 @@ class WhenGeneratingAnArnForELBv2ResourcesAndValidatingSchema(unittest.TestCase)
         with self.assertRaises(ApplicationError) as cm:
             self.arn_generator.try_generate_arn('MyLB', resource, 'Ref')
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.Type', 'string', '[]'), str(cm.exception))
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Type', 'string', '[]'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_invalid_load_balancer_listener_protocol_type(self):
@@ -434,7 +434,7 @@ class WhenGeneratingAnArnForELBv2ResourcesAndValidatingSchema(unittest.TestCase)
         with self.assertRaises(ApplicationError) as cm:
             self.arn_generator.try_generate_arn('MyLB', resource, 'Ref')
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.Protocol', 'string', '[]'), str(cm.exception))
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Protocol', 'string', '[]'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_invalid_load_balancer_target_group_protocol_type(self):
@@ -448,7 +448,7 @@ class WhenGeneratingAnArnForELBv2ResourcesAndValidatingSchema(unittest.TestCase)
         with self.assertRaises(ApplicationError) as cm:
             self.arn_generator.try_generate_arn('MyLB', resource, 'LoadBalancerArns')
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.Protocol', 'string', '[]'), str(cm.exception))
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Protocol', 'string', '[]'), str(cm.exception))
 
 
 # ELBv2 resources have a specific generation pattern that depends on if the ELB is an ALB or an NLB
@@ -591,7 +591,7 @@ class WhenGeneratingAnArnForNetworkFirewallRuleGroupsAndValidatingSchema(unittes
         with self.assertRaises(ApplicationError) as cm:
             self.arn_generator.try_generate_arn('MyLB', resource, 'Ref')
 
-        self.assertEqual(required_property_error('Type', 'ResourceA.Properties'), str(cm.exception))
+        self.assertEqual(required_property_error('Type', 'Resources.ResourceA.Properties'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_invalid_rulegroup_type(self):
@@ -605,7 +605,7 @@ class WhenGeneratingAnArnForNetworkFirewallRuleGroupsAndValidatingSchema(unittes
         with self.assertRaises(ApplicationError) as cm:
             self.arn_generator.try_generate_arn('MyLB', resource, 'Ref')
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.Type', 'string', '[]'), str(cm.exception))
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Type', 'string', '[]'), str(cm.exception))
 
 
 # Network Firewall Rulegroup resources have a specific pattern that depends on if the NFW rule is stateful or stateless

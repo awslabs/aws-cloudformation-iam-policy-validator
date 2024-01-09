@@ -73,7 +73,7 @@ class WhenParsingAnS3AccessPointPolicyAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
+        self.assertEqual(required_property_error('Properties', 'Resources.ResourceA'), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_invalid_name_type(self):
@@ -92,7 +92,7 @@ class WhenParsingAnS3AccessPointPolicyAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.Name', 'string', "['MyAccessPoint']"),  str(cm.exception))
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Name', 'string', "['MyAccessPoint']"),  str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_with_invalid_policy_type(self):
@@ -111,7 +111,7 @@ class WhenParsingAnS3AccessPointPolicyAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.Policy', 'object', "['Invalid']"),
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Policy', 'object', "['Invalid']"),
                          str(cm.exception))
 
     @mock_node_evaluator_setup()
@@ -131,7 +131,7 @@ class WhenParsingAnS3AccessPointPolicyAndValidatingSchema(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             ResourceParser.parse(template, account_config)
 
-        self.assertEqual(expected_type_error('ResourceA.Properties.VpcConfiguration', 'object', "['Invalid']"),
+        self.assertEqual(expected_type_error('Resources.ResourceA.Properties.VpcConfiguration', 'object', "['Invalid']"),
                          str(cm.exception))
 
     @mock_node_evaluator_setup()

@@ -52,7 +52,7 @@ class WhenParsingASecretsManagerResourcePolicyAndValidatingSchema(unittest.TestC
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
+		self.assertEqual(required_property_error('Properties', 'Resources.ResourceA'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_no_resource_policy(self):
@@ -68,7 +68,7 @@ class WhenParsingASecretsManagerResourcePolicyAndValidatingSchema(unittest.TestC
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('ResourcePolicy', 'ResourceA.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('ResourcePolicy', 'Resources.ResourceA.Properties'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_invalid_resource_policy_type(self):
@@ -85,7 +85,7 @@ class WhenParsingASecretsManagerResourcePolicyAndValidatingSchema(unittest.TestC
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.ResourcePolicy', 'object', "['Invalid']"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.ResourcePolicy', 'object', "['Invalid']"), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_no_secret_id(self):
@@ -101,7 +101,7 @@ class WhenParsingASecretsManagerResourcePolicyAndValidatingSchema(unittest.TestC
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('SecretId', 'ResourceA.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('SecretId', 'Resources.ResourceA.Properties'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_invalid_secret_id_type(self):
@@ -118,7 +118,7 @@ class WhenParsingASecretsManagerResourcePolicyAndValidatingSchema(unittest.TestC
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.SecretId', 'string', "['Invalid']"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.SecretId', 'string', "['Invalid']"), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_unsupported_function_in_unused_property(self):
@@ -174,7 +174,7 @@ class WhenParsingASecretsManagerResourcePolicyWithInvalidSecretId(unittest.TestC
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual("Invalid value for ResourceA.Properties.SecretId. Must be a valid Secret ARN. "
+		self.assertEqual("Invalid value for Resources.ResourceA.Properties.SecretId. Must be a valid Secret ARN. "
 						 "SecretId value: arn:aws:secretsmanager:us-west-2:111122223333:123456", str(cm.exception))
 
 

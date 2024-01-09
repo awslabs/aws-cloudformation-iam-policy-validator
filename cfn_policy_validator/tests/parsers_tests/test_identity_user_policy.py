@@ -28,7 +28,7 @@ class WhenParsingAUserPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Properties', 'UserPolicy'), str(cm.exception))
+		self.assertEqual(required_property_error('Properties', 'Resources.UserPolicy'), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_no_policy_name(self):
@@ -45,7 +45,7 @@ class WhenParsingAUserPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('PolicyName', 'UserPolicy.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('PolicyName', 'Resources.UserPolicy.Properties'), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_invalid_policy_name_type(self):
@@ -63,7 +63,7 @@ class WhenParsingAUserPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('UserPolicy.Properties.PolicyName', 'string', "['Invalid']"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.UserPolicy.Properties.PolicyName', 'string', "['Invalid']"), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_no_policy_document(self):
@@ -80,7 +80,7 @@ class WhenParsingAUserPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('PolicyDocument', 'UserPolicy.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('PolicyDocument', 'Resources.UserPolicy.Properties'), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_invalid_policy_document_type(self):
@@ -98,7 +98,7 @@ class WhenParsingAUserPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('UserPolicy.Properties.PolicyDocument', 'object', "'Invalid'"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.UserPolicy.Properties.PolicyDocument', 'object', "'Invalid'"), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_no_user_name(self):
@@ -115,7 +115,7 @@ class WhenParsingAUserPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('UserName', 'UserPolicy.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('UserName', 'Resources.UserPolicy.Properties'), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_invalid_user_name_type(self):
@@ -133,7 +133,7 @@ class WhenParsingAUserPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('UserPolicy.Properties.UserName', 'string', "['Invalid']"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.UserPolicy.Properties.UserName', 'string', "['Invalid']"), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_unsupported_function_in_unused_property(self):

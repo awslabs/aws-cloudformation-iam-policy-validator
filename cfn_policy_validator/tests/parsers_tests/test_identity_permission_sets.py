@@ -31,7 +31,7 @@ class WhenParsingAPermissionSetAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
+		self.assertEqual(required_property_error('Properties', 'Resources.ResourceA'), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_no_name(self):
@@ -45,7 +45,7 @@ class WhenParsingAPermissionSetAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Name', 'ResourceA.Properties'),
+		self.assertEqual(required_property_error('Name', 'Resources.ResourceA.Properties'),
 						 str(cm.exception))
 
 	@mock_identity_parser_setup()
@@ -62,7 +62,7 @@ class WhenParsingAPermissionSetAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.Name', 'string', "{'Value': 'Invalid'}"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Name', 'string', "{'Value': 'Invalid'}"), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_valid_name(self):
@@ -95,7 +95,7 @@ class WhenParsingAPermissionSetAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.InlinePolicy', 'object', "'PolicyA'"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.InlinePolicy', 'object', "'PolicyA'"), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_invalid_managed_policies_type(self):
@@ -112,7 +112,7 @@ class WhenParsingAPermissionSetAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.ManagedPolicies', 'array', "'Invalid'"),
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.ManagedPolicies', 'array', "'Invalid'"),
 						 str(cm.exception))
 
 	@mock_identity_parser_setup()
@@ -130,7 +130,7 @@ class WhenParsingAPermissionSetAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.ManagedPolicies.0', 'string', "['Invalid']"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.ManagedPolicies.0', 'string', "['Invalid']"), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_unsupported_function_in_unused_property(self):

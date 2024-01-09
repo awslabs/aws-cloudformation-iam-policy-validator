@@ -52,7 +52,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
+		self.assertEqual(required_property_error('Properties', 'Resources.ResourceA'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_no_policy_document(self):
@@ -71,7 +71,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('PolicyDocument', 'ResourceA.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('PolicyDocument', 'Resources.ResourceA.Properties'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_invalid_policy_document_type(self):
@@ -91,7 +91,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.PolicyDocument', 'object', "'Invalid'"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.PolicyDocument', 'object', "'Invalid'"), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_no_topics(self):
@@ -107,7 +107,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Topics', 'ResourceA.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('Topics', 'Resources.ResourceA.Properties'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_invalid_topics_type(self):
@@ -127,7 +127,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.Topics', 'array',
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Topics', 'array',
 											 "{'arn:aws:sns:us-east-1:123456:MyTopic': 1, 'arn:aws:sns:us-east-1:123456:MyTopic2': 2}"),
 						 str(cm.exception))
 
@@ -146,7 +146,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual('[] is too short, Path: ResourceA.Properties.Topics', str(cm.exception))
+		self.assertEqual('[] is too short, Path: Resources.ResourceA.Properties.Topics', str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_invalid_topics_item_type(self):
@@ -166,7 +166,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.Topics.0', 'string',
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Topics.0', 'string',
 											 "{'arn:aws:sns:us-east-1:123456:MyTopic': 1, 'arn:aws:sns:us-east-1:123456:MyTopic2': 2}"),
 						str(cm.exception))
 

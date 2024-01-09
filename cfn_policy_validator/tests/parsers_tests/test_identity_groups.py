@@ -321,7 +321,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.GroupName', 'string', "['Invalid']"),  str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.GroupName', 'string', "['Invalid']"),  str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_invalid_path_type(self):
@@ -337,7 +337,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.Path', 'string', "{'abc': 'def'}"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.Path', 'string', "{'abc': 'def'}"), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_invalid_policies_type(self):
@@ -355,7 +355,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual("'PolicyA' is not of type 'array', Path: ResourceA.Properties.Policies", str(cm.exception))
+		self.assertEqual("'PolicyA' is not of type 'array', Path: Resources.ResourceA.Properties.Policies", str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_no_policy_document(self):
@@ -375,7 +375,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('PolicyDocument', 'ResourceA.Properties.Policies.0'), str(cm.exception))
+		self.assertEqual(required_property_error('PolicyDocument', 'Resources.ResourceA.Properties.Policies.0'), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_invalid_policy_document_type(self):
@@ -396,7 +396,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual("'Invalid' is not of type 'object', Path: ResourceA.Properties.Policies.0.PolicyDocument", str(cm.exception))
+		self.assertEqual("'Invalid' is not of type 'object', Path: Resources.ResourceA.Properties.Policies.0.PolicyDocument", str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_no_policy_name(self):
@@ -416,7 +416,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('PolicyName', 'ResourceA.Properties.Policies.0'), str(cm.exception))
+		self.assertEqual(required_property_error('PolicyName', 'Resources.ResourceA.Properties.Policies.0'), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_invalid_policy_name_type(self):
@@ -437,7 +437,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual("['Invalid'] is not of type 'string', Path: ResourceA.Properties.Policies.0.PolicyName", str(cm.exception))
+		self.assertEqual("['Invalid'] is not of type 'string', Path: Resources.ResourceA.Properties.Policies.0.PolicyName", str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_invalid_policies_item_type(self):
@@ -453,7 +453,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual("'PolicyA' is not of type 'object', Path: ResourceA.Properties.Policies.0", str(cm.exception))
+		self.assertEqual("'PolicyA' is not of type 'object', Path: Resources.ResourceA.Properties.Policies.0", str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_invalid_managed_policy_arns_type(self):
@@ -469,7 +469,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.ManagedPolicyArns', 'array', "'Invalid'"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.ManagedPolicyArns', 'array', "'Invalid'"), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_invalid_managed_policy_arn_item_type(self):
@@ -485,7 +485,7 @@ class WhenParsingAnIAMGroupAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			IdentityParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.ManagedPolicyArns.0', 'string', "['Invalid']"), str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.ManagedPolicyArns.0', 'string', "['Invalid']"), str(cm.exception))
 
 	@mock_identity_parser_setup()
 	def test_with_unsupported_function_in_unused_property(self):

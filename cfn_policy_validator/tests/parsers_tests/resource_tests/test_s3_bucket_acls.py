@@ -46,7 +46,7 @@ class WhenParsingAnS3BucketAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.BucketName', 'string', "['MyBucket']"),  str(cm.exception))
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.BucketName', 'string', "['MyBucket']"),  str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_invalid_access_control_type(self):
@@ -62,7 +62,7 @@ class WhenParsingAnS3BucketAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(expected_type_error('ResourceA.Properties.AccessControl', 'string', "['Invalid']"),
+		self.assertEqual(expected_type_error('Resources.ResourceA.Properties.AccessControl', 'string', "['Invalid']"),
 						 str(cm.exception))
 
 	@mock_node_evaluator_setup()

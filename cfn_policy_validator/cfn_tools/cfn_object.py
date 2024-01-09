@@ -18,7 +18,7 @@ class CfnObject(dict):
 
 	def add_ancestors(self, parent_ancestors: list, parent_key: str):
 		self.ancestors = list(parent_ancestors)
-		if parent_key is not None and parent_key != 'Resources':
+		if parent_key is not None:
 			self.ancestors.append(parent_key)
 
 	def set_node_evaluator(self, node_evaluator):
@@ -31,6 +31,10 @@ class CfnObject(dict):
 			return None
 
 		return parent[0]
+
+	@property
+	def top_level_ancestor(self):
+		return self.ancestors[0] if len(self.ancestors) > 0 else None
 
 	def eval(self, expected_schema: Any, visited_values: list = None):
 		path = self.ancestors_as_string()

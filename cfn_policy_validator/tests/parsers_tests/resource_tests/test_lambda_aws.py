@@ -25,7 +25,7 @@ class WhenParsingALambdaPermissionsPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
+		self.assertEqual(required_property_error('Properties', 'Resources.ResourceA'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_no_action(self):
@@ -42,7 +42,7 @@ class WhenParsingALambdaPermissionsPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Action', 'ResourceA.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('Action', 'Resources.ResourceA.Properties'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_no_function_name(self):
@@ -59,7 +59,7 @@ class WhenParsingALambdaPermissionsPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('FunctionName', 'ResourceA.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('FunctionName', 'Resources.ResourceA.Properties'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_no_principal(self):
@@ -76,7 +76,7 @@ class WhenParsingALambdaPermissionsPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Principal', 'ResourceA.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('Principal', 'Resources.ResourceA.Properties'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_unsupported_function_in_unused_property(self):
@@ -148,30 +148,30 @@ class WhenParsingALambdaPermissionsPolicyWithInvalidPropertyType(unittest.TestCa
 	def test_invalid_action_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_permissions_policy(action=invalid_value)
-		self.assert_invalid_type(template, "ResourceA.Properties.Action", 'string', invalid_value)
+		self.assert_invalid_type(template, "Resources.ResourceA.Properties.Action", 'string', invalid_value)
 
 	@mock_node_evaluator_setup()
 	def test_invalid_function_name_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_permissions_policy(function_name=invalid_value)
-		self.assert_invalid_type(template, "ResourceA.Properties.FunctionName", 'string', invalid_value)
+		self.assert_invalid_type(template, "Resources.ResourceA.Properties.FunctionName", 'string', invalid_value)
 
 	def test_invalid_principal_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_permissions_policy(principal=invalid_value)
-		self.assert_invalid_type(template, "ResourceA.Properties.Principal", 'string', invalid_value)
+		self.assert_invalid_type(template, "Resources.ResourceA.Properties.Principal", 'string', invalid_value)
 
 	@mock_node_evaluator_setup()
 	def test_invalid_source_arn_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_permissions_policy(source_arn=invalid_value)
-		self.assert_invalid_type(template, "ResourceA.Properties.SourceArn", 'string', invalid_value)
+		self.assert_invalid_type(template, "Resources.ResourceA.Properties.SourceArn", 'string', invalid_value)
 
 	@mock_node_evaluator_setup()
 	def test_invalid_source_account_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_permissions_policy(source_account=invalid_value)
-		self.assert_invalid_type(template, "ResourceA.Properties.SourceAccount", 'string', invalid_value)
+		self.assert_invalid_type(template, "Resources.ResourceA.Properties.SourceAccount", 'string', invalid_value)
 
 
 class WhenParsingALambdaPermissionsPolicy(unittest.TestCase):
@@ -526,7 +526,7 @@ class WhenParsingALambdaLayerVersionPermissionsPolicyAndValidatingSchema(unittes
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Properties', 'ResourceA'), str(cm.exception))
+		self.assertEqual(required_property_error('Properties', 'Resources.ResourceA'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_no_action(self):
@@ -543,7 +543,7 @@ class WhenParsingALambdaLayerVersionPermissionsPolicyAndValidatingSchema(unittes
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Action', 'ResourceA.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('Action', 'Resources.ResourceA.Properties'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_no_layer_version_arn(self):
@@ -560,7 +560,7 @@ class WhenParsingALambdaLayerVersionPermissionsPolicyAndValidatingSchema(unittes
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('LayerVersionArn', 'ResourceA.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('LayerVersionArn', 'Resources.ResourceA.Properties'), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_no_principal(self):
@@ -577,7 +577,7 @@ class WhenParsingALambdaLayerVersionPermissionsPolicyAndValidatingSchema(unittes
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual(required_property_error('Principal', 'ResourceA.Properties'), str(cm.exception))
+		self.assertEqual(required_property_error('Principal', 'Resources.ResourceA.Properties'), str(cm.exception))
 
 
 def _build_lambda_layer_version_permissions_policy(action='lambda:GetLayerVersion',
@@ -612,25 +612,25 @@ class WhenParsingALambdaLayerVersionPermissionsPolicyWithInvalidPropertyType(uni
 	def test_invalid_action_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_layer_version_permissions_policy(action=invalid_value)
-		self.assert_invalid_type(template, "ResourceA.Properties.Action", "string", invalid_value)
+		self.assert_invalid_type(template, "Resources.ResourceA.Properties.Action", "string", invalid_value)
 
 	@mock_node_evaluator_setup()
 	def test_invalid_layer_version_arn_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_layer_version_permissions_policy(layer_version_arn=invalid_value)
-		self.assert_invalid_type(template, "ResourceA.Properties.LayerVersionArn", "string", invalid_value)
+		self.assert_invalid_type(template, "Resources.ResourceA.Properties.LayerVersionArn", "string", invalid_value)
 
 	@mock_node_evaluator_setup()
 	def test_invalid_principal_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_layer_version_permissions_policy(principal=invalid_value)
-		self.assert_invalid_type(template, "ResourceA.Properties.Principal", "string", invalid_value)
+		self.assert_invalid_type(template, "Resources.ResourceA.Properties.Principal", "string", invalid_value)
 
 	@mock_node_evaluator_setup()
 	def test_invalid_organization_id_type(self):
 		invalid_value = ['Invalid']
 		template = _build_lambda_layer_version_permissions_policy(organization_id=invalid_value)
-		self.assert_invalid_type(template, "ResourceA.Properties.OrganizationId", "string", invalid_value)
+		self.assert_invalid_type(template, "Resources.ResourceA.Properties.OrganizationId", "string", invalid_value)
 
 	@mock_node_evaluator_setup()
 	def test_with_unsupported_function_in_unused_property(self):
