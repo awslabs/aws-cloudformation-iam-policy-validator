@@ -36,13 +36,14 @@ setuptools.setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9'
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
     ],
     entry_points={"console_scripts": "cfn-policy-validator=cfn_policy_validator.main:main"},
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     package_data={
         '': ['*.json']
     },
@@ -50,6 +51,6 @@ setuptools.setup(
         'boto3>=1.20',
         'pyYAML>=5.3',
         'urllib3>=1.25',
-        'jsonschema~=3.2'
+        'jsonschema>=4.21'
     ]
 )

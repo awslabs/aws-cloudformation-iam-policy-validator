@@ -42,12 +42,20 @@ def expected_type_error(path: str, expected_type: str, actual_value: str):
     return f"{actual_value} is not of type '{expected_type}', Path: {path}"
 
 
+def expected_schema_error(path: str, actual_value: str):
+    return f"{actual_value} is not valid under any of the given schemas, Path: {path}"
+
+
 def too_short_error(path: str, actual_value: str):
     return f"{actual_value} is too short, Path: {path}"
 
 
 def too_long_error(path: str, actual_value: str):
     return f"{actual_value} is too long, Path: {path}"
+
+
+def should_be_non_empty_error(path: str, actual_value: str):
+    return f"{actual_value} should be non-empty, Path: {path}"
 
 
 @contextmanager

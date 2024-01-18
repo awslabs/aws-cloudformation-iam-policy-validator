@@ -9,7 +9,7 @@ from cfn_policy_validator.parsers.resource.parser import ResourceParser
 from cfn_policy_validator.parsers.output import Resource, Policy
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 
-from cfn_policy_validator.tests.utils import required_property_error, load, account_config, expected_type_error, \
+from cfn_policy_validator.tests.utils import required_property_error, account_config, expected_type_error, should_be_non_empty_error, \
 	load_resources
 from cfn_policy_validator.application_error import ApplicationError
 
@@ -146,7 +146,7 @@ class WhenParsingAnSnsTopicPolicyAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			ResourceParser.parse(template, account_config)
 
-		self.assertEqual('[] is too short, Path: Resources.ResourceA.Properties.Topics', str(cm.exception))
+		self.assertEqual(should_be_non_empty_error("Resources.ResourceA.Properties.Topics", "[]"), str(cm.exception))
 
 	@mock_node_evaluator_setup()
 	def test_with_invalid_topics_item_type(self):

@@ -10,7 +10,7 @@ import yaml
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.cfn_tools.schema_validator import validate
 from cfn_policy_validator.cfn_tools.yaml_loader import CfnYamlLoader
-from cfn_policy_validator.tests.utils import expected_type_error, required_property_error
+from cfn_policy_validator.tests.utils import expected_type_error, required_property_error, should_be_non_empty_error
 
 
 def load(template):
@@ -213,7 +213,7 @@ class WhenParsingTemplateAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			validate(template)
 
-		self.assertEqual("{} does not have enough properties, Path: Mappings.FirstLevel1", str(cm.exception))
+		self.assertEqual(should_be_non_empty_error('Mappings.FirstLevel1', '{}'), str(cm.exception))
 
 	def test_template_has_invalid_second_level_mappings_type(self):
 		template = load({
@@ -243,7 +243,7 @@ class WhenParsingTemplateAndValidatingSchema(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			validate(template)
 
-		self.assertEqual("{} does not have enough properties, Path: Mappings.FirstLevel1.SecondLevel1", str(cm.exception))
+		self.assertEqual(should_be_non_empty_error('Mappings.FirstLevel1.SecondLevel1', '{}'), str(cm.exception))
 
 	def test_template_has_invalid_third_level_mappings_type(self):
 		template = load({

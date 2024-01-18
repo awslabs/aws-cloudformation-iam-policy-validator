@@ -6,7 +6,7 @@ import unittest
 
 from cfn_policy_validator import ApplicationError
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
-from cfn_policy_validator.tests.utils import load, build_node_evaluator, expected_type_error, too_short_error, \
+from cfn_policy_validator.tests.utils import load, build_node_evaluator, expected_type_error, should_be_non_empty_error, \
     too_long_error
 
 
@@ -108,7 +108,7 @@ class WhenEvaluatingAConditionWithANotFunctionThatDoesNotMatchSchema(unittest.Te
         with self.assertRaises(ApplicationError) as cm:
             node_evaluator.eval(template['Conditions']['myCondition'])
 
-        self.assertEqual(too_short_error("Fn::Not", "[]"), str(cm.exception))
+        self.assertEqual(should_be_non_empty_error("Fn::Not", "[]"), str(cm.exception))
 
     @mock_node_evaluator_setup()
     def test_function_has_list_with_more_than_one_elements(self):
