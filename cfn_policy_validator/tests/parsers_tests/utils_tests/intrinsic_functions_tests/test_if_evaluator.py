@@ -32,7 +32,7 @@ class WhenEvaluatingAConditionWithAnIfFunction(unittest.TestCase):
         node_evaluator = build_node_evaluator(template)
 
         result = node_evaluator.eval(template['Conditions']['myCondition'])
-        self.assertEquals(result, 'a')
+        self.assertEqual(result, 'a')
 
     @mock_node_evaluator_setup()
     def test_comparison_is_false(self):
@@ -57,7 +57,7 @@ class WhenEvaluatingAConditionWithAnIfFunction(unittest.TestCase):
         node_evaluator = build_node_evaluator(template)
 
         result = node_evaluator.eval(template['Conditions']['myCondition'])
-        self.assertEquals(result, 'b')
+        self.assertEqual(result, 'b')
 
     @mock_node_evaluator_setup()
     def test_condition_with_name_does_not_exist(self):
@@ -102,7 +102,7 @@ class WhenEvaluatingAConditionWithAnIfFunction(unittest.TestCase):
         node_evaluator = build_node_evaluator(template)
 
         result = node_evaluator.eval(template['Conditions']['myCondition'])
-        self.assertEquals(result, True)
+        self.assertEqual(result, True)
 
     @mock_node_evaluator_setup()
     def test_comparison_is_false_and_result_is_function(self):
@@ -125,7 +125,7 @@ class WhenEvaluatingAConditionWithAnIfFunction(unittest.TestCase):
         node_evaluator = build_node_evaluator(template)
 
         result = node_evaluator.eval(template['Conditions']['myCondition'])
-        self.assertEquals(result, True)
+        self.assertEqual(result, True)
 
 
 class WhenEvaluatingAResourceWithAnIfFunction(unittest.TestCase):
@@ -156,7 +156,7 @@ class WhenEvaluatingAResourceWithAnIfFunction(unittest.TestCase):
         node_evaluator = build_node_evaluator(template)
 
         result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
-        self.assertEquals(result, 'a')
+        self.assertEqual(result, 'a')
 
     @mock_node_evaluator_setup()
     def test_comparison_is_false(self):
@@ -185,7 +185,7 @@ class WhenEvaluatingAResourceWithAnIfFunction(unittest.TestCase):
         node_evaluator = build_node_evaluator(template)
 
         result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
-        self.assertEquals(result, 'b')
+        self.assertEqual(result, 'b')
 
     @mock_node_evaluator_setup()
     def test_condition_with_name_does_not_exist(self):
@@ -240,7 +240,7 @@ class WhenEvaluatingAResourceWithAnIfFunction(unittest.TestCase):
         node_evaluator = build_node_evaluator(template)
 
         result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
-        self.assertEquals(result, True)
+        self.assertEqual(result, True)
 
     @mock_node_evaluator_setup()
     def test_comparison_is_false_and_result_is_function(self):
@@ -269,7 +269,7 @@ class WhenEvaluatingAResourceWithAnIfFunction(unittest.TestCase):
         node_evaluator = build_node_evaluator(template)
 
         result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
-        self.assertEquals(result, True)
+        self.assertEqual(result, True)
 
 
 class WhenEvaluatingAConditionWithAnIfFunctionThatDoesNotMatchSchema(unittest.TestCase):

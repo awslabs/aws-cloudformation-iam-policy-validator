@@ -7,7 +7,7 @@ import unittest
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.topological_sorter import TopologicalSorter
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
-from cfn_policy_validator.tests.utils import load, expected_type_error
+from cfn_policy_validator.tests.utils import load, expected_type_error, expected_schema_error
 
 
 def get_index_of(sorted_resources, name):
@@ -263,7 +263,7 @@ class WhenSortingWithSubDependencies(unittest.TestCase):
         with self.assertRaises(ApplicationError) as cm:
             sorter.sort_resources()
 
-        self.assertEqual(expected_type_error('Fn::Sub', 'array or string', "{'ResourceA': 'Blah'}"), str(cm.exception))
+        self.assertEqual(expected_schema_error('Fn::Sub', "{'ResourceA': 'Blah'}"), str(cm.exception))
 
 
 class WhenSortingWithExplicitDependsOn(unittest.TestCase):

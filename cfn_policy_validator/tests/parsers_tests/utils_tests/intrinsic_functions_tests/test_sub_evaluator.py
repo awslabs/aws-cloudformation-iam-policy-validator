@@ -7,7 +7,7 @@ import unittest
 from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.tests.parsers_tests import mock_node_evaluator_setup
 from cfn_policy_validator.tests.utils import load, account_config, load_resources, expected_type_error, \
-	build_node_evaluator
+	expected_schema_error, build_node_evaluator
 
 
 class WhenEvaluatingAPropertyWithASubThatResolvesToGetAtt(unittest.TestCase):
@@ -111,7 +111,7 @@ class WhenEvaluatingAPropertyWithASubThatDoesNotResolveToAString(unittest.TestCa
 		with self.assertRaises(ApplicationError) as cm:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
-		self.assertEqual(expected_type_error('Fn::Sub', 'string', "['Invalid']"), str(cm.exception))
+			self.assertEqual(expected_type_error('Fn::Sub', 'string', "['Invalid']"), str(cm.exception))
 
 
 class WhenEvaluatingAPropertyWithALongFormSub(unittest.TestCase):
@@ -263,8 +263,7 @@ class WhenEvaluatingLongFormSubAndGetAttIsNotFound(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyB'])
 
-		self.assertEqual('Unable to find referenced resource for GetAtt reference to ResourceB.PropertyB',
-						 str(cm.exception))
+			self.assertEqual('Unable to find referenced resource for GetAtt reference to ResourceB.PropertyB', str(cm.exception))
 
 
 class WhenEvaluatingLongFormSubAndRefIsNotFound(unittest.TestCase):
@@ -291,8 +290,7 @@ class WhenEvaluatingLongFormSubAndRefIsNotFound(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as cm:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyB'])
 
-		self.assertEqual('Unable to find a referenced resource or parameter in template: MissingParam',
-						 str(cm.exception))
+			self.assertEqual('Unable to find a referenced resource or parameter in template: MissingParam', str(cm.exception))
 
 
 class WhenEvaluatingAPropertyWithInvalidSubValue(unittest.TestCase):
@@ -319,7 +317,7 @@ class WhenEvaluatingAPropertyWithInvalidSubValue(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
-		self.assertEqual(expected_type_error('Fn::Sub', 'array or string', {'Ref': 'Invalid'}), str(context.exception))
+			self.assertEqual(expected_schema_error('Fn::Sub', {'Ref': 'Invalid'}), str(context.exception))
 
 
 class WhenEvaluatingAPropertyWithLongFormSubOfInvalidLength(unittest.TestCase):
@@ -346,9 +344,7 @@ class WhenEvaluatingAPropertyWithLongFormSubOfInvalidLength(unittest.TestCase):
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
-		self.assertEqual(
-			"Additional items are not allowed ('3rd' was unexpected), Path: Fn::Sub",
-			str(context.exception))
+			self.assertEqual("Additional items are not allowed ('3rd' was unexpected), Path: Fn::Sub", str(context.exception))
 
 
 class WhenEvaluatingAPropertyWithLongFormSubWithInvalidTextToEvaluate(unittest.TestCase):
@@ -370,7 +366,7 @@ class WhenEvaluatingAPropertyWithLongFormSubWithInvalidTextToEvaluate(unittest.T
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
-		self.assertEqual(expected_type_error("Fn::Sub.0", 'string', "['www.${Domain}']"), str(context.exception))
+			self.assertEqual(expected_type_error("Fn::Sub.0", 'string', "['www.${Domain}']"), str(context.exception))
 
 
 class WhenEvaluatingAPropertyWithLongFormSubWithInvalidMapping(unittest.TestCase):
@@ -397,7 +393,7 @@ class WhenEvaluatingAPropertyWithLongFormSubWithInvalidMapping(unittest.TestCase
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 
-		self.assertEqual(expected_type_error('Fn::Sub.1', 'object', "'Domain'"), str(context.exception))
+			self.assertEqual(expected_type_error('Fn::Sub.1', 'object', "'Domain'"), str(context.exception))
 
 
 class WhenEvaluatingAPropertyWithLongFormSubAndNoMatchingMapping(unittest.TestCase):
@@ -423,7 +419,4 @@ class WhenEvaluatingAPropertyWithLongFormSubAndNoMatchingMapping(unittest.TestCa
 
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
-
-		self.assertEqual(
-			"Unable to find a referenced resource or parameter in template: Domain",
-			str(context.exception))
+			self.assertEqual("Unable to find a referenced resource or parameter in template: Domain", str(context.exception))
