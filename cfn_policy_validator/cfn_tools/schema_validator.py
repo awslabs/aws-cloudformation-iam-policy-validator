@@ -72,8 +72,9 @@ def validate(template):
 
 
 def validate_schema(instance, schema, parent_path=None):
+	validator = jsonschema.Draft201909Validator(schema=schema)
 	try:
-		jsonschema.validate(instance=instance, schema=schema)
+		validator.validate(instance=instance)
 	except ValidationError as e:
 		message = e.message
 
