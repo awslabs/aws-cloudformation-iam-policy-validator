@@ -828,6 +828,11 @@
                 "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:data-quality-job-definition/${DataQualityJobDefinitionName}",
                 "ServicePrefix": "sagemaker",
                 "ResourceType": "data-quality-job-definition"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:data-quality-job-definition/${DataQualityJobDefinitionName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "data-quality-job-definition"
             }
         },
         "MonitoringSchedule": {
@@ -854,10 +859,20 @@
                 "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-explainability-job-definition/${ModelExplainabilityJobDefinitionName}",
                 "ServicePrefix": "sagemaker",
                 "ResourceType": "model-explainability-job-definition"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-explainability-job-definition/${ModelExplainabilityJobDefinitionName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "model-explainability-job-definition"
             }
         },
         "ModelPackageGroup": {
             "ModelPackageGroupArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-package-group/${ModelPackageGroupName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "model-package-group"
+            },
+            "Ref": {
                 "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-package-group/${ModelPackageGroupName}",
                 "ServicePrefix": "sagemaker",
                 "ResourceType": "model-package-group"
@@ -868,10 +883,20 @@
                 "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-bias-job-definition/${ModelBiasJobDefinitionName}",
                 "ServicePrefix": "sagemaker",
                 "ResourceType": "model-bias-job-definition"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-bias-job-definition/${ModelBiasJobDefinitionName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "model-bias-job-definition"
             }
         },
         "ModelQualityJobDefinition": {
             "JobDefinitionArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-quality-job-definition/${ModelQualityJobDefinitionName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "model-quality-job-definition"
+            },
+            "Ref": {
                 "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-quality-job-definition/${ModelQualityJobDefinitionName}",
                 "ServicePrefix": "sagemaker",
                 "ResourceType": "model-quality-job-definition"
@@ -915,6 +940,11 @@
                 "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:project/${ProjectName}",
                 "ServicePrefix": "sagemaker",
                 "ResourceType": "project"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:project/${ProjectName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "project"
             }
         },
         "Image": {
@@ -931,6 +961,11 @@
         },
         "ModelPackage": {
             "ModelPackageArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-package/${ModelPackageName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "model-package"
+            },
+            "Ref": {
                 "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:model-package/${ModelPackageName}",
                 "ServicePrefix": "sagemaker",
                 "ResourceType": "model-package"
@@ -959,6 +994,11 @@
         },
         "InferenceComponent": {
             "InferenceComponentArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:inference-component/${InferenceComponentName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "inference-component"
+            },
+            "Ref": {
                 "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:inference-component/${InferenceComponentName}",
                 "ServicePrefix": "sagemaker",
                 "ResourceType": "inference-component"
@@ -1027,6 +1067,13 @@
                 "Value": "arn:${Partition}:eks:${Region}:${Account}:podidentityassociation/${ClusterName}/${UUID}",
                 "ServicePrefix": "eks",
                 "ResourceType": "podidentityassociation"
+            }
+        },
+        "AccessEntry": {
+            "AccessEntryArn": {
+                "Value": "arn:${Partition}:eks:${Region}:${Account}:access-entry/${ClusterName}/${IamIdentityType}/${IamIdentityAccountID}/${IamIdentityName}/${UUID}",
+                "ServicePrefix": "eks",
+                "ResourceType": "access-entry"
             }
         }
     },
@@ -1481,6 +1528,18 @@
                 "ServicePrefix": "codebuild",
                 "ResourceType": "report-group"
             }
+        },
+        "Fleet": {
+            "Ref": {
+                "Value": "arn:${Partition}:codebuild:${Region}:${Account}:fleet/${FleetName}:${FleetId}",
+                "ServicePrefix": "codebuild",
+                "ResourceType": "fleet"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:codebuild:${Region}:${Account}:fleet/${FleetName}:${FleetId}",
+                "ServicePrefix": "codebuild",
+                "ResourceType": "fleet"
+            }
         }
     },
     "CloudTrail": {
@@ -1655,6 +1714,13 @@
                 "Value": "arn:${Partition}:iot:${Region}:${Account}:package/${PackageName}/version/${VersionName}",
                 "ServicePrefix": "iot",
                 "ResourceType": "packageversion"
+            }
+        },
+        "CertificateProvider": {
+            "Arn": {
+                "Value": "arn:${Partition}:iot:${Region}:${Account}:certificateprovider/${CertificateProviderName}",
+                "ServicePrefix": "iot",
+                "ResourceType": "certificateprovider"
             }
         }
     },
@@ -2078,6 +2144,27 @@
                 "ServicePrefix": "logs",
                 "ResourceType": "anomaly-detector"
             }
+        },
+        "Delivery": {
+            "Arn": {
+                "Value": "arn:${Partition}:logs:${Region}:${Account}:delivery:${DeliveryName}",
+                "ServicePrefix": "logs",
+                "ResourceType": "delivery"
+            }
+        },
+        "DeliveryDestination": {
+            "Arn": {
+                "Value": "arn:${Partition}:logs:${Region}:${Account}:delivery-destination:${DeliveryDestinationName}",
+                "ServicePrefix": "logs",
+                "ResourceType": "delivery-destination"
+            }
+        },
+        "DeliverySource": {
+            "Arn": {
+                "Value": "arn:${Partition}:logs:${Region}:${Account}:delivery-source:${DeliverySourceName}",
+                "ServicePrefix": "logs",
+                "ResourceType": "delivery-source"
+            }
         }
     },
     "Transfer": {
@@ -2276,6 +2363,13 @@
                 "ServicePrefix": "imagebuilder",
                 "ResourceType": "lifecycle-policy"
             }
+        },
+        "Workflow": {
+            "Arn": {
+                "Value": "arn:${Partition}:imagebuilder:${Region}:${Account}:workflow/${WorkflowType}/${WorkflowName}/${WorkflowVersion}/${WorkflowBuildVersion}",
+                "ServicePrefix": "imagebuilder",
+                "ResourceType": "workflow"
+            }
         }
     },
     "AutoScalingPlans": {
@@ -2403,6 +2497,11 @@
     "SecurityHub": {
         "Hub": {
             "Ref": {
+                "Value": "arn:${Partition}:securityhub:${Region}:${Account}:hub/default",
+                "ServicePrefix": "securityhub",
+                "ResourceType": "hub"
+            },
+            "ARN": {
                 "Value": "arn:${Partition}:securityhub:${Region}:${Account}:hub/default",
                 "ServicePrefix": "securityhub",
                 "ResourceType": "hub"
@@ -2694,6 +2793,18 @@
                 "Value": "arn:${Partition}:rds:${Region}:${Account}:cev:${Engine}/${EngineVersion}/${CustomDbEngineVersionId}",
                 "ServicePrefix": "rds",
                 "ResourceType": "cev"
+            }
+        },
+        "Integration": {
+            "Ref": {
+                "Value": "arn:${Partition}:rds:${Region}:${Account}:integration:${IntegrationIdentifier}",
+                "ServicePrefix": "rds",
+                "ResourceType": "integration"
+            },
+            "IntegrationArn": {
+                "Value": "arn:${Partition}:rds:${Region}:${Account}:integration:${IntegrationIdentifier}",
+                "ServicePrefix": "rds",
+                "ResourceType": "integration"
             }
         }
     },
@@ -3120,6 +3231,18 @@
                 "ServicePrefix": "codeartifact",
                 "ResourceType": "domain"
             }
+        },
+        "PackageGroup": {
+            "Ref": {
+                "Value": "arn:${Partition}:codeartifact:${Region}:${Account}:package-group/${DomainName}${EncodedPackageGroupPattern}",
+                "ServicePrefix": "codeartifact",
+                "ResourceType": "package-group"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:codeartifact:${Region}:${Account}:package-group/${DomainName}${EncodedPackageGroupPattern}",
+                "ServicePrefix": "codeartifact",
+                "ResourceType": "package-group"
+            }
         }
     },
     "MWAA": {
@@ -3182,6 +3305,13 @@
                 "Value": "arn:${Partition}:network-firewall:${Region}:${Account}:firewall/${Name}",
                 "ServicePrefix": "network-firewall",
                 "ResourceType": "firewall"
+            }
+        },
+        "TLSInspectionConfiguration": {
+            "TLSInspectionConfigurationArn": {
+                "Value": "arn:${Partition}:network-firewall:${Region}:${Account}:tls-configuration/${Name}",
+                "ServicePrefix": "network-firewall",
+                "ResourceType": "tls-inspection-configuration"
             }
         }
     },
@@ -3559,6 +3689,13 @@
                 "Value": "arn:${Partition}:cloudfront::${Account}:function/${Name}",
                 "ServicePrefix": "cloudfront",
                 "ResourceType": "function"
+            }
+        },
+        "KeyValueStore": {
+            "Arn": {
+                "Value": "arn:${Partition}:cloudfront::${Account}:key-value-store/${Name}",
+                "ServicePrefix": "cloudfront",
+                "ResourceType": "key-value-store"
             }
         }
     },
@@ -4053,6 +4190,13 @@
                 "ServicePrefix": "geo",
                 "ResourceType": "geofence-collection"
             }
+        },
+        "APIKey": {
+            "Arn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:api-key/${KeyName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "api-key"
+            }
         }
     },
     "AppRunner": {
@@ -4261,6 +4405,18 @@
                 "Value": "arn:${Partition}:aps:${Region}:${Account}:rulegroupsnamespace/${WorkspaceId}/${Namespace}",
                 "ServicePrefix": "aps",
                 "ResourceType": "rulegroupsnamespace"
+            }
+        },
+        "Scraper": {
+            "Arn": {
+                "Value": "arn:${Partition}:aps:${Region}:${Account}:scraper/${ScraperId}",
+                "ServicePrefix": "aps",
+                "ResourceType": "scraper"
+            },
+            "RoleArn": {
+                "Value": "arn:${Partition}:iam::${Account}:role/${RoleNameWithPath}",
+                "ServicePrefix": "iam",
+                "ResourceType": "role"
             }
         }
     },
@@ -4505,6 +4661,18 @@
                 "ServicePrefix": "inspector2",
                 "ResourceType": "filter"
             }
+        },
+        "CisScanConfiguration": {
+            "Ref": {
+                "Value": "arn:${Partition}:inspector2:${Region}:${Account}:owner/${OwnerId}/cis-configuration/${CISScanConfigurationId}",
+                "ServicePrefix": "inspector2",
+                "ResourceType": "cis-scan-configuration"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:inspector2:${Region}:${Account}:owner/${OwnerId}/cis-configuration/${CISScanConfigurationId}",
+                "ServicePrefix": "inspector2",
+                "ResourceType": "cis-scan-configuration"
+            }
         }
     },
     "KafkaConnect": {
@@ -4513,6 +4681,20 @@
                 "Value": "arn:${Partition}:kafkaconnect:${Region}:${Account}:connector/${ConnectorName}/${UUID}",
                 "ServicePrefix": "kafkaconnect",
                 "ResourceType": "connector"
+            }
+        },
+        "CustomPlugin": {
+            "CustomPluginArn": {
+                "Value": "arn:${Partition}:kafkaconnect:${Region}:${Account}:custom-plugin/${CustomPluginName}/${UUID}",
+                "ServicePrefix": "kafkaconnect",
+                "ResourceType": "customplugin"
+            }
+        },
+        "WorkerConfiguration": {
+            "WorkerConfigurationArn": {
+                "Value": "arn:${Partition}:kafkaconnect:${Region}:${Account}:worker-configuration/${WorkerConfigurationName}/${UUID}",
+                "ServicePrefix": "kafkaconnect",
+                "ResourceType": "workerconfiguration"
             }
         }
     },
@@ -5444,6 +5626,42 @@
                 "Value": "arn:${Partition}:controltower:${Region}:${Account}:landingzone/${LandingZoneId}",
                 "ServicePrefix": "controltower",
                 "ResourceType": "landing-zone"
+            }
+        }
+    },
+    "DataZone": {
+        "Domain": {
+            "Arn": {
+                "Value": "arn:${Partition}:datazone:${Region}:${Account}:domain/${DomainId}",
+                "ServicePrefix": "datazone",
+                "ResourceType": "domain"
+            }
+        }
+    },
+    "NeptuneGraph": {
+        "Graph": {
+            "GraphArn": {
+                "Value": "arn:${Partition}:neptune-graph:${Region}:${Account}:graph/${ResourceId}",
+                "ServicePrefix": "neptune-graph",
+                "ResourceType": "graph"
+            }
+        }
+    },
+    "SecurityLake": {
+        "DataLake": {
+            "Arn": {
+                "Value": "arn:${Partition}:securitylake:${Region}:${Account}:data-lake/default",
+                "ServicePrefix": "securitylake",
+                "ResourceType": "data-lake"
+            }
+        }
+    },
+    "CleanRoomsML": {
+        "TrainingDataset": {
+            "TrainingDatasetArn": {
+                "Value": "arn:${Partition}:cleanrooms-ml:${Region}:${Account}:training-dataset/${ResourceId}",
+                "ServicePrefix": "cleanrooms-ml",
+                "ResourceType": "trainingdataset"
             }
         }
     }
