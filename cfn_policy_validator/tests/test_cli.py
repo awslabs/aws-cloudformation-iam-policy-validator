@@ -153,6 +153,71 @@ class WhenValidatingATemplateAsCLI(ValidationTest):
         self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'MyAccessPoint', 'AccessPointPolicy')
         self.assert_error('SECURITY_WARNING', 'EXTERNAL_PRINCIPAL', 'MyMultiRegionAccessPoint', 'MultiRegionAccessPointPolicy')
 
+# Integration tests for check-no-public-access
+
+class WhenCheckingTemplateForPublicAccessAllResourceTypes(ValidationTest):
+    def setUp(self):
+        ignore_warnings()
+
+    @end_to_end
+    def test_prints_report(self):
+        template_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/public_access_test.yml')
+        with self.assertRaises(SystemExit) as context_manager, captured_output() as (out, err):
+            main.main([
+                'check-no-public-access',
+                '--template-path', template_file_path,
+                '--region', account_config.region
+            ])
+
+        err_value = err.getvalue()
+        if err_value != '':
+            print(err_value)
+
+        self.assertEqual(2, context_manager.exception.code)
+
+        try:
+            self.output = json.loads(out.getvalue())
+        except:
+            self.assertTrue(False, err.getvalue())
+
+        self.assertEqual(0, len(self.output['NonBlockingFindings']))
+
+        self.assertEqual(3, len(self.output['BlockingFindings']))
+        self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckNoPublicAccess', 'MyKey', 'KeyPolicy')
+        self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckNoPublicAccess', 'testBucket', 'BucketPolicy')
+        self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckNoPublicAccess', 'CodePipelineServiceRole', 'TrustPolicy')
+
+
+class WhenCheckingTemplateForPublicAccessExcludeResourceType(ValidationTest):
+    def setUp(self):
+        ignore_warnings()
+
+    @end_to_end
+    def test_prints_report(self):
+        template_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/public_access_test.yml')
+        with self.assertRaises(SystemExit) as context_manager, captured_output() as (out, err):
+            main.main([
+                'check-no-public-access',
+                '--template-path', template_file_path,
+                '--region', account_config.region,
+                '--exclude-resource-types', 'AWS::S3::BucketPolicy, AWS::IAM::Role'
+            ])
+
+        err_value = err.getvalue()
+        if err_value != '':
+            print(err_value)
+
+        self.assertEqual(2, context_manager.exception.code)
+
+        try:
+            self.output = json.loads(out.getvalue())
+        except:
+            self.assertTrue(False, err.getvalue())
+
+        self.assertEqual(0, len(self.output['NonBlockingFindings']))
+
+        self.assertEqual(1, len(self.output['BlockingFindings']))
+        self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckNoPublicAccess', 'MyKey', 'KeyPolicy')
 
 class WhenParsingArgumentsForVersion(unittest.TestCase):
     def setUp(self):
@@ -188,7 +253,7 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         arguments.enable_logging = False
         arguments.allow_dynamic_ref_without_version = allow_dynamic_ref_without_version
         arguments.exclude_resource_type=exclude_resource_type
-        setattr(arguments, '{parse,validate,check-no-new-access,check-access-not-granted}', ANY)
+        setattr(arguments, '{parse,validate,check-no-new-access,check-access-not-granted,check-no-public-access}', ANY)
 
         self.mock.assert_called_with(arguments)
 
@@ -377,7 +442,7 @@ class WhenParsingArgumentsForParse(unittest.TestCase):
         arguments.enable_logging = False
         arguments.allow_dynamic_ref_without_version = allow_dynamic_ref_without_version
         arguments.exclude_resource_type = exclude_resource_type
-        setattr(arguments, '{parse,validate,check-no-new-access,check-access-not-granted}', ANY)
+        setattr(arguments, '{parse,validate,check-no-new-access,check-access-not-granted,check-no-public-access}', ANY)
 
         self.mock.assert_called_with(arguments)
 
@@ -563,7 +628,7 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
             allow_dynamic_ref_without_version=ANY,
             exclude_resource_type=ANY
         )
-        setattr(expected_args, '{parse,validate,check-no-new-access,check-access-not-granted}', ANY)
+        setattr(expected_args, '{parse,validate,check-no-new-access,check-access-not-granted,check-no-public-access}', ANY)
 
         mock.assert_called_once()
         mock.assert_called_with(expected_args)
@@ -591,7 +656,7 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
             allow_dynamic_ref_without_version=ANY,
             exclude_resource_type=ANY
         )
-        setattr(expected_args, '{parse,validate,check-no-new-access,check-access-not-granted}', ANY)
+        setattr(expected_args, '{parse,validate,check-no-new-access,check-access-not-granted,check-no-public-access}', ANY)
 
         mock.assert_called_once()
         mock.assert_called_with(expected_args)
@@ -641,7 +706,7 @@ class WhenRunningWithNoSubparser(unittest.TestCase):
             main.main([])
 
         self.assertEqual(2, context_manager.exception.code)
-        self.assertIn('error: the following arguments are required: {parse,validate,check-no-new-access,check-access-not-granted}', err.getvalue())
+        self.assertIn('error: the following arguments are required: {parse,validate,check-no-new-access,check-access-not-granted,check-no-public-access}', err.getvalue())
 
 
 class WhenSettingProfileAndRegion(unittest.TestCase):
@@ -706,3 +771,110 @@ class WhenSettingProfileAndRegion(unittest.TestCase):
                 ])
 
         self.assertEqual(2, context_manager.exception.code, print("output: " + out.getvalue() + "\n err: " + err.getvalue()))
+
+#Integration tests for check-no-access-granted
+
+class WhenCheckingTemplateForAccessGrantedActionOnly(ValidationTest):
+    def setUp(self):
+        ignore_warnings()
+
+    @end_to_end
+    def test_prints_report(self):
+        json_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/test_file_2.yml')
+        with self.assertRaises(SystemExit) as context_manager, captured_output() as (out, err):
+            main.main([
+                'check-access-not-granted',
+                '--template-path', json_file_path,
+                '--region', account_config.region,
+                '--actions', "s3:GetObject",
+                '--parameters', 'EnvironmentName=prod', 'CodestarConnectionArn=fakeArn'
+            ])
+
+        err_value = err.getvalue()
+        if err_value != '':
+            print(err_value)
+
+        self.assertEqual(2, context_manager.exception.code)
+
+        try:
+            self.output = json.loads(out.getvalue())
+        except:
+            self.assertTrue(False, err.getvalue())
+
+        self.assertEqual(0, len(self.output['NonBlockingFindings']))
+
+        self.assertEqual(10, len(self.output['BlockingFindings']))
+        #ERROR findings here are expected for the sake of testing
+        self.assert_error('ERROR', 'policy-analysis-CheckAccessNotGrantedValidationException', 'CodePipelineServiceRole', 'root')
+        self.assert_error('ERROR', 'policy-analysis-CheckAccessNotGrantedValidationException', 'MyQueue', 'QueuePolicy')
+        self.assert_error('ERROR', 'policy-analysis-CheckAccessNotGrantedInvalidParameterException', 'MySecret', 'ResourcePolicy')
+        self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckAccessNotGranted', 'MyPermissionSet', 'InlinePolicy')
+        self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckAccessNotGranted', 'MyIAMUser', 'root')
+        self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckAccessNotGranted', 'CodeBuildServiceRole', 'root')
+        self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckAccessNotGranted', 'MyIAMGroup', 'root')
+        self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckAccessNotGranted', 'MyMultiRegionAccessPoint', 'MultiRegionAccessPointPolicy')
+        self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckAccessNotGranted', 'MyAccessPoint', 'AccessPointPolicy')
+
+class WhenCheckingTemplateForAccessGrantedListBucketAndTest(ValidationTest):
+    def setUp(self):
+        ignore_warnings()
+
+    @end_to_end
+    def test_prints_report(self):
+        json_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/check_access_not_granted_test.yaml')
+        with self.assertRaises(SystemExit) as context_manager, captured_output() as (out, err):
+            main.main([
+                'check-access-not-granted',
+                '--template-path', json_file_path,
+                '--region', account_config.region,
+                '--actions', 's3:ListBucket',
+                '--resources', "arn:aws:s3:::my-test-bucket"
+            ])
+
+        err_value = err.getvalue()
+        if err_value != '':
+            print(err_value)
+
+        self.assertEqual(2, context_manager.exception.code)
+
+        try:
+            self.output = json.loads(out.getvalue())
+        except:
+            self.assertTrue(False, err.getvalue())
+
+        self.assertEqual(0, len(self.output['NonBlockingFindings']))
+
+        self.assertEqual(1, len(self.output['BlockingFindings']))
+        self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckAccessNotGranted', 'MyBucket', 'BucketPolicy')
+
+class WhenCheckingTemplateForAccessGrantedPutObjectAndTest(ValidationTest):
+    def setUp(self):
+        ignore_warnings()
+
+    @end_to_end
+    def test_prints_report(self):
+        json_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/check_access_not_granted_test.yaml')
+        with self.assertRaises(SystemExit) as context_manager, captured_output() as (out, err):
+            main.main([
+                'check-access-not-granted',
+                '--template-path', json_file_path,
+                '--region', account_config.region,
+                '--actions', 's3:PutObject',
+                '--resources', "arn:aws:s3:::my-test-bucket"
+            ])
+
+        err_value = err.getvalue()
+        if err_value != '':
+            print(err_value)
+
+        self.assertEqual(0, context_manager.exception.code)
+
+        try:
+            self.output = json.loads(out.getvalue())
+        except:
+            self.assertTrue(False, err.getvalue())
+
+        self.assertEqual(0, len(self.output['NonBlockingFindings']))
+
+        self.assertEqual(0, len(self.output['BlockingFindings']))
+
