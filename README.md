@@ -126,7 +126,7 @@ Parses IAM identity-based and resource-based policies from AWS CloudFormation te
 | --profile | | PROFILE | The named profile to use for AWS API calls. |
 | --enable-logging | | | Enables log output to stdout |
 | --ignore-finding | | FINDING_CODE,RESOURCE_NAME,RESOURCE_NAME.FINDING_CODE | Allow validation failures to be ignored. Specify as a comma separated list of findings to be ignored. Can be individual finding codes (e.g. "PASS_ROLE_WITH_STAR_IN_RESOURCE"), a specific resource name (e.g. "MyResource"), or a combination of both separated by a period.(e.g. "MyResource.PASS_ROLE_WITH_STAR_IN_RESOURCE").  Names of finding codes may change in IAM Access Analyzer over time.
-| --actions | Yes | ACTION,ACTION,ACTION | List of comma-separated actions. |
+| --actions | At least one of actions or resources is required. | ACTION,ACTION,ACTION | List of comma-separated actions. |
 | -- resources | At least one of actions or resources is required. | RESOURCE,RESOURCE,RESOURCE | List of comma-separated resource ARNs, maximum 100 resources ARNs. |
 | --treat-findings-as-non-blocking | | | When not specified, the tool detects any findings, it will exit with a non-zero exit code. When specified, the tool exits with an exit code of 0. |
 | --allow-dynamic-ref-without-version | | | Override the default behavior and allow dynamic SSM references without version numbers.  The version number ensures that the SSM parameter value that was validated is the one that is deployed. |
