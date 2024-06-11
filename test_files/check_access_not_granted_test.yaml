@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  MyBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-test-bucket
+      AccessControl: BucketOwnerFullControl
+
+  MyBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: MyBucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetObject
+              - s3:ListBucket
+            Effect: Allow
+            Resource:
+              - arn:aws:s3:::my-test-bucket
+              - arn:aws:s3:::my-other-test-bucket
+            Principal:
+              AWS:
+                - arn:aws:iam::111122223333:user/Bob
+                - arn:aws:iam::111122223333:user/Alice
+  MyOtherBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-other-test-bucket
+      AccessControl: BucketOwnerFullControl
+
+  MyOtherBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: MyOtherBucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetObject
+              - s3:PutObject
+            Effect: Allow
+            Resource:
+              - arn:aws:s3:::my-other-test-bucket
+            Principal:
+              AWS:
+                - arn:aws:iam::111122223333:user/Bob

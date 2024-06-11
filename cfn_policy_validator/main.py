@@ -59,15 +59,27 @@ def compare_from_cli(arguments):
 
 # consumable when running as CLI
 def check_access_from_cli(arguments):
-    LOGGER.info(f'Checking that template {arguments.template_path} is not granting actions: {arguments.actions}')
-    report = policy_analysis.check_access(get_parser_output(arguments), arguments.actions, arguments.ignore_finding, arguments.findings_are_blocking)
-    report.print()
+    if not arguments.actions and not arguments.resources:
+      raise ApplicationError("At least one of --actions or --resources must be specified.")
+    else:
+      report = policy_analysis.check_access(get_parser_output(arguments), arguments.ignore_finding, arguments.findings_are_blocking, arguments.actions, arguments.resources)
+      report.print()
+      if report.has_blocking_findings():
+        exit(2)
+      else:
+        exit(0)
 
+
+# consumable when running as CLI
+def check_no_public_access_from_cli(arguments):
+    LOGGER.info(f'Checking that template {arguments.template_path} does not grant public access to resources.')
+    report = policy_analysis.check_no_public_access(get_parser_output(arguments), arguments.ignore_finding, arguments.findings_are_blocking)
+
+    report.print()
     if report.has_blocking_findings():
         exit(2)
     else:
         exit(0)
-
 
 
 # consumable when running as CLI
@@ -121,7 +133,7 @@ def main(args=None):
     parser = argparse.ArgumentParser(description='Parses IAM identity-based and resource-based policies from AWS CloudFormation templates.')
     parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
 
-    subparsers = parser.add_subparsers(dest='{parse,validate,check-no-new-access,check-access-not-granted}')
+    subparsers = parser.add_subparsers(dest='{parse,validate,check-no-new-access,check-access-not-granted,check-no-public-access}')
     subparsers.required = True
 
     # parse command
@@ -184,16 +196,27 @@ def main(args=None):
                                     default=True, action='store_false')
         
         # check-access-not-granted command
-        check_access_parser = subparsers.add_parser('check-access-not-granted', help='Parses IAM identity-based and resource-based policies from AWS CloudFormation templates '
-                                                            'and runs them through IAM Access Analyzer to check that access to a list of actions is not granted.  Returns the response '
-                                                            'in JSON format.', parents=[parent_parser])
+        check_access_parser = subparsers.add_parser('check-access-not-granted', help='Parses IAM identity-based and resource-based policies from'
+                                                              'AWS CloudFormation templates and runs them through IAM Access Analyzer to check '
+                                                              'that access to a list of actions and/or resources is not granted. Returns the '
+                                                              'response in JSON format.', parents=[parent_parser])
         check_access_parser.set_defaults(func=check_access_from_cli)
 
-        check_access_parser.add_argument('--actions', dest="actions", required=True,
-                                    help= 'Actions that policies should not grant.'
-                                    'Specify as a comma separated list of actions to be checked.'
-                                    'The tool will make multiple requests if you provide more actions than the allowed quota.', action=ParseListFromCLI)
-        
+
+        check_access_parser.add_argument('--resources', dest="resources",
+                                         help= 'Resources that policies should not grant access to. '
+                                               'Specify as a comma-separated list of resource ARNs to be checked. '
+                                               'A maximum of 100 resources can be specified for a single request. '
+                                               'The tool will not make multiple requests if you provide more resources than the allowed quota. '
+                                               'At least one of --actions or --resources must be specified.', action=ParseListFromCLI)
+
+        check_access_parser.add_argument('--actions', dest="actions",
+                                    help= 'Actions that policies should not grant. '
+                                          'Specify as a comma separated list of actions to be checked. '
+                                          'A maximum of 100 actions can be specified for a single request. '
+                                          'The tool will make multiple requests if you provide more actions than the allowed quota. '
+                                          'At least one of --actions or --resources must be specified.', action=ParseListFromCLI)
+
         check_access_parser.add_argument('--ignore-finding', dest="ignore_finding", metavar='FINDING_CODE,RESOURCE_NAME,RESOURCE_NAME.FINDING_CODE',
                                     help='Allow findings to be ignored.\n'
                                         'Specify as a comma separated list of findings to be ignored. Can be individual '
@@ -202,6 +225,22 @@ def main(args=None):
                                         '(e.g. "MyResource.PASS_ROLE_WITH_STAR_IN_RESOURCE").',
                                         action=ParseFindingsToIgnoreFromCLI)
         check_access_parser.add_argument('--treat-findings-as-non-blocking', dest="findings_are_blocking", 
+                                    help='If set, all findings will be treated as non-blocking',
+                                    default=True, action='store_false')
+        # check-no-public-access command
+        check_no_public_access_parser = subparsers.add_parser('check-no-public-access', help='Parses resource-based policies from AWS CloudFormation templates '
+                                                            'and runs them through IAM Access Analyzer to check that public access to resources of supported types is not granted.  Returns the response '
+                                                            'in JSON format.', parents=[parent_parser])
+        check_no_public_access_parser.set_defaults(func=check_no_public_access_from_cli)
+        
+        check_no_public_access_parser.add_argument('--ignore-finding', dest="ignore_finding", metavar='FINDING_CODE,RESOURCE_NAME,RESOURCE_NAME.FINDING_CODE',
+                                    help='Allow findings to be ignored.\n'
+                                        'Specify as a comma separated list of findings to be ignored. Can be individual '
+                                        'finding codes (e.g. "PASS_ROLE_WITH_STAR_IN_RESOURCE"), a specific resource name '
+                                        '(e.g. "MyResource"), or a combination of both separated by a period.'
+                                        '(e.g. "MyResource.PASS_ROLE_WITH_STAR_IN_RESOURCE").',
+                                        action=ParseFindingsToIgnoreFromCLI)
+        check_no_public_access_parser.add_argument('--treat-findings-as-non-blocking', dest="findings_are_blocking", 
                                     help='If set, all findings will be treated as non-blocking',
                                     default=True, action='store_false')
     add_policy_analysis_subparsers()

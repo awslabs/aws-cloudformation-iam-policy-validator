@@ -48,7 +48,7 @@ setuptools.setup(
         '': ['*.json']
     },
     install_requires=[
-        'boto3>=1.34.110',
+        'boto3>=1.34.124',
         'pyYAML>=5.3',
         'urllib3>=1.25',
         'jsonschema>=4.21'
