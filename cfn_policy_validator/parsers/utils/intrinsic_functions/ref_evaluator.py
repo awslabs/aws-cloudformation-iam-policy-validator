@@ -55,6 +55,11 @@ class RefEvaluator:
 			# just return some default value, we won't know this in advance
 			return "StackName"
 
+		if resource_logical_name_or_param == "AWS::StackId":
+			# build a well-formatted default StackId, we won't know this in advance
+			return ":".join(["arn", self.account_config.partition, "cloudformation", self.account_config.region,
+			                 self.account_config.account_id, "stack/StackName/00000000-0000-0000-0000-000000000000"])
+
 		if resource_logical_name_or_param == "AWS::NoValue":
 			return NoValue()
 

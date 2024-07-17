@@ -20,6 +20,9 @@ Resources:
     Properties:
       BucketName: !Sub ${EnvironmentName}-app-artifacts
       AccessControl: BucketOwnerFullControl
+    Tags:
+      - Key: 'ParentStackId'
+        Value: !Ref AWS::StackId
 
   MyTopic:
     Type: AWS::SNS::Topic
