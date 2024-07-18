@@ -34,6 +34,8 @@ CHECK_NO_PUBLIC_ACCESS_SUPPORTED_TYPES = {
 	"AWS::IAM::AssumeRolePolicyDocument"	
 }
 
+ASSUME_ROLE_POLICY_TYPE = "AWS::IAM::AssumeRolePolicyDocument"
+
 def get_identity_resource_name(resource):
 	if isinstance(resource, PermissionSet):
 		return resource.Name
@@ -365,12 +367,12 @@ class PublicAccessChecker(PolicyAnalysis):
 				raise ApplicationError(f'Unable to find trust policy for {role.RoleName}')
 			else:
 				policy_str = json.dumps(role.TrustPolicy)
-				if (policy_str, resource.ResourceType) not in self.resource_policy_cache:
+				if (policy_str, ASSUME_ROLE_POLICY_TYPE) not in self.resource_policy_cache:
 					LOGGER.info(f'Check trust policy for role {role.RoleName}')
-					response = self._call_api(role.TrustPolicy, RESOURCE_POLICY_TYPE, "AWS::IAM::AssumeRolePolicyDocument")
+					response = self._call_api(role.TrustPolicy, RESOURCE_POLICY_TYPE, ASSUME_ROLE_POLICY_TYPE)
 					LOGGER.info(f'{self.operation_name} response {response}')
-					self.resource_policy_cache[(policy_str, resource.ResourceType)] = response
+					self.resource_policy_cache[(policy_str, ASSUME_ROLE_POLICY_TYPE)] = response
 				else:
 					LOGGER.info(f'Trust policy for role {role.RoleName} already checked. Skipped.')
-					response = self.resource_policy_cache.get((policy_str, resource.ResourceType))
+					response = self.resource_policy_cache.get((policy_str, ASSUME_ROLE_POLICY_TYPE))
 				self._handle_response(response, role.RoleName, 'TrustPolicy', self.operation_name)
