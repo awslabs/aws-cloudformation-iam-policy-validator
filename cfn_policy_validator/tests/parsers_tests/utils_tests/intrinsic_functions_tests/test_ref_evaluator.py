@@ -72,7 +72,7 @@ class WhenEvaluatingAPolicyWithARefToRegion(unittest.TestCase):
 
 class WhenEvaluatingAPolicyWithARefToStackName(unittest.TestCase):
 	@mock_node_evaluator_setup()
-	def test_returns_the_partition(self):
+	def test_returns_the_stack_name(self):
 		template = load_resources({
 			'ResourceA': {
 				'Type': 'AWS::Random::Service',
@@ -88,6 +88,27 @@ class WhenEvaluatingAPolicyWithARefToStackName(unittest.TestCase):
 
 		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
 		self.assertEqual(result, 'StackName')
+
+class WhenEvaluatingAPolicyWithARefToStackId(unittest.TestCase):
+	@mock_node_evaluator_setup()
+	def test_returns_the_stack_id(self):
+		template = load_resources({
+			'ResourceA': {
+				'Type': 'AWS::Random::Service',
+				'Properties': {
+					'PropertyA': {
+						"Ref": "AWS::StackId"
+					}
+				}
+			}
+		})
+
+		node_evaluator = build_node_evaluator(template)
+
+		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
+		self.assertEqual(result, ":".join(["arn", account_config.partition, "cloudformation",
+		                 account_config.region, account_config.account_id,
+		                 "stack/StackName/00000000-0000-0000-0000-000000000000"]))
 
 
 class WhenEvaluatingAPolicyWithARefToAnArn(unittest.TestCase):
