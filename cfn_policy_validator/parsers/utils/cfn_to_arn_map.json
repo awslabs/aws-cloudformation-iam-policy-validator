@@ -64,6 +64,18 @@
                 "ServicePrefix": "globalaccelerator",
                 "ResourceType": "endpointgroup"
             }
+        },
+        "CrossAccountAttachment": {
+            "AttachmentArn": {
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:attachment/${ResourceId}",
+                "ServicePrefix": "globalaccelerator",
+                "ResourceType": "attachment"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:globalaccelerator::${Account}:attachment/${ResourceId}",
+                "ServicePrefix": "globalaccelerator",
+                "ResourceType": "attachment"
+            }
         }
     },
     "AccessAnalyzer": {
@@ -173,6 +185,11 @@
                 "Value": "arn:${Partition}:backup:${Region}:${Account}:framework:${FrameworkName}-${FrameworkId}",
                 "ServicePrefix": "backup",
                 "ResourceType": "framework"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:backup:${Region}:${Account}:framework:${FrameworkName}-${FrameworkId}",
+                "ServicePrefix": "backup",
+                "ResourceType": "framework"
             }
         },
         "ReportPlan": {
@@ -254,6 +271,13 @@
     "SQS": {
         "Queue": {
             "Arn": {
+                "Value": "arn:${Partition}:sqs:${Region}:${Account}:${QueueName}",
+                "ServicePrefix": "sqs",
+                "ResourceType": "queue"
+            }
+        },
+        "QueueInlinePolicy": {
+            "Ref": {
                 "Value": "arn:${Partition}:sqs:${Region}:${Account}:${QueueName}",
                 "ServicePrefix": "sqs",
                 "ResourceType": "queue"
@@ -1003,6 +1027,20 @@
                 "ServicePrefix": "sagemaker",
                 "ResourceType": "inference-component"
             }
+        },
+        "MlflowTrackingServer": {
+            "TrackingServerArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:mlflow-tracking-server/${MlflowTrackingServerName}",
+                "ServicePrefix": "sagemaker-mlflow",
+                "ResourceType": "mlflow-tracking-server"
+            }
+        },
+        "StudioLifecycleConfig": {
+            "StudioLifecycleConfigArn": {
+                "Value": "arn:${Partition}:sagemaker:${Region}:${Account}:studio-lifecycle-config/${StudioLifecycleConfigName}",
+                "ServicePrefix": "sagemaker",
+                "ResourceType": "studio-lifecycle-config"
+            }
         }
     },
     "KMS": {
@@ -1309,6 +1347,11 @@
         },
         "Alias": {
             "Ref": {
+                "Value": "arn:${Partition}:lambda:${Region}:${Account}:function:${FunctionName}:${Alias}",
+                "ServicePrefix": "lambda",
+                "ResourceType": "functionalias"
+            },
+            "AliasArn": {
                 "Value": "arn:${Partition}:lambda:${Region}:${Account}:function:${FunctionName}:${Alias}",
                 "ServicePrefix": "lambda",
                 "ResourceType": "functionalias"
@@ -2164,7 +2207,8 @@
                 "Value": "arn:${Partition}:logs:${Region}:${Account}:delivery-source:${DeliverySourceName}",
                 "ServicePrefix": "logs",
                 "ResourceType": "delivery-source"
-            }
+            },
+            "ResourceArns": null
         }
     },
     "Transfer": {
@@ -2492,6 +2536,13 @@
                 "ServicePrefix": "dms",
                 "ResourceType": "migration-project"
             }
+        },
+        "ReplicationConfig": {
+            "ReplicationConfigArn": {
+                "Value": "arn:${Partition}:dms:${Region}:${Account}:replication-config:*",
+                "ServicePrefix": "dms",
+                "ResourceType": "replication-config"
+            }
         }
     },
     "SecurityHub": {
@@ -2522,6 +2573,38 @@
         "Standard": {
             "Ref": null,
             "StandardsSubscriptionArn": null
+        },
+        "ConfigurationPolicy": {
+            "Ref": {
+                "Value": "arn:${Partition}:securityhub:${Region}:${Account}:configuration-policy/${ConfigurationPolicyId}",
+                "ServicePrefix": "securityhub",
+                "ResourceType": "configuration-policy"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:securityhub:${Region}:${Account}:configuration-policy/${ConfigurationPolicyId}",
+                "ServicePrefix": "securityhub",
+                "ResourceType": "configuration-policy"
+            }
+        },
+        "FindingAggregator": {
+            "Ref": {
+                "Value": "arn:${Partition}:securityhub:${Region}:${Account}:finding-aggregator/${FindingAggregatorId}",
+                "ServicePrefix": "securityhub",
+                "ResourceType": "finding-aggregator"
+            },
+            "FindingAggregatorArn": {
+                "Value": "arn:${Partition}:securityhub:${Region}:${Account}:finding-aggregator/${FindingAggregatorId}",
+                "ServicePrefix": "securityhub",
+                "ResourceType": "finding-aggregator"
+            }
+        },
+        "Insight": {
+            "Ref": null,
+            "InsightArn": null
+        },
+        "ProductSubscription": {
+            "Ref": null,
+            "ProductSubscriptionArn": null
         }
     },
     "Route53Resolver": {
@@ -3744,6 +3827,18 @@
                 "ServicePrefix": "iam",
                 "ResourceType": "role"
             }
+        },
+        "InfluxDBInstance": {
+            "InfluxAuthParametersSecretArn": {
+                "Value": "arn:${Partition}:secretsmanager:${Region}:${Account}:secret:${SecretId}",
+                "ServicePrefix": "secretsmanager",
+                "ResourceType": "secret"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:timestream-influxdb:${Region}:${Account}:db-instance/${DbInstanceIdentifier}",
+                "ServicePrefix": "timestream-influxdb",
+                "ResourceType": "db-instance"
+            }
         }
     },
     "Glue": {
@@ -3832,6 +3927,20 @@
                 "Value": "arn:${Partition}:sso:::permissionSet/${InstanceId}/${PermissionSetId}",
                 "ServicePrefix": "sso",
                 "ResourceType": "permission-set"
+            }
+        },
+        "Application": {
+            "ApplicationArn": {
+                "Value": "arn:${Partition}:sso::${AccountId}:application/${InstanceId}/${ApplicationId}",
+                "ServicePrefix": "sso",
+                "ResourceType": "application"
+            }
+        },
+        "Instance": {
+            "InstanceArn": {
+                "Value": "arn:${Partition}:sso:::instance/${InstanceId}",
+                "ServicePrefix": "sso",
+                "ResourceType": "instance"
             }
         }
     },
@@ -4193,6 +4302,11 @@
         },
         "APIKey": {
             "Arn": {
+                "Value": "arn:${Partition}:geo:${Region}:${Account}:api-key/${KeyName}",
+                "ServicePrefix": "geo",
+                "ResourceType": "api-key"
+            },
+            "KeyArn": {
                 "Value": "arn:${Partition}:geo:${Region}:${Account}:api-key/${KeyName}",
                 "ServicePrefix": "geo",
                 "ResourceType": "api-key"
@@ -5457,6 +5571,62 @@
                 "ServicePrefix": "cleanrooms",
                 "ResourceType": "collaboration"
             }
+        },
+        "IdMappingTable": {
+            "MembershipArn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:membership/${MembershipId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "membership"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:membership/${MembershipId}/idmappingtable/${IdMappingTableId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "idmappingtable"
+            },
+            "CollaborationArn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:collaboration/${CollaborationId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "collaboration"
+            }
+        },
+        "IdNamespaceAssociation": {
+            "MembershipArn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:membership/${MembershipId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "membership"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:membership/${MembershipId}/idnamespaceassociation/${IdNamespaceAssociationId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "idnamespaceassociation"
+            },
+            "CollaborationArn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:collaboration/${CollaborationId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "collaboration"
+            }
+        },
+        "PrivacyBudgetTemplate": {
+            "Ref": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:membership/${MembershipId}/privacybudgettemplate/${PrivacyBudgetTemplateId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "privacybudgettemplate"
+            },
+            "MembershipArn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:membership/${MembershipId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "membership"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:membership/${MembershipId}/privacybudgettemplate/${PrivacyBudgetTemplateId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "privacybudgettemplate"
+            },
+            "CollaborationArn": {
+                "Value": "arn:${Partition}:cleanrooms:${Region}:${Account}:collaboration/${CollaborationId}",
+                "ServicePrefix": "cleanrooms",
+                "ResourceType": "collaboration"
+            }
         }
     },
     "Shield": {
@@ -5512,6 +5682,13 @@
                 "Value": "arn:${Partition}:entityresolution::${Account}:idmappingworkflow/${WorkflowName}",
                 "ServicePrefix": "entityresolution",
                 "ResourceType": "id-mapping-workflow"
+            }
+        },
+        "IdNamespace": {
+            "IdNamespaceArn": {
+                "Value": "arn:${Partition}:entityresolution:${Region}:${Account}:idnamespace/${IdNamespaceName}",
+                "ServicePrefix": "entityresolution",
+                "ResourceType": "id-namespace"
             }
         }
     },
@@ -5653,6 +5830,40 @@
                 "Value": "arn:${Partition}:securitylake:${Region}:${Account}:data-lake/default",
                 "ServicePrefix": "securitylake",
                 "ResourceType": "data-lake"
+            },
+            "S3BucketArn": {
+                "Value": "arn:${Partition}:s3:::${BucketName}",
+                "ServicePrefix": "s3",
+                "ResourceType": "bucket"
+            }
+        },
+        "Subscriber": {
+            "SubscriberArn": {
+                "Value": "arn:${Partition}:securitylake:${Region}:${Account}:subscriber/${SubscriberId}",
+                "ServicePrefix": "securitylake",
+                "ResourceType": "subscriber"
+            },
+            "SubscriberRoleArn": {
+                "Value": "arn:${Partition}:iam::${Account}:role/${RoleNameWithPath}",
+                "ServicePrefix": "iam",
+                "ResourceType": "role"
+            },
+            "ResourceShareArn": {
+                "Value": "arn:${Partition}:securitylake:${Region}:${Account}:subscriber/${SubscriberId}",
+                "ServicePrefix": "securitylake",
+                "ResourceType": "subscriber"
+            },
+            "S3BucketArn": {
+                "Value": "arn:${Partition}:s3:::${BucketName}",
+                "ServicePrefix": "s3",
+                "ResourceType": "bucket"
+            }
+        },
+        "SubscriberNotification": {
+            "Ref": {
+                "Value": "arn:${Partition}:securitylake:${Region}:${Account}:subscriber/${SubscriberId}",
+                "ServicePrefix": "securitylake",
+                "ResourceType": "subscriber"
             }
         }
     },
@@ -5662,6 +5873,174 @@
                 "Value": "arn:${Partition}:cleanrooms-ml:${Region}:${Account}:training-dataset/${ResourceId}",
                 "ServicePrefix": "cleanrooms-ml",
                 "ResourceType": "trainingdataset"
+            },
+            "Ref": {
+                "Value": "arn:${Partition}:cleanrooms-ml:${Region}:${Account}:training-dataset/${ResourceId}",
+                "ServicePrefix": "cleanrooms-ml",
+                "ResourceType": "trainingdataset"
+            }
+        }
+    },
+    "CodeConnections": {
+        "Connection": {
+            "ConnectionArn": {
+                "Value": "arn:${Partition}:codeconnections:${Region}:${Account}:connection/${ConnectionId}",
+                "ServicePrefix": "codeconnections",
+                "ResourceType": "connection"
+            }
+        }
+    },
+    "Deadline": {
+        "Farm": {
+            "Ref": {
+                "Value": "arn:${Partition}:deadline:${Region}:${Account}:farm/${FarmId}",
+                "ServicePrefix": "deadline",
+                "ResourceType": "farm"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:deadline:${Region}:${Account}:farm/${FarmId}",
+                "ServicePrefix": "deadline",
+                "ResourceType": "farm"
+            }
+        },
+        "Fleet": {
+            "Ref": {
+                "Value": "arn:${Partition}:deadline:${Region}:${Account}:farm/${FarmId}/fleet/${FleetId}",
+                "ServicePrefix": "deadline",
+                "ResourceType": "fleet"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:deadline:${Region}:${Account}:farm/${FarmId}/fleet/${FleetId}",
+                "ServicePrefix": "deadline",
+                "ResourceType": "fleet"
+            }
+        },
+        "LicenseEndpoint": {
+            "Ref": {
+                "Value": "arn:${Partition}:deadline:${Region}:${Account}:license-endpoint/${LicenseEndpointId}",
+                "ServicePrefix": "deadline",
+                "ResourceType": "license-endpoint"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:deadline:${Region}:${Account}:license-endpoint/${LicenseEndpointId}",
+                "ServicePrefix": "deadline",
+                "ResourceType": "license-endpoint"
+            }
+        },
+        "MeteredProduct": {
+            "Ref": {
+                "Value": "arn:${Partition}:deadline:${Region}:${Account}:license-endpoint/${LicenseEndpointId}/metered-product/${ProductId}",
+                "ServicePrefix": "deadline",
+                "ResourceType": "metered-product"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:deadline:${Region}:${Account}:license-endpoint/${LicenseEndpointId}/metered-product/${ProductId}",
+                "ServicePrefix": "deadline",
+                "ResourceType": "metered-product"
+            }
+        },
+        "Queue": {
+            "Ref": {
+                "Value": "arn:${Partition}:deadline:${Region}:${Account}:farm/${FarmId}/queue/${QueueId}",
+                "ServicePrefix": "deadline",
+                "ResourceType": "queue"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:deadline:${Region}:${Account}:farm/${FarmId}/queue/${QueueId}",
+                "ServicePrefix": "deadline",
+                "ResourceType": "queue"
+            }
+        },
+        "Monitor": {
+            "IdentityCenterApplicationArn": {
+                "Value": "arn:${Partition}:sso::${AccountId}:application/${InstanceId}/${ApplicationId}",
+                "ServicePrefix": "sso",
+                "ResourceType": "application"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:deadline:${Region}:${Account}:monitor/${MonitorId}",
+                "ServicePrefix": "deadline",
+                "ResourceType": "monitor"
+            }
+        },
+        "QueueFleetAssociation": {
+            "Ref": null
+        },
+        "StorageProfile": {
+            "Ref": null
+        }
+    },
+    "ApplicationSignals": {
+        "ServiceLevelObjective": {
+            "Ref": {
+                "Value": "arn:${Partition}:application-signals:${Region}:${Account}:slo/${SloName}",
+                "ServicePrefix": "application-signals",
+                "ResourceType": "slo"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:application-signals:${Region}:${Account}:slo/${SloName}",
+                "ServicePrefix": "application-signals",
+                "ResourceType": "slo"
+            }
+        }
+    },
+    "GuardDuty": {
+        "MalwareProtectionPlan": {
+            "Arn": {
+                "Value": "arn:${Partition}:guardduty:${Region}:${Account}:malware-protection-plan/${MalwareProtectionPlanId}",
+                "ServicePrefix": "guardduty",
+                "ResourceType": "malwareprotectionplan"
+            }
+        }
+    },
+    "LaunchWizard": {
+        "Deployment": {
+            "Ref": {
+                "Value": "arn:${Partition}:launchwizard:${Region}:${Account}:deployment/${DeploymentId}",
+                "ServicePrefix": "launchwizard",
+                "ResourceType": "deployment"
+            },
+            "Arn": {
+                "Value": "arn:${Partition}:launchwizard:${Region}:${Account}:deployment/${DeploymentId}",
+                "ServicePrefix": "launchwizard",
+                "ResourceType": "deployment"
+            }
+        }
+    },
+    "Redshift": {
+        "Cluster": {
+            "MasterPasswordSecretArn": {
+                "Value": "arn:${Partition}:secretsmanager:${Region}:${Account}:secret:${SecretId}",
+                "ServicePrefix": "secretsmanager",
+                "ResourceType": "secret"
+            },
+            "ClusterNamespaceArn": {
+                "Value": "arn:${Partition}:redshift:${Region}:${Account}:cluster:${ClusterName}",
+                "ServicePrefix": "redshift",
+                "ResourceType": "cluster"
+            }
+        }
+    },
+    "Route53Profiles": {
+        "Profile": {
+            "Arn": {
+                "Value": "arn:${Partition}:route53profiles:${Region}:${Account}:profile/${ResourceId}",
+                "ServicePrefix": "route53profiles",
+                "ResourceType": "profile"
+            }
+        }
+    },
+    "SSMQuickSetup": {
+        "ConfigurationManager": {
+            "Ref": {
+                "Value": "arn:${Partition}:ssm-quicksetup::${Account}:configuration-manager/${ConfigurationManagerId}",
+                "ServicePrefix": "ssm-quicksetup",
+                "ResourceType": "configuration-manager"
+            },
+            "ManagerArn": {
+                "Value": "arn:${Partition}:ssm-quicksetup::${Account}:configuration-manager/${ConfigurationManagerId}",
+                "ServicePrefix": "ssm-quicksetup",
+                "ResourceType": "configuration-manager"
             }
         }
     }
