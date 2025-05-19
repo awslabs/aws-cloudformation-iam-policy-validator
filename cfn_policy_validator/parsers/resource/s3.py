@@ -7,6 +7,52 @@ from cfn_policy_validator.parsers.output import Policy, Resource
 from cfn_policy_validator.parsers.resource import get_parser_of_type
 
 
+class S3TableBucketPolicyParser:
+    """ AWS::S3Tables::TableBucketPolicy
+    """
+    def __init__(self):
+        self.table_bucket_policies = []
+
+    def parse(self, _, resource):
+        evaluated_resource = resource.eval(table_bucket_policy_schema)
+        properties = evaluated_resource['Properties']
+
+        policy_document = properties['ResourcePolicy']
+        table_bucket_arn = properties['TableBucketARN']
+
+        try:
+            table_bucket_name = table_bucket_arn.split(":bucket/", 1)[1]
+        except IndexError:
+            raise ApplicationError(f'Invalid value for {resource.ancestors_as_string()}.Properties.TableBucketARN. Must be a valid TableBucket ARN. TableBucketARN value: {table_bucket_arn}')
+
+
+        policy = Policy('TableBucketPolicy', policy_document)
+        resource = Resource(table_bucket_name, 'AWS::S3Tables::TableBucket', policy)
+
+        self.table_bucket_policies.append(resource)
+
+    def get_policies(self):
+        return self.table_bucket_policies
+    
+table_bucket_policy_schema = {
+    'type': 'object',
+    'properties': {
+        'Properties': {
+            'type': 'object',
+            'properties': {
+                'ResourcePolicy': {
+                    'type': 'object'
+                },
+                'TableBucketARN': {
+                    'type': 'string'
+                }
+            },
+            'required': ['ResourcePolicy', 'TableBucketARN']
+        }
+    },
+    'required': ['Properties']
+}
+    
 class S3BucketPolicyParser:
     """ AWS::S3::BucketPolicy
     """

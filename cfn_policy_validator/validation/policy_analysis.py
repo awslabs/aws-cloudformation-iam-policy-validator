@@ -31,7 +31,14 @@ CHECK_NO_PUBLIC_ACCESS_SUPPORTED_TYPES = {
 	"AWS::SecretsManager::Secret",
 	"AWS::SNS::Topic",
 	"AWS::SQS::Queue",
-	"AWS::IAM::AssumeRolePolicyDocument"	
+	"AWS::IAM::AssumeRolePolicyDocument",
+	"AWS::S3Tables::TableBucket",
+	"AWS::ApiGateway::RestApi",
+	"AWS::CodeArtifact::Domain",
+	"AWS::CloudTrail::Dashboard",
+	"AWS::CloudTrail::EventDataStore",
+	"AWS::S3Express::AccessPoint",
+	"AWS::Backup::BackupVault"
 }
 
 ASSUME_ROLE_POLICY_TYPE = "AWS::IAM::AssumeRolePolicyDocument"

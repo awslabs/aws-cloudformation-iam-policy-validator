@@ -255,6 +255,14 @@ class WhenValidatingS3MultiRegionAccessPointPolicy(BaseResourcePolicyTest):
 		)
 
 	@mock_access_analyzer_resource_setup(
+		MockInvalidAccessPreviewSetup(
+			code='MISSING_RESOURCE',
+			custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint'
+		),
+		MockInvalidAccessPreviewSetup(
+			code='MISSING_RESOURCE',
+			custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint'
+		),
 		MockInvalidAccessPreviewSetup(custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint'),
 		MockInvalidAccessPreviewSetup(custom_validate_policy_type='AWS::S3::MultiRegionAccessPoint')
 	)
@@ -272,15 +280,27 @@ class WhenValidatingS3MultiRegionAccessPointPolicy(BaseResourcePolicyTest):
 		)
 
 		findings = validate_parser_output(self.output)
-		self.assert_has_findings(findings, errors=2)
+		self.assert_has_findings(findings, errors=4)
 		self.assert_finding_is_equal(
 			actual_finding=findings.errors[0],
+			expected_policy_name='policy1',
+			expected_resource_name='resource1',
+			expected_code='MISSING_RESOURCE'
+		)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[1],
 			expected_policy_name='policy1',
 			expected_resource_name='resource1',
 			expected_code='FAILED_ACCESS_PREVIEW_CREATION'
 		)
 		self.assert_finding_is_equal(
-			actual_finding=findings.errors[1],
+			actual_finding=findings.errors[2],
+			expected_policy_name='policy2',
+			expected_resource_name='resource2',
+			expected_code='MISSING_RESOURCE'
+		)
+		self.assert_finding_is_equal(
+			actual_finding=findings.errors[3],
 			expected_policy_name='policy2',
 			expected_resource_name='resource2',
 			expected_code='FAILED_ACCESS_PREVIEW_CREATION'

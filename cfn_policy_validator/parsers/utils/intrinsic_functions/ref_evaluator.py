@@ -6,6 +6,7 @@ import json
 import os
 
 from cfn_policy_validator.application_error import ApplicationError
+from cfn_policy_validator.rest_api_attributes import get_rest_api_id
 from cfn_policy_validator.cfn_tools.schema_validator import validate_schema
 from cfn_policy_validator.parsers.utils.cycle_detection import validate_no_cycle
 from cfn_policy_validator.parsers.utils.intrinsic_functions import name_hints
@@ -30,7 +31,8 @@ class RefEvaluator:
 		# some resources require custom evaluation logic, but we should only need to care about this for resources that
 		# have resource policies that we want to parse
 		self.custom_ref_evals = {
-			'AWS::SQS::Queue': evaluate_sqs_queue_ref
+			'AWS::SQS::Queue': evaluate_sqs_queue_ref,
+			'AWS::ApiGateway::RestApi': evaluate_api_gateway_rest_api_ref,
 		}
 
 	def evaluate(self, resource_logical_name_or_param, visited_nodes=None):
@@ -122,6 +124,26 @@ ref_schema = {
 	'type': 'string'
 }
 
+
+def evaluate_api_gateway_rest_api_ref(resource_name, api_gateway_rest_api_resource, account_config, visited_nodes):
+	evaluated_resource = api_gateway_rest_api_resource.eval(rest_api_schema, visited_nodes)
+	properties = evaluated_resource.get('Properties', {})
+	name = properties.get('Name', resource_name)
+	return get_rest_api_id(account_config.region, name)
+
+rest_api_schema = {
+	'type': 'object',
+	'properties': {
+		'Properties': {
+			'type': 'object',
+			'properties': {
+				'Name': {
+					'type': 'string'
+				}
+			}
+		}
+	}
+}
 
 # for SQS, we need to know that Ref returns a queue URL.  This queue URL is used to link the queue's policy to the queue
 def evaluate_sqs_queue_ref(resource_name, sqs_queue_resource, account_config, visited_nodes):

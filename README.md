@@ -185,6 +185,13 @@ Parses IAM identity-based and resource-based policies from AWS CloudFormation te
 | AWS::SNS::TopicPolicy        | x                  | | x |
 | AWS::SecretsManager::ResourcePolicy | x           | | x |
 | AWS::IAM::Role (trust policy) | x | x | x |
+| AWS::S3Tables::TableBucket | | | x |
+| AWS::ApiGateway::RestApi | | | x |
+| AWS::CodeArtifact::Domain | | | x |
+| AWS::Backup::BackupVault | | | x |
+| AWS::CloudTrail::Dashboard | | | x |
+| AWS::CloudTrail::EventDataStore | | | x |
+| AWS::S3Express::AccessPoint | | | x |
 
 ### Intrinsic function and Pseudo parameter support
 

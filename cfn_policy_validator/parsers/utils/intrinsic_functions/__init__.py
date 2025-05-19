@@ -8,4 +8,10 @@ name_hints = {
 	'AWS::IAM::Group': 'GroupName',
 	'AWS::SQS::Queue': 'QueueName',
 	'AWS::SSM::Parameter': 'Name',
+	'AWS::Backup::BackupVault': 'BackupVaultName',
+	'AWS::S3Tables::TableBucket': 'TableBucketName',
+	'AWS::ApiGateway::RestApi': 'Name',
+	'AWS::CloudTrail::EventDataStore': 'Name',
+	'AWS::CloudTrail::Dashboard': 'Name',
+	'AWS::S3Express::AccessPoint': 'Name'
 }
