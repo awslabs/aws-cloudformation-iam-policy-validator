@@ -82,6 +82,150 @@ Resources:
             Principal:
               AWS:
                 - "*"
+  
+  ArtifactTableBucket:
+    Type: AWS::S3Tables::TableBucket
+    Properties : {
+      EncryptionConfiguration : {
+        KMSKeyArn: "arn:aws:kms:us-east-1:1122333:key/testKey1",
+        SSEAlgorithm: "AES256"
+      },
+      TableBucketName : testTableBucket,
+      UnreferencedFileRemoval : {
+        NoncurrentDays : 10,
+        Status : Enabled,
+        UnreferencedDays : 50
+      }
+    }
+  
+  ArtifactTableBucketPolicy:
+    Type: AWS::S3Tables::TableBucketPolicy
+    Properties :
+      TableBucketARN : arn:aws:s3tables:us-east-2:111122223333:bucket/testTableBucket,
+      ResourcePolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - 's3:GetObject'
+            Effect: Allow
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3tables:us-east-2::bucket/'
+                - !Ref ArtifactTableBucket
+                - /*
+            Principal:
+              AWS:
+                - "*"
+  MyRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties :
+      Body:
+        OpenAPI specification: null
+      Description: A test API
+      Name: MyRestAPI
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - 'execute-api:Invoke'
+            Effect: Allow
+            Resource:
+              - "arn:aws:execute-api:*:*:*/*/*/*"
+            Principal:
+              AWS:
+                - "*"
+
+  MyCodeArtifactDomain:
+    Type: 'AWS::CodeArtifact::Domain'
+    Properties:
+      DomainName: "my-domain"
+      EncryptionKey: arn:aws:kms:us-west-2:123456789012:key/12345678-9abc-def1-2345-6789abcdef12
+      PermissionsPolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Action:
+                - codeartifact:ReadFromRepository
+                - codeartifact:DescribePackageVersion
+                - codeartifact:DescribeRepository
+                - codeartifact:GetPackageVersionReadme
+              Effect: Allow
+              Principal:
+                AWS: "*"
+              Resource: "*"
+  
+  MyCloudTrailDashboardResourcePolicy:
+    Type: AWS::CloudTrail::ResourcePolicy
+    Properties:
+      ResourceArn: "arn:aws:cloudtrail:us-east-1:01234567890:dashboard/exampleDash"
+      ResourcePolicy: 
+        Version: 2012-10-17
+        Statement: 
+          - Effect: Allow
+            Principal: 
+              AWS: "*"
+            Action: cloudtrail:StartDashboardRefresh
+  
+  MyCloudTrailEventDataStoreResourcePolicy:
+    Type: AWS::CloudTrail::ResourcePolicy
+    Properties:
+      ResourceArn: "arn:aws:cloudtrail:us-east-2:123456789012:eventdatastore/EXAMPLE-f852-4e8f-8bd1-bcf6cEXAMPLE"
+      ResourcePolicy: 
+        Version: 2012-10-17
+        Statement: 
+          - Effect: Allow
+            Sid: "policy1"
+            Principal: 
+              AWS: "*"
+            Action:
+              - cloudtrail:StartQuery
+              - cloudtrail:GetEventDataStore
+              - cloudtrail:GetQueryResults
+            Resource: "arn:aws:cloudtrail:us-east-1:555555555555:eventdatastore/example80-699f-4045-a7d2-730dbf313ccf"
+
+  MyS3ExpressAccessPoint:
+    Type: AWS::S3Express::AccessPoint
+    Properties:
+      Name: "MyS3ExpressAccessPoint"
+      Bucket: !Ref ArtifactBucket
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      Policy:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:DeleteObject'
+            Effect: Allow
+            Resource: "*"
+            Principal:
+              AWS:
+                - "*"
+  MyBackupVault: 
+    Type: AWS::Backup::BackupVault
+    Properties:
+      BackupVaultName: "MyCustomVaultName"
+
+  NewBackupVault:
+    Type: AWS::Backup::BackupVault
+    Properties:
+      BackupVaultName: !Ref MyBackupVault
+      AccessPolicy:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: "*"
+            Action:
+              - backup:UpdateRecoveryPointLifecycle,
+              - backup:DescribeRecoveryPoint,
+              - backup:DeleteRecoveryPoint,
+              - backup:GetRecoveryPointRestoreMetadata,
+              - backup:StartRestoreJob
+            Resource: "*"
 
   CodePipelineServiceRole:
     Type: AWS::IAM::Role

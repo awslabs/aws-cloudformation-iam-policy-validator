@@ -6,11 +6,16 @@ import logging
 
 from cfn_policy_validator.parsers.resource.kms import KmsKeyPolicyParser
 from cfn_policy_validator.parsers.resource.s3 import S3BucketPolicyParser, S3AccessPointPolicyParser, \
-    S3MultiRegionAccessPointPolicyParser, S3BucketAclParser
+    S3MultiRegionAccessPointPolicyParser, S3BucketAclParser, S3TableBucketPolicyParser
 from cfn_policy_validator.parsers.resource.sns import SnsTopicPolicyParser
 from cfn_policy_validator.parsers.resource.sqs import SqsQueuePolicyParser
 from cfn_policy_validator.parsers.resource.lambda_aws import LambdaPermissionPolicyParser, LambdaLayerVersionPermissionParser
 from cfn_policy_validator.parsers.resource.secrets_manager import SecretsManagerPolicyParser
+from cfn_policy_validator.parsers.resource.api_gateway import ApiGatewayRestApiPolicyParser
+from cfn_policy_validator.parsers.resource.code_artifact import CodeArtifactDomainPolicyParser
+from cfn_policy_validator.parsers.resource.cloud_trail import CloudTrailResourcePolicyParser
+from cfn_policy_validator.parsers.resource.s3_express import S3ExpressAccessPointPolicyParser
+from cfn_policy_validator.parsers.resource.backup import BackupBackupVaultPolicyParser
 
 from cfn_policy_validator.parsers.utils.topological_sorter import TopologicalSorter
 
@@ -35,12 +40,18 @@ class ResourceParser:
             'AWS::S3::MultiRegionAccessPointPolicy': S3MultiRegionAccessPointPolicyParser(),
             'AWS::S3::Bucket': S3BucketAclParser(),
             'AWS::S3::BucketPolicy': S3BucketPolicyParser(),
+            'AWS::S3Tables::TableBucketPolicy': S3TableBucketPolicyParser(),
             'AWS::SQS::QueuePolicy': SqsQueuePolicyParser(),
             'AWS::SNS::TopicPolicy': SnsTopicPolicyParser(),
             'AWS::KMS::Key': KmsKeyPolicyParser(),
             'AWS::Lambda::Permission': LambdaPermissionPolicyParser(account_config),
             'AWS::Lambda::LayerVersionPermission': LambdaLayerVersionPermissionParser(account_config.partition),
-            'AWS::SecretsManager::ResourcePolicy': SecretsManagerPolicyParser()
+            'AWS::SecretsManager::ResourcePolicy': SecretsManagerPolicyParser(),
+            'AWS::ApiGateway::RestApi': ApiGatewayRestApiPolicyParser(), 
+            'AWS::CodeArtifact::Domain' : CodeArtifactDomainPolicyParser(),
+            'AWS::CloudTrail::ResourcePolicy' : CloudTrailResourcePolicyParser(),
+            'AWS::S3Express::AccessPoint' : S3ExpressAccessPointPolicyParser(),
+            'AWS::Backup::BackupVault' : BackupBackupVaultPolicyParser()
         }
 
         invoked_parsers = set()

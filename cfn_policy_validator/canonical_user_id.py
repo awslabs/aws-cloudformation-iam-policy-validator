@@ -11,7 +11,7 @@ canonical_user_id = None
 
 # Resolution of the canonical user in an account which is a possible principal value for a policy and also
 # used when evaluating S3 bucket ACLs.
-def get_canonical_user(region):
+def get_canonical_user(region, logical_name_of_resource=None, resource=None):
     global canonical_user_id
     if canonical_user_id is not None:
         return canonical_user_id

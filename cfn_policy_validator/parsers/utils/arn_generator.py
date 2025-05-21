@@ -10,6 +10,7 @@ from cfn_policy_validator.application_error import ApplicationError
 from cfn_policy_validator.parsers.utils.arn_generator_schemas import iam_role_schema, iam_user_schema, \
     elbv2_load_balancer_schema, elbv2_listener_schema, elbv2_target_group_schema, network_firewall_rulegroup_schema, \
     iam_managed_policy_schema
+from cfn_policy_validator.cloud_trail_attributes import get_eventdatastore_arn
 
 
 class ArnGenerator:
@@ -54,6 +55,9 @@ class ArnGenerator:
             'AWS::NetworkFirewall::RuleGroup': {
                 'Ref': generate_network_firewall_rule_group,
                 'RuleGroupArn': generate_network_firewall_rule_group
+            },
+            'AWS::CloudTrail::EventDataStore': {
+                'EventDataStoreArn': get_eventdatastore_arn
             }
         }
 
@@ -93,7 +97,7 @@ class ArnGenerator:
         # but have different ARNs
         custom_generator = self.custom_generators.get(cfn_type, {}).get(attribute_or_ref)
         if custom_generator is not None:
-            arn_pattern = custom_generator(arn_pattern, resource_name, resource, visited_nodes)
+            arn_pattern = custom_generator(arn_pattern, resource_name, resource, visited_nodes, self.account_config.region)
 
         # match any variable (anything not Partition, Account, Region) within brackets and replace with the resource name
         # e.g. arn:aws:..:${SomeResourceName} -> arn:aws:..:ResourceName
@@ -109,7 +113,7 @@ class ArnGenerator:
 
 # AWS::IAM::Role
 # include the path in the Role ARN which will be helpful for analysis
-def generate_role_arn(arn_pattern, resource_name, resource, visited_nodes):
+def generate_role_arn(arn_pattern, resource_name, resource, visited_nodes, region):
     evaluated_resource = resource.eval(iam_role_schema, visited_nodes)
 
     properties = evaluated_resource['Properties']
@@ -125,7 +129,7 @@ def generate_role_arn(arn_pattern, resource_name, resource, visited_nodes):
 
 # AWS::IAM::User
 # include the path in the User ARN which will be helpful for analysis
-def generate_user_arn(arn_pattern, resource_name, resource, visited_nodes):
+def generate_user_arn(arn_pattern, resource_name, resource, visited_nodes, region):
     evaluated_resource = resource.eval(iam_user_schema, visited_nodes)
 
     properties = evaluated_resource.get('Properties', {})
@@ -138,7 +142,7 @@ def generate_user_arn(arn_pattern, resource_name, resource, visited_nodes):
     return arn_pattern.replace("${UserNameWithPath}", path + name)
 
 
-def generate_managed_policy_arn(arn_pattern, resource_name, resource, visited_nodes):
+def generate_managed_policy_arn(arn_pattern, resource_name, resource, visited_nodes, region):
     evaluated_resource = resource.eval(iam_managed_policy_schema, visited_nodes)
 
     properties = evaluated_resource['Properties']
@@ -152,7 +156,7 @@ def generate_managed_policy_arn(arn_pattern, resource_name, resource, visited_no
 
 # Multiple load balancers share the same CFN resources, but have different ARNs depending on load balancer type
 # AWS::ElasticLoadBalancingV2::LoadBalancer
-def generate_elbv2_load_balancer_arn(arn_pattern, _, resource, visited_nodes):
+def generate_elbv2_load_balancer_arn(arn_pattern, _, resource, visited_nodes, region):
     evaluated_resource = resource.eval(elbv2_load_balancer_schema, visited_nodes)
     properties = evaluated_resource.get('Properties', {})
 
@@ -169,7 +173,7 @@ def generate_elbv2_load_balancer_arn(arn_pattern, _, resource, visited_nodes):
 
 
 # AWS::ElasticLoadBalancingV2::Listener
-def generate_elbv2_listener_arn(arn_pattern, _, resource, visited_nodes):
+def generate_elbv2_listener_arn(arn_pattern, _, resource, visited_nodes, region):
     evaluated_resource = resource.eval(elbv2_listener_schema, visited_nodes)
 
     properties = evaluated_resource['Properties']
@@ -185,7 +189,7 @@ def generate_elbv2_listener_arn(arn_pattern, _, resource, visited_nodes):
 
 
 # AWS::ElasticLoadBalancingV2::TargetGroup
-def generate_elbv2_target_group_load_balancer_arn(arn_pattern, _, resource, visited_nodes):
+def generate_elbv2_target_group_load_balancer_arn(arn_pattern, _, resource, visited_nodes, region):
     evaluated_resource = resource.eval(elbv2_target_group_schema, visited_nodes)
 
     properties = evaluated_resource.get('Properties', {})
@@ -205,7 +209,7 @@ def generate_elbv2_target_group_load_balancer_arn(arn_pattern, _, resource, visi
 
 # AWS::NetworkFirewall::RuleGroup
 # network firewall rule groups can be either stateful or stateless and have different ARNs depending on the type
-def generate_network_firewall_rule_group(arn_pattern, _, resource, visited_nodes):
+def generate_network_firewall_rule_group(arn_pattern, _, resource, visited_nodes, region):
     evaluated_resource = resource.eval(network_firewall_rulegroup_schema, visited_nodes)
 
     properties = evaluated_resource['Properties']

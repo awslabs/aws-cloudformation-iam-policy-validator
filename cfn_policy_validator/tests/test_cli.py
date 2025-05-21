@@ -182,7 +182,7 @@ class WhenCheckingTemplateForPublicAccessAllResourceTypes(ValidationTest):
 
         self.assertEqual(0, len(self.output['NonBlockingFindings']))
 
-        self.assertEqual(3, len(self.output['BlockingFindings']))
+        self.assertEqual(9, len(self.output['BlockingFindings']))
         self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckNoPublicAccess', 'MyKey', 'KeyPolicy')
         self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckNoPublicAccess', 'testBucket', 'BucketPolicy')
         self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckNoPublicAccess', 'CodePipelineServiceRole', 'TrustPolicy')
@@ -216,7 +216,7 @@ class WhenCheckingTemplateForPublicAccessExcludeResourceType(ValidationTest):
 
         self.assertEqual(0, len(self.output['NonBlockingFindings']))
 
-        self.assertEqual(1, len(self.output['BlockingFindings']))
+        self.assertEqual(7, len(self.output['BlockingFindings']))
         self.assert_error('SECURITY_WARNING', 'policy-analysis-CheckNoPublicAccess', 'MyKey', 'KeyPolicy')
 
 class WhenParsingArgumentsForVersion(unittest.TestCase):

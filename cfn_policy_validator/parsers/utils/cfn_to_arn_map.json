@@ -1605,6 +1605,13 @@
                 "ResourceType": "eventdatastore"
             }
         },
+        "Dashboard": {
+            "DashboardArn": {
+                "Value": "arn:${Partition}:cloudtrail:${Region}:${Account}:dashboard/${DashboardStoreId}",
+                "ServicePrefix": "cloudtrail",
+                "ResourceType": "dashboard"
+            }
+        },
         "ResourcePolicy": {
             "Ref": null
         },
@@ -2095,6 +2102,24 @@
                 "Value": "arn:${Partition}:s3:${Region}:${Account}:storage-lens-group/${Name}",
                 "ServicePrefix": "s3",
                 "ResourceType": "storagelensgroup"
+            }
+        }
+    },
+    "S3Tables": {
+        "TableBucket": {
+            "TableBucketARN": {
+                "Value": "arn:${Partition}:s3tables:${Region}:${Account}:bucket/${BucketName}",
+                "ServicePrefix": "s3tables",
+                "ResourceType": "bucket"
+            }
+        }
+    },
+    "S3Express": {
+        "AccessPoint": {
+            "Arn": {
+                "Value": "arn:${Partition}:s3express:${Region}:${Account}:accesspoint/${AccessPointName}",
+                "ServicePrefix": "s3express",
+                "ResourceType": "accesspoint"
             }
         }
     },
