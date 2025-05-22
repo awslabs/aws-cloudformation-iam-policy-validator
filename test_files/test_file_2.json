@@ -29,7 +29,15 @@
                 "BucketName": {
                     "Fn::Sub": "${EnvironmentName}-app-artifacts"
                 },
-                "AccessControl": "BucketOwnerFullControl"
+                "AccessControl": "BucketOwnerFullControl",
+                "Tags": [
+                    {
+                        "Key": "parentStackId",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    }
+                ]
             }
         },
         "MyTopic": {

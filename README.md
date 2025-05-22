@@ -218,6 +218,7 @@ Supported pseudo parameters:
 - AWS::AccountId
 - AWS::Partition
 - AWS::StackName (returns the literal string "StackName")
+- AWS::StackId (returns a dummy StackId)
 - AWS::NoValue
 
 [Dynamic SSM references](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html) are supported, but must have a version number.  This is to help ensure the same parameter that is validated is the one that is deployed.  This restriction can be overridden with the --allow-dynamic-ref-without-version argument.
