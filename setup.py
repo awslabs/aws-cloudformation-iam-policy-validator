@@ -48,7 +48,8 @@ setuptools.setup(
         '': ['*.json']
     },
     install_requires=[
-        'boto3>=1.34.124',
+        'boto3>=1.42.58',
+        'botocore[crt]>=1.42.58',
         'pyYAML>=5.3',
         'urllib3>=1.25',
         'jsonschema>=4.21'
