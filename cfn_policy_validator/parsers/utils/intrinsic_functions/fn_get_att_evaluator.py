@@ -93,6 +93,12 @@ class GetAttEvaluator:
 		# IAM policy
 		properties = resource.get('Properties', {})
 		property_value = properties.get(attribute_name)
+
+		# Support nested GetAtt attributes (e.g. MasterUserSecret.SecretArn, which is split as a dotted attribute name).
+		# Traverse into nested properties when the attribute contains a dot.
+		if property_value is None and '.' in attribute_name:
+			property_value = self._resolve_nested_property(properties, attribute_name)
+
 		if property_value is None:
 			raise ApplicationError(f'Call to GetAtt not supported for: {logical_name_of_resource}.{attribute_name}')
 
@@ -102,6 +108,22 @@ class GetAttEvaluator:
 
 		# there are many return types for GetAtt, so it's the caller's responsibility to validate expected type
 		return self.node_evaluator.eval(property_value, visited_nodes=visited_nodes)
+
+	@staticmethod
+	def _resolve_nested_property(properties, attribute_name):
+		"""Resolve dotted attribute names by traversing nested properties.
+		For example, 'MasterUserSecret.SecretArn' looks up properties['MasterUserSecret']['SecretArn'].
+		"""
+		parts = attribute_name.split('.')
+		current = properties
+		for part in parts:
+			if isinstance(current, dict):
+				current = current.get(part)
+			else:
+				return None
+			if current is None:
+				return None
+		return current
 
 	def get_code_artifact_name(self, region, resource_name, resource):
 		properties = resource.get('Properties',[])
