@@ -1,0 +1,10 @@
+[
+  {
+    "ParameterKey": "CodestarConnectionArn",
+    "ParameterValue": "fakearn"
+  },
+  {
+    "ParameterKey": "EnvironmentName",
+    "ParameterValue": "test"
+  }
+]
