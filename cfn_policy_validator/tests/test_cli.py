@@ -277,11 +277,61 @@ class WhenParsingArgumentsForValidate(unittest.TestCase):
         self.validate_with_expected_error("the following arguments are required: --template-path")
 
     @mock_validation_setup()
-    def test_region_is_required(self):
+    def test_region_is_required_when_env_var_not_set(self):
         self.args = [
             'validate', '--template-path', 'abcdef'
         ]
-        self.validate_with_expected_error("the following arguments are required: --region")
+        with patch.dict(os.environ, {}, clear=True):
+            with self.assertRaises(SystemExit) as context_manager, captured_output() as (out, err):
+                main.main(self.args)
+            self.assertEqual(1, context_manager.exception.code)
+            self.assertIn("No region provided", err.getvalue())
+
+    @mock_validation_setup()
+    def test_region_falls_back_to_aws_default_region_env_var(self):
+        json_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/test_file_2.json')
+        args = [
+            'validate',
+            '--template-path', json_file_path,
+            '--parameters', 'CodestarConnectionArn=fakeArn', 'EnvironmentName=prod',
+            '--treat-finding-type-as-blocking', 'NONE'
+        ]
+        with patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-west-2'}, clear=False):
+            with patch.object(main, 'validate_from_cli') as mock:
+                main.main(args)
+            mock.assert_called_once()
+            self.assertEqual(mock.call_args[0][0].region, 'us-west-2')
+
+    @mock_validation_setup()
+    def test_region_falls_back_to_aws_region_env_var(self):
+        json_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/test_file_2.json')
+        args = [
+            'validate',
+            '--template-path', json_file_path,
+            '--parameters', 'CodestarConnectionArn=fakeArn', 'EnvironmentName=prod',
+            '--treat-finding-type-as-blocking', 'NONE'
+        ]
+        with patch.dict(os.environ, {'AWS_REGION': 'eu-west-1'}, clear=False):
+            with patch.object(main, 'validate_from_cli') as mock:
+                main.main(args)
+            mock.assert_called_once()
+            self.assertEqual(mock.call_args[0][0].region, 'eu-west-1')
+
+    @mock_validation_setup()
+    def test_region_cli_flag_takes_precedence_over_env_var(self):
+        json_file_path = os.path.join(this_files_directory, '..', '..', 'test_files/test_file_2.json')
+        args = [
+            'validate',
+            '--template-path', json_file_path,
+            '--region', 'ap-southeast-1',
+            '--parameters', 'CodestarConnectionArn=fakeArn', 'EnvironmentName=prod',
+            '--treat-finding-type-as-blocking', 'NONE'
+        ]
+        with patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-west-2'}, clear=False):
+            with patch.object(main, 'validate_from_cli') as mock:
+                main.main(args)
+            mock.assert_called_once()
+            self.assertEqual(mock.call_args[0][0].region, 'ap-southeast-1')
 
     @mock_validation_setup()
     def test_with_no_parameters(self):
@@ -484,11 +534,15 @@ class WhenParsingArgumentsForParse(unittest.TestCase):
         self.parse_with_expected_error("the following arguments are required: --template-path")
 
     @mock_validation_setup()
-    def test_region_is_required(self):
+    def test_region_is_required_when_env_var_not_set(self):
         self.args = [
             'parse', '--template-path', 'abcdef'
         ]
-        self.parse_with_expected_error("the following arguments are required: --region")
+        with patch.dict(os.environ, {}, clear=True):
+            with self.assertRaises(SystemExit) as context_manager, captured_output() as (out, err):
+                main.main(self.args)
+            self.assertEqual(1, context_manager.exception.code)
+            self.assertIn("No region provided", err.getvalue())
 
     @mock_validation_setup()
     def test_allow_dynamic_ref_without_version_default(self):

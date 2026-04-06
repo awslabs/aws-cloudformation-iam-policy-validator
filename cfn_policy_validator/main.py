@@ -4,6 +4,7 @@ SPDX-License-Identifier: MIT-0
 """
 import argparse
 import logging
+import os
 import sys
 import traceback
 from cfn_policy_validator.validation import policy_analysis
@@ -95,6 +96,22 @@ def parse_from_cli(arguments):
     exit(0)
 
 
+def _resolve_region(region_from_cli):
+    """
+    Resolve the region from the CLI argument, or fall back to AWS_DEFAULT_REGION / AWS_REGION environment variables.
+    """
+    if region_from_cli is not None:
+        return region_from_cli
+
+    region = os.environ.get('AWS_REGION') or os.environ.get('AWS_DEFAULT_REGION')
+    if region is None:
+        raise ApplicationError(
+            'No region provided. Specify --region or set the AWS_REGION or AWS_DEFAULT_REGION environment variable.'
+        )
+
+    return validate_region(region)
+
+
 def main(args=None):
     if args is None:
         args = sys.argv[1:]
@@ -103,8 +120,10 @@ def main(args=None):
     parent_parser.add_argument('--template-path', metavar="TEMPLATE_PATH", dest="template_path", required=True,
                         help='The path to the CloudFormation template.')
 
-    parent_parser.add_argument('--region', dest="region", required=True, type=validate_region,
-                        help="The region the resources will be deployed to.")
+    parent_parser.add_argument('--region', dest="region", required=False, type=validate_region,
+                        help="The region the resources will be deployed to. "
+                             "Defaults to the AWS_REGION or AWS_DEFAULT_REGION environment variable if not specified.",
+                        default=None)
 
     parent_parser.add_argument('--parameters', action=DictionaryArgument, nargs="+", metavar="KEY=VALUE", dest="parameters",
                         help='Parameter key and value in the format -p Key1=Value1 Key2=Value2.  Only parameters'
@@ -250,6 +269,7 @@ def main(args=None):
     args = parser.parse_args(args)
 
     try:
+        args.region = _resolve_region(args.region)
         client.set_profile(args.profile)
         validate_credentials(args.region)
 

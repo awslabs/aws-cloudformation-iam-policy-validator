@@ -75,7 +75,7 @@ Exits with a non-zero error code if any findings categorized as blocking are fou
 | Arguments | Required |  Options | Description |
 | --------- | -------- | ---------| ----------- |
 | --template-path | Yes | FILE_NAME | The path to the CloudFormation template. |
-| --region | Yes | REGION | The destination region the resources will be deployed to. |
+| --region | | REGION | The destination region the resources will be deployed to. If not specified, defaults to the AWS_REGION or AWS_DEFAULT_REGION environment variable. |
 | --parameters | | KEY=VALUE [KEY=VALUE ...] | Keys and values for CloudFormation template parameters.  Only parameters that are referenced by IAM policies in the template are required. |
 | --template-configuration-file | | FILE_PATH.json | A JSON formatted file that specifies template parameter values. Identical values passed in the --parameters flag override parameters in this file. Supports three formats: the [CodePipeline template configuration file](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html#w2ab1c21c15c15) format (`{"Parameters": {"Key": "Value"}}`), the [CloudFormation parameter file](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/deploy.html) format (`[{"ParameterKey": "Key", "ParameterValue": "Value"}, ...]`), and a simple Key=Value string array (`["Key1=Value1", "Key2=Value2"]`).
 | --profile | | PROFILE | The named profile to use for AWS API calls. |
@@ -98,7 +98,7 @@ Parses IAM identity-based and resource-based policies from AWS CloudFormation te
 | Arguments | Required |  Options | Description |
 | --------- | -------- | ---------| ----------- |
 | --template-path | Yes | FILE_NAME | The path to the CloudFormation template. |
-| --region | Yes | REGION | The destination region the resources will be deployed to. |
+| --region | | REGION | The destination region the resources will be deployed to. If not specified, defaults to the AWS_REGION or AWS_DEFAULT_REGION environment variable. |
 | --parameters | | KEY=VALUE [KEY=VALUE ...] | Keys and values for CloudFormation template parameters.  Only parameters that are referenced by IAM policies in the template are required. |
 | --template-configuration-file | | FILE_PATH.json | A JSON formatted file that specifies template parameter values. Identical values passed in the --parameters flag override parameters in this file. Supports three formats: the [CodePipeline template configuration file](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html#w2ab1c21c15c15) format (`{"Parameters": {"Key": "Value"}}`), the [CloudFormation parameter file](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/deploy.html) format (`[{"ParameterKey": "Key", "ParameterValue": "Value"}, ...]`), and a simple Key=Value string array (`["Key1=Value1", "Key2=Value2"]`).
 | --profile | | PROFILE | The named profile to use for AWS API calls. |
@@ -120,7 +120,7 @@ Parses IAM identity-based and resource-based policies from AWS CloudFormation te
 | Arguments | Required |  Options | Description |
 | --------- | -------- | ---------| ----------- |
 | --template-path | Yes | FILE_NAME | The path to the CloudFormation template. |
-| --region | Yes | REGION | The destination region the resources will be deployed to. |
+| --region | | REGION | The destination region the resources will be deployed to. If not specified, defaults to the AWS_REGION or AWS_DEFAULT_REGION environment variable. |
 | --parameters | | KEY=VALUE [KEY=VALUE ...] | Keys and values for CloudFormation template parameters.  Only parameters that are referenced by IAM policies in the template are required. |
 | --template-configuration-file | | FILE_PATH.json | A JSON formatted file that specifies template parameter values. Identical values passed in the --parameters flag override parameters in this file. Supports three formats: the [CodePipeline template configuration file](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html#w2ab1c21c15c15) format (`{"Parameters": {"Key": "Value"}}`), the [CloudFormation parameter file](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/deploy.html) format (`[{"ParameterKey": "Key", "ParameterValue": "Value"}, ...]`), and a simple Key=Value string array (`["Key1=Value1", "Key2=Value2"]`).
 | --profile | | PROFILE | The named profile to use for AWS API calls. |
@@ -142,7 +142,7 @@ Parses resource-based policies from AWS CloudFormation templates. Then runs the 
 | Arguments | Required |  Options | Description |
 | --------- | -------- | ---------| ----------- |
 | --template-path | Yes | FILE_NAME | The path to the CloudFormation template. |
-| --region | Yes | REGION | The destination region the resources will be deployed to. |
+| --region | | REGION | The destination region the resources will be deployed to. If not specified, defaults to the AWS_REGION or AWS_DEFAULT_REGION environment variable. |
 | --parameters | | KEY=VALUE [KEY=VALUE ...] | Keys and values for CloudFormation template parameters.  Only parameters that are referenced by IAM policies in the template are required. |
 | --template-configuration-file | | FILE_PATH.json | A JSON formatted file that specifies template parameter values. Identical values passed in the --parameters flag override parameters in this file. Supports three formats: the [CodePipeline template configuration file](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html#w2ab1c21c15c15) format (`{"Parameters": {"Key": "Value"}}`), the [CloudFormation parameter file](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/deploy.html) format (`[{"ParameterKey": "Key", "ParameterValue": "Value"}, ...]`), and a simple Key=Value string array (`["Key1=Value1", "Key2=Value2"]`).
 | --profile | | PROFILE | The named profile to use for AWS API calls. |
@@ -163,7 +163,7 @@ Parses IAM identity-based and resource-based policies from AWS CloudFormation te
 | Arguments | Required |  Options | Description |
 | --------- | -------- | ---------| ----------- |
 | --template-path | Yes | FILE_NAME | The path to the CloudFormation template. |
-| --region | Yes | REGION | The destination region the resources will be deployed to. |
+| --region | | REGION | The destination region the resources will be deployed to. If not specified, defaults to the AWS_REGION or AWS_DEFAULT_REGION environment variable. |
 | --parameters | | KEY=VALUE [KEY=VALUE ...] | Keys and values for CloudFormation template parameters.  Only parameters that are referenced by IAM policies in the template are required. |
 | --template-configuration-file | | FILE_PATH.json | A JSON formatted file that specifies template parameter values. Identical values passed in the --parameters flag override parameters in this file. Supports three formats: the [CodePipeline template configuration file](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html#w2ab1c21c15c15) format (`{"Parameters": {"Key": "Value"}}`), the [CloudFormation parameter file](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/deploy.html) format (`[{"ParameterKey": "Key", "ParameterValue": "Value"}, ...]`), and a simple Key=Value string array (`["Key1=Value1", "Key2=Value2"]`).
 | --profile | | PROFILE | The named profile to use for AWS API calls. |
