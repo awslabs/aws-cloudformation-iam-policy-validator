@@ -233,3 +233,61 @@ class WhenEvaluatingTemplateWithArrayGetAttValueOfInvalidLength(unittest.TestCas
             node_evaluator.eval(template['Resources']['ResourceA']['Properties']['RoleName'])
 
         self.assertEqual("Additional items are not allowed ('Value2' was unexpected), Path: Fn::GetAtt", str(cm.exception))
+
+
+class WhenEvaluatingAPolicyWithAGetAttForANestedDottedAttribute(unittest.TestCase):
+	"""Reproduces the customer issue where !GetAtt RdsDbCluster.MasterUserSecret.SecretArn
+	fails with 'Call to GetAtt not supported'."""
+
+	@mock_node_evaluator_setup()
+	def test_returns_nested_property_value(self):
+		template = load_resources({
+			'RdsDbCluster': {
+				'Type': 'AWS::RDS::DBCluster',
+				'Properties': {
+					'MasterUserSecret': {
+						'SecretArn': 'arn:aws:secretsmanager:us-east-1:123456789012:secret:my-secret'
+					}
+				}
+			},
+			'ResourceA': {
+				'Type': 'AWS::Random::Service',
+				'Properties': {
+					'PolicyProperty': {
+						'Fn::GetAtt': ['RdsDbCluster', 'MasterUserSecret.SecretArn']
+					}
+				}
+			}
+		})
+
+		node_evaluator = build_node_evaluator(template)
+
+		result = node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PolicyProperty'])
+		self.assertEqual('arn:aws:secretsmanager:us-east-1:123456789012:secret:my-secret', result)
+
+	@mock_node_evaluator_setup()
+	def test_raises_exception_when_nested_property_does_not_exist(self):
+		template = load_resources({
+			'RdsDbCluster': {
+				'Type': 'AWS::RDS::DBCluster',
+				'Properties': {
+					'MasterUserSecret': {
+						'OtherProp': 'value'
+					}
+				}
+			},
+			'ResourceA': {
+				'Type': 'AWS::Random::Service',
+				'Properties': {
+					'PolicyProperty': {
+						'Fn::GetAtt': ['RdsDbCluster', 'MasterUserSecret.SecretArn']
+					}
+				}
+			}
+		})
+
+		node_evaluator = build_node_evaluator(template)
+
+		with self.assertRaises(ApplicationError) as context:
+			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PolicyProperty'])
+		self.assertEqual('Call to GetAtt not supported for: RdsDbCluster.MasterUserSecret.SecretArn', str(context.exception))

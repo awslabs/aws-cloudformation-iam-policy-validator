@@ -122,3 +122,12 @@ Version: 2012-10-21
 			'Version': '2012-10-21'
 		}
 		self.assert_parsed_result_is_expected(expected_template, raw_template)
+
+	def test_get_att_shorthand_with_nested_dotted_attribute_is_replaced(self):
+		raw_template = """
+!GetAtt RdsDbCluster.MasterUserSecret.SecretArn
+"""
+		expected_template = {
+			'Fn::GetAtt': ['RdsDbCluster', 'MasterUserSecret.SecretArn']
+		}
+		self.assert_parsed_result_is_expected(expected_template, raw_template)

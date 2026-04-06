@@ -5,5 +5,5 @@ dist/*
 *.egg-info/*
 .run
 .tox
-
+.venv
 __pycache__
