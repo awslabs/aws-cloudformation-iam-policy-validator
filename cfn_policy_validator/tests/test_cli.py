@@ -670,7 +670,7 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
             main.main(args)
 
         self.assertEqual(1, context_manager.exception.code)
-        self.assertIn('ERROR: The value for "Parameters" in the template configuration value must be a JSON object.', err.getvalue())
+        self.assertIn('ERROR: The value for "Parameters" in the template configuration file must be a JSON object.', err.getvalue())
 
     @mock_validation_setup()
     def test_with_file_that_doesnt_exist(self):
@@ -693,6 +693,108 @@ class WhenParsingTemplateConfigurationFile(unittest.TestCase):
 
         self.assertEqual(1, context_manager.exception.code)
         self.assertIn('ERROR: Template configuration file contains invalid json', err.getvalue())
+
+    @mock_validation_setup()
+    def test_with_cfn_style_parameter_list(self):
+        args = self.build_args('test_files/parameters_cfn_style.json')
+
+        with patch.object(main, 'parse_from_cli') as mock:
+            main.main(args)
+
+        expected_args = Namespace(
+            template_path=ANY,
+            region=account_config.region,
+            template_configuration_file=ANY,
+            parameters={
+                'CodestarConnectionArn': 'fakearn',
+                'EnvironmentName': 'test'
+            },
+            profile=ANY,
+            func=ANY,
+            enable_logging=ANY,
+            allow_dynamic_ref_without_version=ANY,
+            exclude_resource_type=ANY
+        )
+        setattr(expected_args, '{parse,validate,check-no-new-access,check-access-not-granted,check-no-public-access}', ANY)
+
+        mock.assert_called_once()
+        mock.assert_called_with(expected_args)
+
+    @mock_validation_setup()
+    def test_with_key_value_string_parameter_list(self):
+        args = self.build_args('test_files/parameters_key_value_strings.json')
+
+        with patch.object(main, 'parse_from_cli') as mock:
+            main.main(args)
+
+        expected_args = Namespace(
+            template_path=ANY,
+            region=account_config.region,
+            template_configuration_file=ANY,
+            parameters={
+                'CodestarConnectionArn': 'fakearn',
+                'EnvironmentName': 'test'
+            },
+            profile=ANY,
+            func=ANY,
+            enable_logging=ANY,
+            allow_dynamic_ref_without_version=ANY,
+            exclude_resource_type=ANY
+        )
+        setattr(expected_args, '{parse,validate,check-no-new-access,check-access-not-granted,check-no-public-access}', ANY)
+
+        mock.assert_called_once()
+        mock.assert_called_with(expected_args)
+
+    @mock_validation_setup()
+    def test_cfn_style_overwritten_by_parameters(self):
+        args = self.build_args('test_files/parameters_cfn_style.json')
+        args.extend(['--parameters', 'EnvironmentName=prod', 'OtherParam=Other'])
+
+        with patch.object(main, 'parse_from_cli') as mock:
+            main.main(args)
+
+        expected_args = Namespace(
+            template_path=ANY,
+            region=account_config.region,
+            template_configuration_file=ANY,
+            parameters={
+                'CodestarConnectionArn': 'fakearn',
+                'EnvironmentName': 'prod',
+                'OtherParam': 'Other'
+            },
+            profile=ANY,
+            func=ANY,
+            enable_logging=ANY,
+            allow_dynamic_ref_without_version=ANY,
+            exclude_resource_type=ANY
+        )
+        setattr(expected_args, '{parse,validate,check-no-new-access,check-access-not-granted,check-no-public-access}', ANY)
+
+        mock.assert_called_once()
+        mock.assert_called_with(expected_args)
+
+    @mock_validation_setup()
+    def test_with_invalid_cfn_style_parameters(self):
+        args = self.build_args('test_files/parameters_cfn_style_invalid.json')
+
+        with self.assertRaises(SystemExit) as context_manager, \
+                captured_output() as (out, err):
+            main.main(args)
+
+        self.assertEqual(1, context_manager.exception.code)
+        self.assertIn('ERROR: Each parameter object must contain "ParameterKey" and "ParameterValue"', err.getvalue())
+
+    @mock_validation_setup()
+    def test_with_invalid_key_value_string_parameters(self):
+        args = self.build_args('test_files/parameters_key_value_strings_invalid.json')
+
+        with self.assertRaises(SystemExit) as context_manager, \
+                captured_output() as (out, err):
+            main.main(args)
+
+        self.assertEqual(1, context_manager.exception.code)
+        self.assertIn('ERROR: Expected a parameter string in the format "Key=Value"', err.getvalue())
 
 
 class WhenRunningWithNoSubparser(unittest.TestCase):

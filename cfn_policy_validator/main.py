@@ -111,11 +111,13 @@ def main(args=None):
                              ' that are referenced by IAM policies are required.', default={})
 
     parent_parser.add_argument('--template-configuration-file', metavar='FILE_PATH.json', dest="template_configuration_file",
-                               help="A JSON formatted file that specifies template parameter values, a stack policy, and tags."
-                                    "Everything but parameters are ignored from this file. Identical values passed in "
-                                    "the --parameters flag override parameters in this file\n"
-                                    "See CloudFormation documentation on format for this file: "
-                                    "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html#w2ab1c21c15c15")
+                               help="A JSON formatted file that specifies template parameter values. "
+                                    "Identical values passed in the --parameters flag override parameters in this file.\n"
+                                    "Supports multiple formats:\n"
+                                    "  - CodePipeline configuration: {\"Parameters\": {\"Key\": \"Value\"}}\n"
+                                    "  - CloudFormation-style list: [{\"ParameterKey\": \"Key\", \"ParameterValue\": \"Value\"}, ...]\n"
+                                    "  - Key=Value string list: [\"Key1=Value1\", \"Key2=Value2\"]\n"
+                                    "See: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html#w2ab1c21c15c15")
 
     parent_parser.add_argument('--profile', help='The named profile to use for AWS API calls.')
 
