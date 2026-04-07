@@ -6,7 +6,7 @@ A command line tool that takes a CloudFormation template, parses the IAM policie
 
 Installation:
 
-Python 3.6+ is supported.
+Python 3.9+ is supported.
 
 ```
 pip install cfn-policy-validator
