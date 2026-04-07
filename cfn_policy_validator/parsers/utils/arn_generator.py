@@ -66,6 +66,12 @@ class ArnGenerator:
             visited_nodes = []
 
         cfn_type = resource['Type']
+
+        # Custom resources (Custom::* and AWS::CloudFormation::CustomResource) have return values
+        # defined by the backing Lambda/SNS, so we cannot generate an ARN for them.
+        if cfn_type.startswith('Custom::') or cfn_type == 'AWS::CloudFormation::CustomResource':
+            return None
+
         split_cfn_type = cfn_type.split("::")
         if len(split_cfn_type) != 3:
             if len(split_cfn_type) == 4 and split_cfn_type[3].lower() == 'module':

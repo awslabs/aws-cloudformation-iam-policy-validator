@@ -330,6 +330,9 @@ Creating an access preview for a SecretsManager Secret requires a KMSKeyId.  The
 
 CheckNoPublicAccess custom policy checks differ from Access Previews because CheckNoPublicAccess checks do not require any account or external access analyzer context. Note that a charge is associated with each custom policy check.
 
+### How are custom resources handled?
+
+Custom resources (`Custom::*` and `AWS::CloudFormation::CustomResource`) have return values defined by the backing Lambda function or SNS topic, so the tool cannot determine what ARN they produce. If a custom resource exists in your template but is not referenced by any IAM policy, it is silently ignored. If an IAM policy references a custom resource via `Fn::GetAtt`, the tool will return an error because it cannot resolve the value and therefore cannot validate the policy. In this case, you can use `--exclude-resource-types Custom::MyResourceType` to skip validation for that resource type. Note that excluding a resource type means any policies referencing it will not be validated. 
 
 ### Examples
 

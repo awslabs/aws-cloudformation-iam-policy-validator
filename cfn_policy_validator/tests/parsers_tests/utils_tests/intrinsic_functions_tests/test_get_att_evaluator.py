@@ -291,3 +291,59 @@ class WhenEvaluatingAPolicyWithAGetAttForANestedDottedAttribute(unittest.TestCas
 		with self.assertRaises(ApplicationError) as context:
 			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PolicyProperty'])
 		self.assertEqual('Call to GetAtt not supported for: RdsDbCluster.MasterUserSecret.SecretArn', str(context.exception))
+
+
+class WhenEvaluatingAPolicyWithAGetAttToACustomResource(unittest.TestCase):
+	@mock_node_evaluator_setup()
+	def test_raises_helpful_error_for_custom_prefix(self):
+		template = load_resources({
+			'ResourceA': {
+				'Type': 'AWS::Random::Service',
+				'Properties': {
+					'PropertyA': {
+						'Fn::GetAtt': ['MyCustomResource', 'Arn']
+					}
+				}
+			},
+			'MyCustomResource': {
+				'Type': 'Custom::MyLambdaBacked',
+				'Properties': {
+					'ServiceToken': 'arn:aws:lambda:us-east-1:123456789012:function:MyFunction'
+				}
+			}
+		})
+
+		node_evaluator = build_node_evaluator(template)
+
+		with self.assertRaises(ApplicationError) as context:
+			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
+
+		self.assertIn('Unable to resolve Fn::GetAtt for custom resource', str(context.exception))
+		self.assertIn('--exclude-resource-types', str(context.exception))
+
+	@mock_node_evaluator_setup()
+	def test_raises_helpful_error_for_cloudformation_custom_resource(self):
+		template = load_resources({
+			'ResourceA': {
+				'Type': 'AWS::Random::Service',
+				'Properties': {
+					'PropertyA': {
+						'Fn::GetAtt': ['MyCustomResource', 'Arn']
+					}
+				}
+			},
+			'MyCustomResource': {
+				'Type': 'AWS::CloudFormation::CustomResource',
+				'Properties': {
+					'ServiceToken': 'arn:aws:lambda:us-east-1:123456789012:function:MyFunction'
+				}
+			}
+		})
+
+		node_evaluator = build_node_evaluator(template)
+
+		with self.assertRaises(ApplicationError) as context:
+			node_evaluator.eval(template['Resources']['ResourceA']['Properties']['PropertyA'])
+
+		self.assertIn('Unable to resolve Fn::GetAtt for custom resource', str(context.exception))
+		self.assertIn('--exclude-resource-types', str(context.exception))

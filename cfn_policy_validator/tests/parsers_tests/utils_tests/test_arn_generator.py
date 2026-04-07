@@ -74,6 +74,29 @@ class WhenGeneratingAnArnForACloudFormationModule(unittest.TestCase):
         self.assertEqual('Unable to resolve Org::ServiceName::UseCase::MODULE. CloudFormation modules are not yet supported.', str(cm.exception))
 
 
+class WhenGeneratingAnArnForACustomResource(unittest.TestCase):
+    def setUp(self):
+        self.arn_generator = ArnGenerator(account_config)
+
+    @mock_node_evaluator_setup()
+    def test_custom_prefix_returns_none(self):
+        resource = build_resource({'Type': 'Custom::MyCustomResource'})
+        arn = self.arn_generator.try_generate_arn('AnyName', resource, 'Ref')
+        self.assertIsNone(arn)
+
+    @mock_node_evaluator_setup()
+    def test_custom_prefix_returns_none_for_get_att(self):
+        resource = build_resource({'Type': 'Custom::MyCustomResource'})
+        arn = self.arn_generator.try_generate_arn('AnyName', resource, 'Arn')
+        self.assertIsNone(arn)
+
+    @mock_node_evaluator_setup()
+    def test_cloudformation_custom_resource_returns_none(self):
+        resource = build_resource({'Type': 'AWS::CloudFormation::CustomResource'})
+        arn = self.arn_generator.try_generate_arn('AnyName', resource, 'Ref')
+        self.assertIsNone(arn)
+
+
 class WhenGeneratingAnArnForAnIAMRoleAndValidatingSchema(unittest.TestCase):
     @mock_node_evaluator_setup()
     def test_with_no_properties(self):
