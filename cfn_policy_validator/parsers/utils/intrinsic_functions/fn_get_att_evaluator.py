@@ -81,6 +81,16 @@ class GetAttEvaluator:
 		if arn is not None:
 			return arn
 
+		# Custom resources have return values defined by the backing Lambda/SNS, so we cannot determine
+		# what ARN they produce. Provide a helpful error directing users to --exclude-resource-types.
+		if resource_type.startswith('Custom::') or resource_type == 'AWS::CloudFormation::CustomResource':
+			raise ApplicationError(
+				f'Unable to resolve Fn::GetAtt for custom resource: {logical_name_of_resource}.{attribute_name}. '
+				f'Custom resource return values are defined by the backing Lambda function and cannot be resolved. '
+				f'If this resource is referenced in an IAM policy, you can exclude it from validation using '
+				f'--exclude-resource-types {resource_type}'
+			)
+
 		# if the GetAtt does not reference an ARN, see if we have a custom evaluation for this get_att.
 		# Useful in cases where an attribute returns something other than an ARN that's relevant to
 		# IAM policies (canonical username)
