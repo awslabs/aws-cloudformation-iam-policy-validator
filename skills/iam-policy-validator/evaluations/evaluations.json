@@ -1,0 +1,34 @@
+[
+  {
+    "skills": ["iam-policy-validator"],
+    "query": "Review the IAM policies in fixtures/invalid-and-wildcard-policies.yaml for errors and security issues before I deploy it.",
+    "files": ["fixtures/invalid-and-wildcard-policies.yaml"],
+    "expected_behavior": [
+      "Selects the validate command (not a custom check) for the open-ended review request",
+      "Runs cfn-policy-validator validate against fixtures/invalid-and-wildcard-policies.yaml",
+      "Reports the blocking findings first, including the INVALID_ACTION error for the s3:GetObjekt typo and a SECURITY_WARNING for the wildcard admin policy",
+      "Treats the run as a failure based on the exit code 2 / non-empty BlockingFindings"
+    ]
+  },
+  {
+    "skills": ["iam-policy-validator"],
+    "query": "Does fixtures/public-bucket.yaml let anything be publicly accessible?",
+    "files": ["fixtures/public-bucket.yaml"],
+    "expected_behavior": [
+      "Selects check-no-public-access rather than validate, matching the public-access question",
+      "Runs cfn-policy-validator check-no-public-access against fixtures/public-bucket.yaml",
+      "Reports a blocking finding for the S3 bucket policy that allows Principal \"*\"",
+      "Does not require the user to name the subcommand; chooses it from the request"
+    ]
+  },
+  {
+    "skills": ["iam-policy-validator"],
+    "query": "I just want to see what IAM policies fixtures/invalid-and-wildcard-policies.yaml actually resolves to. Do not run any analysis.",
+    "files": ["fixtures/invalid-and-wildcard-policies.yaml"],
+    "expected_behavior": [
+      "Selects the parse command because the user asked to inspect resolved policies without analysis",
+      "Runs cfn-policy-validator parse against fixtures/invalid-and-wildcard-policies.yaml",
+      "Returns the resolved policies and makes no Access Analyzer call (no BlockingFindings / NonBlockingFindings in the output)"
+    ]
+  }
+]

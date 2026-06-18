@@ -304,6 +304,57 @@ The principal used to execute the cfn-policy-validator requires the following pe
 | cloudformation:ListExports | List CloudFormation exports to be used with Fn::ImportValue  |
 | ssm:GetParameter | Resolution of dynamic ssm parameter references |
 
+## Using the agent skill
+
+This repository ships an [Agent Skill](https://agentskills.io/specification) under
+[`skills/iam-policy-validator/`](skills/iam-policy-validator/) so AI coding agents
+can drive `cfn-policy-validator` on their own. The skill teaches the agent when to
+use each command (`validate`, `check-no-new-access`, `check-access-not-granted`,
+`check-no-public-access`, `parse`), how to prepare CloudFormation and
+CDK-synthesized input, how to scope each check to the policies it can evaluate, and
+how to read the `BlockingFindings` / `NonBlockingFindings` output and exit code. It
+leaves flag-level detail to `cfn-policy-validator --help`.
+
+The skill does not call AWS itself; it runs the `cfn-policy-validator` CLI, so the
+agent's environment still needs the CLI installed (`pip install cfn-policy-validator`)
+and credentials with the [permissions above](#iam-policy-required-to-run-the-iam-policy-validator-for-aws-cloudformation).
+
+Once installed, you do not invoke the skill by name. Ask the agent in plain language
+("review the IAM policies in `template.yaml` before I deploy", "does this template
+grant public access?") and it activates the skill automatically from the request.
+
+[`skills/iam-policy-validator/evaluations/`](skills/iam-policy-validator/evaluations/)
+holds eval scenarios (prompt + fixture template + expected behavior) for checking
+the skill against a model.
+
+### Claude Code
+
+Place the skill where Claude Code discovers it — personal (`~/.claude/skills/`) or
+project (`.claude/skills/`):
+
+```bash
+mkdir -p ~/.claude/skills
+cp -r skills/iam-policy-validator ~/.claude/skills/
+```
+
+Claude Code loads filesystem skills automatically; no upload step. See
+[Claude Code skills](https://code.claude.com/docs/en/skills) and the
+[Agent Skills overview](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview).
+
+### Kiro
+
+Place the skill in a workspace (`.kiro/skills/`) or global (`~/.kiro/skills/`)
+skills directory:
+
+```bash
+mkdir -p .kiro/skills
+cp -r skills/iam-policy-validator .kiro/skills/
+```
+
+Kiro discovers skills at startup and activates them when a request matches the
+description; you can also invoke one directly with `/`. See
+[Kiro skills](https://kiro.dev/docs/skills/).
+
 ## FAQ
 
 ### How does the validator deal with intrinsic functions within policies?
