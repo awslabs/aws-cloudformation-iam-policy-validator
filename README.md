@@ -312,9 +312,8 @@ can drive `cfn-policy-validator` on their own. The skill teaches the agent when 
 use each command (`validate`, `check-no-new-access`, `check-access-not-granted`,
 `check-no-public-access`, `parse`), how to prepare CloudFormation and
 CDK-synthesized input, how to scope each check to the policies it can evaluate, and
-how to read the `BlockingFindings` / `NonBlockingFindings` output and exit code. The
-full CLI flag reference is in
-[`skills/iam-policy-validator/references/cli.md`](skills/iam-policy-validator/references/cli.md).
+how to read the `BlockingFindings` / `NonBlockingFindings` output and exit code. It
+leaves flag-level detail to `cfn-policy-validator --help`.
 
 The skill does not call AWS itself; it runs the `cfn-policy-validator` CLI, so the
 agent's environment still needs the CLI installed (`pip install cfn-policy-validator`)
@@ -323,6 +322,10 @@ and credentials with the [permissions above](#iam-policy-required-to-run-the-iam
 Once installed, you do not invoke the skill by name. Ask the agent in plain language
 ("review the IAM policies in `template.yaml` before I deploy", "does this template
 grant public access?") and it activates the skill automatically from the request.
+
+[`skills/iam-policy-validator/evaluations/`](skills/iam-policy-validator/evaluations/)
+holds eval scenarios (prompt + fixture template + expected behavior) for checking
+the skill against a model.
 
 ### Claude Code
 
